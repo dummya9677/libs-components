@@ -1,6 +1,6 @@
 import { Bell, LogOut } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
-import { env } from '@/utils/env';
+import { useAuth } from '../../hooks/useAuth';
+import { env } from '../../utils/env';
 
 /**
  * Top-right controls as three separate pieces:

@@ -1,6 +1,6 @@
 import { Menu } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useLayout } from '@/hooks/useLayout';
+import { useLayout } from '../../hooks/useLayout';
 
 export function PlaceholderPage({ title }: { title: string }) {
   const { openSidebar } = useLayout();

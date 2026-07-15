@@ -9,7 +9,7 @@ import {
   CheckCircle2,
   type LucideIcon,
 } from 'lucide-react';
-import type { AgentCapability } from '@/data/agents';
+import type { AgentCapability } from '../../data/agents';
 
 const iconMap: Record<AgentCapability['icon'], LucideIcon> = {
   sparkles: Sparkles,

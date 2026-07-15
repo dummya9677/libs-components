@@ -1,4 +1,4 @@
-import type { OidcProvider } from '@/types';
+import type { OidcProvider } from '../types';
 
 const required = (value: string | undefined, name: string): string => {
   if (!value) {

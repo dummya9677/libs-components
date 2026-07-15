@@ -6,8 +6,8 @@ import authReducer, {
   checkAuth,
   hasPermission,
   hasRole,
-} from '@/redux/slice/authSlice';
-import type { RootState } from '@/redux/store';
+} from '../redux/slice/authSlice';
+import type { RootState } from '../redux/store';
 
 const baseState = {
   user: null,

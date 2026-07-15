@@ -1,12 +1,12 @@
 import { MessageSquare, Menu, X } from 'lucide-react';
 import { useParams } from 'react-router-dom';
-import { getAgentBySlug } from '@/data/agents';
-import { AgentWorkspace } from '@/components/agent/AgentWorkspace';
-import { ChatPanel } from '@/components/chat/ChatPanel';
-import { TopStatusBar } from '@/components/layout/TopStatusBar';
-import { useAuth } from '@/hooks/useAuth';
-import { useLayout } from '@/hooks/useLayout';
-import { cn } from '@/utils/cn';
+import { getAgentBySlug } from '../../data/agents';
+import { AgentWorkspace } from '../../components/agent/AgentWorkspace';
+import { ChatPanel } from '../../components/chat/ChatPanel';
+import { TopStatusBar } from '../../components/layout/TopStatusBar';
+import { useAuth } from '../../hooks/useAuth';
+import { useLayout } from '../../hooks/useLayout';
+import { cn } from '../../utils/cn';
 
 export function AssistantPage() {
   const { agentSlug } = useParams();

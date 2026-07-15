@@ -1,5 +1,5 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
-import { baseQuery } from '@/services/api/baseApi';
+import { baseQuery } from './baseApi';
 
 /**
  * Empty API shell — feature endpoints are injected from dedicated service modules.

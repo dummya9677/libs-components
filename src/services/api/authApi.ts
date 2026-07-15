@@ -1,5 +1,5 @@
-import { api } from '@/services/api/apiSlice';
-import type { AuthMeResponse } from '@/types';
+import { api } from './apiSlice';
+import type { AuthMeResponse } from '../../types';
 
 export const authApi = api.injectEndpoints({
   endpoints: (builder) => ({

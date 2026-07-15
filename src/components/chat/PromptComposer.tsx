@@ -7,7 +7,7 @@ import {
   Settings2,
   SendHorizonal,
 } from 'lucide-react';
-import { cn } from '@/utils/cn';
+import { cn } from '../../utils/cn';
 
 interface PromptComposerProps {
   placeholder?: string;

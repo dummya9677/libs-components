@@ -4,7 +4,7 @@ import {
   isRejectedWithValue,
   type Middleware,
 } from '@reduxjs/toolkit';
-import { serverAPI } from '@/services/apiService';
+import { serverAPI } from '../services/apiService';
 import authSlice from './slice/authSlice';
 
 const rootReducer = combineReducers({

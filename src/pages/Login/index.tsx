@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import { Loader } from '@/components/Loader';
-import { AppLogo } from '@/components/brand/AppLogo';
-import { env } from '@/utils/env';
+import { useAuth } from '../../hooks/useAuth';
+import { Loader } from '../../components/Loader';
+import { AppLogo } from '../../components/brand/AppLogo';
+import { env } from '../../utils/env';
 
 export function LoginPage() {
   const { isAuthenticated, isLoading, login, oidcError } = useAuth();

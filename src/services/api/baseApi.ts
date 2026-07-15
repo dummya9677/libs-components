@@ -1,5 +1,5 @@
 import { fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { env } from '@/utils/env';
+import { env } from '../../utils/env';
 
 /**
  * Shared base query — always sends cookies; never attaches tokens.

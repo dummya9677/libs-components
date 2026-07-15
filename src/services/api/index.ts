@@ -1,9 +1,9 @@
-import { api } from '@/services/api/apiSlice';
+import { api } from './apiSlice';
 
-import '@/services/api/authApi';
-import '@/services/api/historyApi';
-import '@/services/api/chatApi';
-import '@/services/api/agentsApi';
+import './authApi';
+import './historyApi';
+import './chatApi';
+import './agentsApi';
 
 export { api };
 export {
@@ -11,10 +11,10 @@ export {
   useLazyGetMeQuery,
   useLogoutMutation,
   useEstablishSessionMutation,
-} from '@/services/api/authApi';
+} from './authApi';
 export {
   useGetHistoryQuery,
   useGetConversationQuery,
-} from '@/services/api/historyApi';
-export { useSendMessageMutation } from '@/services/api/chatApi';
-export { useGetAgentsQuery } from '@/services/api/agentsApi';
+} from './historyApi';
+export { useSendMessageMutation } from './chatApi';
+export { useGetAgentsQuery } from './agentsApi';

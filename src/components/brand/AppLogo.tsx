@@ -1,5 +1,5 @@
-import { cn } from '@/utils/cn';
-import { env } from '@/utils/env';
+import { cn } from '../../utils/cn';
+import { env } from '../../utils/env';
 
 export function AppLogo({
   collapsed = false,

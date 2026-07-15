@@ -1,7 +1,7 @@
-export { AppSidebar } from '@/components/layout/AppSidebar';
-export { ChatPanel } from '@/components/chat/ChatPanel';
-export { PromptComposer } from '@/components/chat/PromptComposer';
-export { AgentWorkspace } from '@/components/agent/AgentWorkspace';
-export { FeatureCard } from '@/components/agent/FeatureCard';
-export { Loader } from '@/components/Loader';
-export { ProtectedRoute } from '@/components/ProtectedRoute';
+export { AppSidebar } from './layout/AppSidebar';
+export { ChatPanel } from './chat/ChatPanel';
+export { PromptComposer } from './chat/PromptComposer';
+export { AgentWorkspace } from './agent/AgentWorkspace';
+export { FeatureCard } from './agent/FeatureCard';
+export { Loader } from './Loader';
+export { ProtectedRoute } from './ProtectedRoute';

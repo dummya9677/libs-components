@@ -119,9 +119,9 @@ Colors live in `src/config/colors.ts` and are exposed to Tailwind via CSS variab
 
 All requests use `credentials: 'include'`.
 
-## Path alias
+## Path imports
 
-`@` → `src/`
+Imports use relative paths (no `@/` alias), for simpler resolution on restricted VDI / IDE setups.
 
 ## Publishing safely (public GitHub)
 

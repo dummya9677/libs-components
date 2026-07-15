@@ -1,5 +1,5 @@
-import { api } from '@/services/api/apiSlice';
-import type { Conversation } from '@/types';
+import { api } from './apiSlice';
+import type { Conversation } from '../../types';
 
 export const historyApi = api.injectEndpoints({
   endpoints: (builder) => ({

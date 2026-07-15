@@ -1,1 +1,1 @@
-export { useLayout } from '@/context/LayoutContext';
+export { useLayout } from '../context/LayoutContext';

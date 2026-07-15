@@ -3,8 +3,8 @@ import {
   WebStorageStateStore,
   type UserManagerSettings,
 } from 'oidc-client-ts';
-import { env } from '@/utils/env';
-import type { OidcProvider } from '@/types';
+import { env } from './env';
+import type { OidcProvider } from '../types';
 
 /**
  * Resolve OIDC settings for the configured identity provider.

@@ -1,19 +1,19 @@
 import { useCallback, useEffect } from 'react';
 import { useAuth as useOidcAuth } from 'react-oidc-context';
-import { useAppDispatch, useAppSelector } from '@/redux/hooks';
+import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import {
   setLoading,
   setUser,
   logout as logoutAction,
-} from '@/redux/slice/authSlice';
+} from '../redux/slice/authSlice';
 import {
   useLazyGetMeQuery,
   useLogoutMutation,
   useEstablishSessionMutation,
-} from '@/services/api';
-import { serverAPI } from '@/services/apiService';
-import { env } from '@/utils/env';
-import type { AuthUser } from '@/types';
+} from '../services/api';
+import { serverAPI } from '../services/apiService';
+import { env } from '../utils/env';
+import type { AuthUser } from '../types';
 
 const MOCK_USER: AuthUser = {
   id: 'demo-user-1',

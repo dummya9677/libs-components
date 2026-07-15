@@ -1,12 +1,12 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-import { AppShell } from '@/layouts/AppShell';
-import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { LoginPage } from '@/pages/Login';
-import { AuthCallbackPage } from '@/pages/AuthCallback';
-import { AssistantPage } from '@/pages/Assistant';
-import { PlaceholderPage } from '@/pages/Placeholder';
-import { NotFoundPage } from '@/pages/NotFound';
-import { DEFAULT_AGENT_SLUG } from '@/data/agents';
+import { AppShell } from '../layouts/AppShell';
+import { ProtectedRoute } from '../components/ProtectedRoute';
+import { LoginPage } from '../pages/Login';
+import { AuthCallbackPage } from '../pages/AuthCallback';
+import { AssistantPage } from '../pages/Assistant';
+import { PlaceholderPage } from '../pages/Placeholder';
+import { NotFoundPage } from '../pages/NotFound';
+import { DEFAULT_AGENT_SLUG } from '../data/agents';
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },

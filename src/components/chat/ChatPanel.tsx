@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react';
 import { BookOpen, Database, Network, Sparkles } from 'lucide-react';
-import type { AgentDefinition, AgentDemoMessage } from '@/data/agents';
-import { getAgentTheme } from '@/data/agents';
-import { PromptComposer } from '@/components/chat/PromptComposer';
-import { formatRelativeTime } from '@/utils/time';
-import { cn } from '@/utils/cn';
+import type { AgentDefinition, AgentDemoMessage } from '../../data/agents';
+import { getAgentTheme } from '../../data/agents';
+import { PromptComposer } from './PromptComposer';
+import { formatRelativeTime } from '../../utils/time';
+import { cn } from '../../utils/cn';
 
 function AgentIcon({ agent }: { agent: AgentDefinition }) {
   const theme = getAgentTheme(agent.colorKey);

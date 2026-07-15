@@ -12,10 +12,10 @@ import {
   Library,
   X,
 } from 'lucide-react';
-import { agents } from '@/data/agents';
-import { AppLogo } from '@/components/brand/AppLogo';
-import { useLayout } from '@/hooks/useLayout';
-import { cn } from '@/utils/cn';
+import { agents } from '../../data/agents';
+import { AppLogo } from '../brand/AppLogo';
+import { useLayout } from '../../hooks/useLayout';
+import { cn } from '../../utils/cn';
 
 const navItems = [
   { label: 'Assistant', path: '/assistant', icon: Wand2 },

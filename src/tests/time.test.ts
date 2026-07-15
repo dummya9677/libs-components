@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatRelativeTime } from '@/utils/time';
+import { formatRelativeTime } from '../utils/time';
 
 describe('formatRelativeTime', () => {
   it('formats minutes and hours', () => {

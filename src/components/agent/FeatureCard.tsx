@@ -6,8 +6,8 @@ import {
   Activity,
   type LucideIcon,
 } from 'lucide-react';
-import type { AgentAction, FeatureAccent } from '@/data/agents';
-import { cn } from '@/utils/cn';
+import type { AgentAction, FeatureAccent } from '../../data/agents';
+import { cn } from '../../utils/cn';
 
 const accentClass: Record<FeatureAccent, string> = {
   purple: 'bg-feature-purple/10 text-feature-purple',

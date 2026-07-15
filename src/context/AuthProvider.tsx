@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react';
 import { AuthProvider as OidcAuthProvider } from 'react-oidc-context';
-import { oidcConfig } from '@/utils/oidcConfig';
-import { useAuthBootstrap } from '@/hooks/useAuth';
+import { oidcConfig } from '../utils/oidcConfig';
+import { useAuthBootstrap } from '../hooks/useAuth';
 
 interface AuthBootstrapProps {
   children: ReactNode;

@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth as useOidcAuth } from 'react-oidc-context';
-import { Loader } from '@/components/Loader';
-import { useAuth } from '@/hooks/useAuth';
+import { Loader } from '../../components/Loader';
+import { useAuth } from '../../hooks/useAuth';
 
 export function AuthCallbackPage() {
   const oidc = useOidcAuth();

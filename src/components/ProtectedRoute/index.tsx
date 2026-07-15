@@ -1,7 +1,7 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import type { ReactNode } from 'react';
-import { useAppSelector } from '@/redux/hooks';
-import { Loader } from '@/components/Loader';
+import { useAppSelector } from '../../redux/hooks';
+import { Loader } from '../Loader';
 
 interface ProtectedRouteProps {
   children: ReactNode;

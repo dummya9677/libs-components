@@ -1,5 +1,5 @@
-import { api } from '@/services/api/apiSlice';
-import type { SendMessageRequest, SendMessageResponse } from '@/types';
+import { api } from './apiSlice';
+import type { SendMessageRequest, SendMessageResponse } from '../../types';
 
 export const chatApi = api.injectEndpoints({
   endpoints: (builder) => ({

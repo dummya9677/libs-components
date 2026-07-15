@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom';
-import { AppSidebar } from '@/components/layout/AppSidebar';
-import { LayoutProvider } from '@/context/LayoutContext';
+import { AppSidebar } from '../components/layout/AppSidebar';
+import { LayoutProvider } from '../context/LayoutContext';
 
 export function AppShell() {
   return (

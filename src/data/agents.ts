@@ -1,6 +1,6 @@
-import type { AgentColorKey } from '@/config/colors';
-import { colors } from '@/config/colors';
-import { minutesAgoIso } from '@/utils/time';
+import type { AgentColorKey } from '../config/colors';
+import { colors } from '../config/colors';
+import { minutesAgoIso } from '../utils/time';
 
 export type FeatureAccent =
   | 'purple'

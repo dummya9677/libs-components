@@ -8,13 +8,13 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import type { AgentDefinition } from '@/data/agents';
-import { getAgentTheme } from '@/data/agents';
-import { CapabilityIcon } from '@/components/icons/CapabilityIcon';
-import { FeatureCard } from '@/components/agent/FeatureCard';
-import { PromptComposer } from '@/components/chat/PromptComposer';
-import { useAuth } from '@/hooks/useAuth';
-import { cn } from '@/utils/cn';
+import type { AgentDefinition } from '../../data/agents';
+import { getAgentTheme } from '../../data/agents';
+import { CapabilityIcon } from '../icons/CapabilityIcon';
+import { FeatureCard } from './FeatureCard';
+import { PromptComposer } from '../chat/PromptComposer';
+import { useAuth } from '../../hooks/useAuth';
+import { cn } from '../../utils/cn';
 
 function HeroArt({ variant }: { variant: AgentDefinition['heroVariant'] }) {
   if (variant === 'book') {

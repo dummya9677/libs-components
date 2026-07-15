@@ -1,5 +1,5 @@
-import { api } from '@/services/api/apiSlice';
-import type { Agent } from '@/types';
+import { api } from './apiSlice';
+import type { Agent } from '../../types';
 
 export const agentsApi = api.injectEndpoints({
   endpoints: (builder) => ({
