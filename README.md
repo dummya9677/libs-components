@@ -2,14 +2,22 @@
 
 Production-ready React frontend scaffold for an enterprise AI chatbot. Integrates with a FastAPI backend (not included). The frontend owns UI, routing, Redux, authentication flow, and API stubs only.
 
+## Node.js requirement
+
+Supported: **Node.js 18.15+** (including locked VDI environments on 18.15.0) and Node 20+.
+
+```bash
+node -v   # expect v18.15.0 or higher
+```
+
 ## Stack
 
 - React 18 + TypeScript (strict)
 - Vite 5
 - Redux Toolkit + RTK Query
-- React Router DOM
+- React Router DOM v6 (Node 18 compatible)
 - react-oidc-context + oidc-client-ts
-- Vitest + ESLint 9
+- Vitest + ESLint 8
 
 ## Quick start (demo auth — no SSO)
 
