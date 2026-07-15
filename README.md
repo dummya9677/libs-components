@@ -6,6 +6,8 @@ Production-ready React frontend scaffold for an enterprise AI chatbot. Integrate
 
 Supported: **Node.js 18.15+** (including locked VDI environments on 18.15.0) and Node 20+.
 
+This project uses **Vite 4.4.5** (same as our office toolchain) for Node 18 compatibility.
+
 ```bash
 node -v   # expect v18.15.0 or higher
 ```
