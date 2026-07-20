@@ -1,7 +1,9 @@
 import type { ReactNode } from 'react';
 import { BookOpen, Database, Network, Sparkles } from 'lucide-react';
-import type { AgentDefinition, AgentDemoMessage } from '../../data/agents';
+import type { AgentDefinition } from '../../data/agents';
 import { getAgentTheme } from '../../data/agents';
+import { useInfiniteChatMessages } from '../../hooks/useInfiniteChatMessages';
+import type { HistoryMessage } from '../../types';
 import { PromptComposer } from './PromptComposer';
 import { formatRelativeTime } from '../../utils/time';
 import { cn } from '../../utils/cn';
@@ -32,7 +34,7 @@ function ProgressCard({
   message,
 }: {
   agent: AgentDefinition;
-  message: AgentDemoMessage;
+  message: HistoryMessage;
 }) {
   const subtitle =
     message.progressLabel
@@ -105,7 +107,7 @@ function ChatMessage({
   message,
 }: {
   agent: AgentDefinition;
-  message: AgentDemoMessage;
+  message: HistoryMessage;
 }) {
   if (message.role === 'progress') {
     return <ProgressCard agent={agent} message={message} />;
@@ -119,7 +121,7 @@ function ChatMessage({
 
   if (message.role === 'user') {
     return (
-      <MessageCard align="right" sentAt={message.sentAt} variant="user">
+      <MessageCard align="right" sentAt={message.createdAt} variant="user">
         <p className="text-[13px] font-medium leading-relaxed text-brand">
           {message.content}
         </p>
@@ -129,7 +131,7 @@ function ChatMessage({
 
   return (
     <div className="space-y-2">
-      <MessageCard align="left" sentAt={message.sentAt} variant="assistant">
+      <MessageCard align="left" sentAt={message.createdAt} variant="assistant">
         {message.content ? (
           <p className="text-[13px] leading-relaxed text-ink">{message.content}</p>
         ) : null}
@@ -165,12 +167,24 @@ function ChatMessage({
 
 interface ChatPanelProps {
   agent: AgentDefinition;
+  /** Defaults to `agent.id` for demo; pass real conversation id from the API later. */
+  conversationId?: string;
 }
 
 /**
- * Chat column only — System Status / bell / avatar live outside this component.
+ * Chat column — loads messages via RTK Query with server-side infinite scroll.
  */
-export function ChatPanel({ agent }: ChatPanelProps) {
+export function ChatPanel({ agent, conversationId }: ChatPanelProps) {
+  const id = conversationId ?? agent.id;
+  const {
+    messages,
+    isLoading,
+    isFetchingOlder,
+    hasMore,
+    scrollRef,
+    topSentinelRef,
+  } = useInfiniteChatMessages(id);
+
   return (
     <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-app-border bg-surface shadow-card sm:rounded-2xl">
       <div className="shrink-0 px-3 pb-1.5 pt-3 sm:px-4 sm:pt-3.5">
@@ -181,10 +195,33 @@ export function ChatPanel({ agent }: ChatPanelProps) {
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 space-y-2.5 overflow-y-auto px-3 py-2.5 scrollbar-thin sm:space-y-3 sm:px-4">
-        {agent.demoMessages.map((message) => (
-          <ChatMessage key={message.id} agent={agent} message={message} />
-        ))}
+      <div
+        ref={scrollRef}
+        className="min-h-0 flex-1 space-y-2.5 overflow-y-auto px-3 py-2.5 scrollbar-thin sm:space-y-3 sm:px-4"
+      >
+        <div ref={topSentinelRef} className="h-1 w-full shrink-0" aria-hidden />
+
+        {isFetchingOlder ? (
+          <p className="py-1 text-center text-[11px] text-ink-muted">
+            Loading older messages…
+          </p>
+        ) : null}
+
+        {!hasMore && messages.length > 0 ? (
+          <p className="py-1 text-center text-[11px] text-ink-muted">
+            Beginning of conversation
+          </p>
+        ) : null}
+
+        {isLoading ? (
+          <p className="py-6 text-center text-[13px] text-ink-muted">
+            Loading chat…
+          </p>
+        ) : (
+          messages.map((message) => (
+            <ChatMessage key={message.id} agent={agent} message={message} />
+          ))
+        )}
       </div>
 
       <div className="shrink-0 border-t border-app-border-light p-2.5 sm:p-3">

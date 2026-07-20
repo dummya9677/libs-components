@@ -15,6 +15,8 @@ export {
 export {
   useGetHistoryQuery,
   useGetConversationQuery,
+  useGetConversationMessagesQuery,
+  useLazyGetConversationMessagesQuery,
 } from './historyApi';
 export { useSendMessageMutation } from './chatApi';
 export { useGetAgentsQuery } from './agentsApi';

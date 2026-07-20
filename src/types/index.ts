@@ -20,6 +20,38 @@ export interface ChatMessage {
   conversationId: string;
 }
 
+/**
+ * Message shape used by chat history / infinite scroll.
+ * Real API can return the core fields; optional fields support richer UI (demo).
+ */
+export interface HistoryMessage {
+  id: string;
+  role: 'user' | 'assistant' | 'system' | 'status' | 'progress' | 'result';
+  content?: string;
+  createdAt: string;
+  conversationId: string;
+  bullets?: string[];
+  progress?: number;
+  progressLabel?: string;
+  actions?: { label: string; variant?: 'primary' | 'link' }[];
+  followUp?: string;
+}
+
+/** Cursor-paginated page of conversation messages (oldest → newest within the page). */
+export interface MessagesPage {
+  items: HistoryMessage[];
+  /** Pass as `cursor` on the next request to load older messages. Null = no more. */
+  nextCursor: string | null;
+  hasMore: boolean;
+}
+
+export interface GetMessagesArgs {
+  conversationId: string;
+  /** Omit / null for the newest page; use `nextCursor` from the previous page for older. */
+  cursor?: string | null;
+  limit?: number;
+}
+
 export interface Conversation {
   id: string;
   title: string;

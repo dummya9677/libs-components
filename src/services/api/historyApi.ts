@@ -1,5 +1,12 @@
+import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { api } from './apiSlice';
-import type { Conversation } from '../../types';
+import { fetchDummyMessagesPage } from '../../data/dummyChatHistory';
+import { env } from '../../utils/env';
+import type {
+  Conversation,
+  GetMessagesArgs,
+  MessagesPage,
+} from '../../types';
 
 export const historyApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -11,7 +18,67 @@ export const historyApi = api.injectEndpoints({
       query: (id) => `/history/${id}`,
       providesTags: (_result, _error, id) => [{ type: 'Conversation', id }],
     }),
+
+    /**
+     * Infinite scroll: newest page first, then older pages via `cursor`.
+     *
+     * Real API (when `VITE_MOCK_AUTH=false`):
+     *   GET /history/:conversationId/messages?cursor=&limit=
+     *   → { items, nextCursor, hasMore }
+     *
+     * Cache key is conversationId only; pages are merged in chronological order.
+     */
+    getConversationMessages: builder.query<MessagesPage, GetMessagesArgs>({
+      async queryFn(args, _api, _extraOptions, baseQuery) {
+        if (env.mockAuth) {
+          const data = await fetchDummyMessagesPage(args);
+          return { data };
+        }
+
+        const result = await baseQuery({
+          url: `/history/${args.conversationId}/messages`,
+          params: {
+            ...(args.cursor ? { cursor: args.cursor } : {}),
+            limit: args.limit ?? 20,
+          },
+        });
+
+        if (result.error) {
+          return { error: result.error as FetchBaseQueryError };
+        }
+
+        return { data: result.data as MessagesPage };
+      },
+      serializeQueryArgs: ({ endpointName, queryArgs }) =>
+        `${endpointName}-${queryArgs.conversationId}`,
+      merge: (currentCache, newPage, { arg }) => {
+        // First / newest page replaces cache
+        if (!arg.cursor || !currentCache) {
+          return newPage;
+        }
+
+        const seen = new Set(currentCache.items.map((m) => m.id));
+        const older = newPage.items.filter((m) => !seen.has(m.id));
+
+        return {
+          items: [...older, ...currentCache.items],
+          nextCursor: newPage.nextCursor,
+          hasMore: newPage.hasMore,
+        };
+      },
+      forceRefetch({ currentArg, previousArg }) {
+        return currentArg?.cursor !== previousArg?.cursor;
+      },
+      providesTags: (_result, _error, arg) => [
+        { type: 'Message', id: arg.conversationId },
+      ],
+    }),
   }),
 });
 
-export const { useGetHistoryQuery, useGetConversationQuery } = historyApi;
+export const {
+  useGetHistoryQuery,
+  useGetConversationQuery,
+  useGetConversationMessagesQuery,
+  useLazyGetConversationMessagesQuery,
+} = historyApi;
