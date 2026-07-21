@@ -78,8 +78,9 @@ export function HomePage() {
 
         <div className="mt-2 flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-ink sm:text-base">
-              Welcome to the {env.appName} Demo AI Console
+            <p className="text-sm font-semibold sm:text-base">
+              <span className="text-ink-secondary">Welcome to the </span>
+              <span className="text-client-primary">{env.appName}</span>
             </p>
             <p className="mt-0.5 text-[11px] text-ink-secondary sm:text-xs">
               The AI platform for intelligent application support.
