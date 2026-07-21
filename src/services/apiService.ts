@@ -8,6 +8,8 @@ import './api/authApi';
 import './api/historyApi';
 import './api/chatApi';
 import './api/agentsApi';
+import './api/applicationHealthApi';
+import './api/notificationsApi';
 
 export const serverAPI = api;
 export default serverAPI;

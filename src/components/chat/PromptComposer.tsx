@@ -1,12 +1,15 @@
-import { useState, type FormEvent, type KeyboardEvent } from 'react';
+import { useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import {
-  Paperclip,
-  Table2,
   Code2,
   Globe,
-  Settings2,
+  Mic,
+  Paperclip,
   SendHorizonal,
+  Settings2,
+  Table2,
 } from 'lucide-react';
+import { clientBrandCardGradient } from '../../config/clientColors';
+import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
 import { cn } from '../../utils/cn';
 
 interface PromptComposerProps {
@@ -16,6 +19,7 @@ interface PromptComposerProps {
   className?: string;
   toolbar?: 'main' | 'chat';
   showSend?: boolean;
+  gradientBorder?: boolean;
 }
 
 export function PromptComposer({
@@ -25,14 +29,35 @@ export function PromptComposer({
   className,
   toolbar = 'main',
   showSend = true,
+  gradientBorder = true,
 }: PromptComposerProps) {
   const [value, setValue] = useState('');
+  const [speechError, setSpeechError] = useState<string | null>(null);
+  const speechBaseRef = useRef('');
+
+  const { isListening, isSupported, toggleListening } = useSpeechRecognition({
+    onResult: (transcript, isFinal) => {
+      setSpeechError(null);
+      if (isFinal) {
+        const next = [speechBaseRef.current, transcript].filter(Boolean).join(' ').trim();
+        speechBaseRef.current = next;
+        setValue(next);
+      } else {
+        const next = [speechBaseRef.current, transcript].filter(Boolean).join(' ').trim();
+        setValue(next);
+      }
+    },
+    onError: (message) => {
+      setSpeechError(message);
+    },
+  });
 
   const submit = () => {
     const trimmed = value.trim();
     if (!trimmed) return;
     onSend?.(trimmed);
     setValue('');
+    speechBaseRef.current = '';
   };
 
   const onSubmit = (e: FormEvent) => {
@@ -47,55 +72,111 @@ export function PromptComposer({
     }
   };
 
+  const handleMicToggle = () => {
+    if (!isSupported) return;
+    setSpeechError(null);
+    if (!isListening) {
+      speechBaseRef.current = value.trim();
+    }
+    toggleListening();
+  };
+
   const tools =
     toolbar === 'chat'
       ? [Paperclip, Table2, Code2, Settings2]
       : [Paperclip, Table2, Code2, Globe];
 
-  return (
+  const form = (
     <form
       onSubmit={onSubmit}
+      style={gradientBorder ? { background: clientBrandCardGradient } : undefined}
       className={cn(
-        'rounded-xl border border-app-border bg-surface',
+        gradientBorder
+          ? 'rounded-xl shadow-card'
+          : 'rounded-lg border border-white/70 bg-white/80 backdrop-blur-sm',
         compact ? 'p-2.5' : 'p-3',
-        className,
       )}
     >
-      <textarea
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        onKeyDown={onKeyDown}
-        rows={compact ? 2 : 2}
-        placeholder={placeholder}
-        className={cn(
-          'w-full resize-none bg-transparent text-xs text-ink placeholder:text-ink-muted focus:outline-none sm:text-sm',
-          compact ? 'min-h-[40px]' : 'min-h-[48px]',
-        )}
-      />
-      <div className="mt-1.5 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-0.5">
-          {tools.map((Icon, i) => (
-            <button
-              key={i}
-              type="button"
-              className="rounded-md p-1.5 text-ink-muted transition hover:bg-surface-muted hover:text-ink-secondary"
-              aria-label="Composer tool"
-            >
-              <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" strokeWidth={1.75} />
-            </button>
-          ))}
-        </div>
-        {showSend ? (
-          <button
-            type="submit"
-            disabled={!value.trim()}
-            aria-label="Send"
-            className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-white transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <SendHorizonal className="h-3.5 w-3.5" />
-          </button>
+        <textarea
+          value={value}
+          onChange={(e) => {
+            setValue(e.target.value);
+            speechBaseRef.current = e.target.value.trim();
+          }}
+          onKeyDown={onKeyDown}
+          rows={compact ? 2 : 2}
+          placeholder={placeholder}
+          className={cn(
+            'w-full resize-none bg-transparent text-xs text-client-blue-helix-dark caret-client-cyan-helix-light placeholder:text-client-cyan-helix-light/55 focus:outline-none sm:text-sm',
+            compact ? 'min-h-[40px]' : 'min-h-[48px]',
+          )}
+        />
+
+        {speechError ? (
+          <p className="mt-1 text-[10px] text-status-danger" role="alert">
+            {speechError}
+          </p>
         ) : null}
-      </div>
-    </form>
+
+        <div className="mt-1.5 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-0.5">
+            {tools.map((Icon, i) => (
+              <button
+                key={i}
+                type="button"
+                className="rounded-md p-1.5 text-client-cyan-helix-light/70 transition hover:bg-client-cyan-10 hover:text-client-blue-helix-dark"
+                aria-label="Composer tool"
+              >
+                <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" strokeWidth={1.75} />
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={handleMicToggle}
+              disabled={!isSupported}
+              aria-label={isListening ? 'Stop dictation' : 'Start dictation'}
+              aria-pressed={isListening}
+              title={
+                !isSupported
+                  ? 'Speech recognition is not supported in this browser'
+                  : isListening
+                    ? 'Stop dictation'
+                    : 'Dictate with microphone'
+              }
+              className={cn(
+                'relative flex h-8 w-8 items-center justify-center rounded-lg transition',
+                isListening
+                  ? 'bg-client-cyan-10 text-client-blue-helix-dark'
+                  : 'text-client-cyan-helix-light/70 hover:bg-client-cyan-10 hover:text-client-blue-helix-dark',
+                !isSupported && 'cursor-not-allowed opacity-40',
+              )}
+            >
+              <Mic className="h-3.5 w-3.5 sm:h-4 sm:w-4" strokeWidth={1.75} />
+              {isListening ? (
+                <span className="absolute -right-0.5 -top-0.5 flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-client-cyan-helix-light opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-client-cyan-helix-light" />
+                </span>
+              ) : null}
+            </button>
+
+            {showSend ? (
+            <button
+              type="submit"
+              disabled={!value.trim()}
+              aria-label="Send"
+              className="flex h-8 w-8 items-center justify-center rounded-lg bg-client-cyan-helix-light text-white transition hover:bg-client-blue-helix-dark disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <SendHorizonal className="h-3.5 w-3.5" />
+            </button>
+            ) : null}
+          </div>
+        </div>
+      </form>
   );
+
+  return <div className={className}>{form}</div>;
 }

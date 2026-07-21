@@ -1,13 +1,19 @@
 /**
  * Central color configuration for the application.
  * Tailwind maps these via CSS variables in index.css / tailwind.config.js.
+ *
+ * Brand tokens map to client palette — see src/config/clientColors.ts
  */
+import { clientColors } from './clientColors';
+
+export { clientColors };
+
 export const colors = {
-  /* Brand */
-  logo: '#6366F1',
-  brand: '#2563EB',
-  brandDark: '#1D4ED8',
-  brandSoft: '#EFF6FF',
+  /* Brand (client palette) */
+  logo: clientColors.blueHelixDark,
+  brand: clientColors.cyanHelixLight,
+  brandDark: clientColors.blueHelixDark,
+  brandSoft: clientColors.cyan10,
 
   /* Surfaces */
   background: '#F8FAFC',
@@ -71,6 +77,22 @@ export const colors = {
       gradientTo: '#FEF3C7',
       chip: '#D97706',
       heroIcon: '#F59E0B',
+    },
+    dataQuality: {
+      primary: '#0D9488',
+      soft: '#F0FDFA',
+      gradientFrom: '#CCFBF1',
+      gradientTo: '#F0FDFA',
+      chip: '#0F766E',
+      heroIcon: '#14B8A6',
+    },
+    cost: {
+      primary: '#E11D48',
+      soft: '#FFF1F2',
+      gradientFrom: '#FECDD3',
+      gradientTo: '#FFF1F2',
+      chip: '#BE123C',
+      heroIcon: '#F43F5E',
     },
   },
 

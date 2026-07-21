@@ -24,7 +24,7 @@ export function PlaceholderPage({ title }: { title: string }) {
             This module is coming soon. Use Assistant to explore the AI agents.
           </p>
           <Link
-            to="/assistant/ticket-analyzer"
+            to="/assistant/ticket-intelligence"
             className="mt-4 inline-flex rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-dark"
           >
             Go to Assistant

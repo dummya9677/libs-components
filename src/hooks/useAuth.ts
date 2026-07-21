@@ -6,6 +6,7 @@ import {
   setUser,
   logout as logoutAction,
 } from '../redux/slice/authSlice';
+import { resetNotificationsUi } from '../redux/slice/notificationsUiSlice';
 import {
   useLazyGetMeQuery,
   useLogoutMutation,
@@ -17,8 +18,9 @@ import type { AuthUser } from '../types';
 
 const MOCK_USER: AuthUser = {
   id: 'demo-user-1',
-  name: 'Demo User',
-  email: 'demo.user@example.com',
+  name: 'Jane Doe',
+  email: 'jane.doe@example.com',
+  designation: 'Senior Support Engineer',
   role: ['user'],
   permissions: ['all'],
 };
@@ -70,6 +72,7 @@ export function useAuth() {
   const logout = useCallback(async () => {
     if (env.mockAuth) {
       dispatch(logoutAction());
+      dispatch(resetNotificationsUi());
       dispatch(serverAPI.util.resetApiState());
       return;
     }
@@ -80,6 +83,7 @@ export function useAuth() {
       // Still clear local state even if the network call fails
     } finally {
       dispatch(logoutAction());
+      dispatch(resetNotificationsUi());
       dispatch(serverAPI.util.resetApiState());
     }
 

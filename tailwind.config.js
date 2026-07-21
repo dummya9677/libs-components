@@ -10,6 +10,13 @@ export default {
           dark: 'var(--color-brand-dark)',
           soft: 'var(--color-brand-soft)',
         },
+        client: {
+          primary: 'var(--color-client-primary-blue)',
+          'blue-helix-dark': 'var(--color-blue-helix-dark)',
+          'cyan-helix-light': 'var(--color-cyan-helix-light)',
+          'cyan-30': 'var(--color-cyan-30)',
+          'cyan-10': 'var(--color-cyan-10)',
+        },
         surface: {
           DEFAULT: 'var(--color-surface)',
           muted: 'var(--color-surface-muted)',
@@ -76,10 +83,11 @@ export default {
         panel: '0 0 0 1px rgb(15 23 42 / 0.04)',
       },
       width: {
-        sidebar: '220px',
+        sidebar: '260px',
         'sidebar-collapsed': '72px',
         chat: '300px',
         'chat-lg': '320px',
+        'home-rail': '272px',
       },
       maxWidth: {
         chat: '320px',

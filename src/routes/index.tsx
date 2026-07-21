@@ -3,6 +3,7 @@ import { AppShell } from '../layouts/AppShell';
 import { ProtectedRoute } from '../components/ProtectedRoute';
 import { LoginPage } from '../pages/Login';
 import { AuthCallbackPage } from '../pages/AuthCallback';
+import { HomePage } from '../pages/Home';
 import { AssistantPage } from '../pages/Assistant';
 import { PlaceholderPage } from '../pages/Placeholder';
 import { NotFoundPage } from '../pages/NotFound';
@@ -18,7 +19,8 @@ export const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     children: [
-      { index: true, element: <Navigate to={`/assistant/${DEFAULT_AGENT_SLUG}`} replace /> },
+      { index: true, element: <HomePage /> },
+      { path: 'home', element: <HomePage /> },
       { path: 'assistant', element: <Navigate to={`/assistant/${DEFAULT_AGENT_SLUG}`} replace /> },
       { path: 'assistant/:agentSlug', element: <AssistantPage /> },
       {

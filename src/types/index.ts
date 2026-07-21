@@ -4,6 +4,7 @@ export type AuthUser = {
   id: string;
   name: string;
   email: string;
+  designation?: string;
   role: string[];
   permissions: string[];
   avatarUrl?: string;

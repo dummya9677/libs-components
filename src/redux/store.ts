@@ -6,9 +6,11 @@ import {
 } from '@reduxjs/toolkit';
 import { serverAPI } from '../services/apiService';
 import authSlice from './slice/authSlice';
+import notificationsUiSlice from './slice/notificationsUiSlice';
 
 const rootReducer = combineReducers({
   auth: authSlice,
+  notificationsUi: notificationsUiSlice,
   [serverAPI.reducerPath]: serverAPI.reducer,
 });
 

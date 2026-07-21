@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { Loader } from '../../components/Loader';
-import { AppLogo } from '../../components/brand/AppLogo';
+import { BrandLockup } from '../../components/brand/BrandLockup';
 import { env } from '../../utils/env';
 
 export function LoginPage() {
@@ -27,7 +27,7 @@ export function LoginPage() {
   return (
     <div className="flex h-full min-h-dvh items-center justify-center overflow-y-auto bg-app-bg p-4">
       <div className="w-full max-w-md rounded-2xl border border-app-border bg-surface p-8 shadow-card">
-        <AppLogo className="mb-6" />
+        <BrandLockup variant="login" className="mb-6" />
         <h1 className="text-2xl font-bold text-ink">{env.appName}</h1>
         <p className="mt-2 text-sm text-ink-secondary">
           {env.mockAuth
@@ -46,7 +46,7 @@ export function LoginPage() {
           onClick={() => {
             void login();
           }}
-          className="mt-6 w-full rounded-xl bg-brand px-4 py-3 text-sm font-semibold text-white hover:bg-brand-dark"
+          className="mt-6 w-full rounded-xl bg-client-blue-helix-dark px-4 py-3 text-sm font-semibold text-white transition hover:bg-client-primary"
         >
           {env.mockAuth ? 'Sign in as demo user' : 'Sign in with SSO'}
         </button>

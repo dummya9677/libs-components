@@ -1,10 +1,12 @@
 import {
   ArrowLeft,
   BookOpen,
+  CircleDollarSign,
   Database,
   Network,
   Play,
   RefreshCw,
+  ShieldCheck,
   Sparkles,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -42,6 +44,24 @@ function HeroArt({ variant }: { variant: AgentDefinition['heroVariant'] }) {
       </div>
     );
   }
+  if (variant === 'quality') {
+    return (
+      <div className="relative hidden h-20 w-28 md:block lg:h-24 lg:w-32">
+        <div className="absolute inset-x-4 top-4 h-10 rounded-lg bg-white/60 shadow-card" />
+        <div className="absolute inset-x-6 top-7 h-8 rounded-md bg-white shadow-md" />
+        <div className="absolute right-3 top-2 h-6 w-6 rounded-full bg-white/80" />
+      </div>
+    );
+  }
+  if (variant === 'cost') {
+    return (
+      <div className="relative hidden h-20 w-28 md:block lg:h-24 lg:w-32">
+        <div className="absolute left-4 top-5 h-10 w-10 rounded-full bg-white/70 shadow-card" />
+        <div className="absolute right-3 top-3 h-8 w-8 rounded-full bg-white/50" />
+        <div className="absolute bottom-3 left-8 h-7 w-7 rounded-full bg-white/90 shadow-md" />
+      </div>
+    );
+  }
   return (
     <div className="relative hidden h-20 w-28 md:block lg:h-24 lg:w-32">
       <div className="absolute left-3 top-4 h-8 w-8 rotate-12 rounded-lg bg-white/50" />
@@ -59,7 +79,11 @@ function AgentHeroIcon({ agent }: { agent: AgentDefinition }) {
         ? Network
         : agent.colorKey === 'ticket'
           ? Sparkles
-          : Database;
+          : agent.colorKey === 'dataQuality'
+            ? ShieldCheck
+            : agent.colorKey === 'cost'
+              ? CircleDollarSign
+              : Database;
 
   return (
     <div
@@ -74,7 +98,6 @@ function AgentHeroIcon({ agent }: { agent: AgentDefinition }) {
 interface AgentWorkspaceProps {
   agent: AgentDefinition;
   onPrompt?: (value: string) => void;
-  /** Greeting is rendered in the page header when true */
   hideGreeting?: boolean;
 }
 
@@ -110,7 +133,7 @@ export function AgentWorkspace({
 
         <button
           type="button"
-          onClick={() => navigate('/assistant/ticket-analyzer')}
+          onClick={() => navigate('/')}
           className={cn(
             'inline-flex items-center gap-1.5 text-xs font-medium text-brand transition hover:underline',
             hideGreeting ? 'mt-0' : 'mt-3',
@@ -232,6 +255,7 @@ export function AgentWorkspace({
           </div>
           <button
             type="button"
+            onClick={() => navigate('/')}
             className="inline-flex shrink-0 items-center gap-2 rounded-full bg-brand px-3.5 py-1.5 text-[11px] font-semibold text-white hover:bg-brand-dark sm:px-4 sm:py-2 sm:text-xs"
           >
             <Play className="h-3.5 w-3.5 fill-current" />

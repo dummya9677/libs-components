@@ -9,7 +9,12 @@ const required = (value: string | undefined, name: string): string => {
 };
 
 export const env = {
-  appName: import.meta.env.VITE_APP_NAME || 'Demo AI Console',
+  appName: import.meta.env.VITE_APP_NAME || 'NexaIQ',
+  partnerLogoUrl: import.meta.env.VITE_PARTNER_LOGO_URL || '',
+  /** Transparent PNG for sidebar bottom promo — e.g. /images/sidebar-assistant-promo.png */
+  sidebarPromoImageUrl: import.meta.env.VITE_SIDEBAR_PROMO_IMAGE_URL || '',
+  /** Transparent PNG for homepage right-rail multi-agent card */
+  multiAgentPromoImageUrl: import.meta.env.VITE_MULTI_AGENT_PROMO_IMAGE_URL || '',
   apiBaseUrl:
     import.meta.env.VITE_MOCK_AUTH === 'true'
       ? import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'

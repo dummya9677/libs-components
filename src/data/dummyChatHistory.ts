@@ -41,7 +41,7 @@ function buildAllMessages(conversationId: string): HistoryMessage[] {
       id: `hist-${conversationId}-status`,
       conversationId,
       role: 'status',
-      content: "I'll analyze this for you using the Ticket Analyzer agent.",
+        content: "I'll analyze this for you using the Ticket Intelligence agent.",
       createdAt: minutesAgoIso(7),
     },
     {
@@ -50,7 +50,7 @@ function buildAllMessages(conversationId: string): HistoryMessage[] {
       role: 'progress',
       content: '',
       progress: 72,
-      progressLabel: 'Ticket Analyzer · Analyzing ticket',
+      progressLabel: 'Ticket Intelligence · Analyzing ticket',
       createdAt: minutesAgoIso(6),
     },
     {
