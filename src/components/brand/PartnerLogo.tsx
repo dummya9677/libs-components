@@ -1,5 +1,5 @@
 import { cn } from '../../utils/cn';
-import { env } from '../../utils/env';
+import partnerLogo from '../../assets/partnerlogo.png'; // Update the path if your assets folder is elsewhere
 
 export function PartnerLogo({
   className,
@@ -15,18 +15,11 @@ export function PartnerLogo({
       )}
       title="Partner logo"
     >
-      {env.partnerLogoUrl ? (
-        <img
-          src={env.partnerLogoUrl}
-          alt="Partner logo"
-          className="h-full w-full object-contain object-left"
-        />
-      ) : (
-        <div
-          className="h-8 w-[72px] rounded-md border border-dashed border-app-border bg-surface-muted/60"
-          aria-hidden
-        />
-      )}
+      <img
+        src={partnerLogo}
+        alt="Partner logo"
+        className="h-full w-full object-contain object-left"
+      />
     </div>
   );
 }
