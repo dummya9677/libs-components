@@ -140,8 +140,8 @@ function NotificationsMenu({
       </button>
 
       {isOpen ? (
-        <div className="absolute right-0 top-[calc(100%+8px)] z-50 w-[min(100vw-1.5rem,22rem)] overflow-hidden rounded-xl border border-app-border bg-surface shadow-lg">
-          <div className="flex items-center justify-between border-b border-app-border-light px-3 py-2.5">
+        <div className="absolute right-0 top-[calc(100%+8px)] z-50 w-[min(100vw-1.5rem,22rem)] overflow-hidden rounded-xl border border-app-border bg-white shadow-xl">
+          <div className="flex items-center justify-between border-b border-app-border-light bg-white px-3 py-2.5">
             <p className="text-xs font-semibold text-ink">Notifications</p>
             <button
               type="button"
@@ -154,7 +154,7 @@ function NotificationsMenu({
             </button>
           </div>
 
-          <div className="max-h-72 overflow-y-auto scrollbar-thin">
+          <div className="max-h-72 overflow-y-auto bg-white scrollbar-thin">
             {isLoading ? (
               <p className="px-3 py-6 text-center text-[11px] text-ink-muted">
                 Loading notifications…
@@ -194,8 +194,8 @@ function NotificationRow({
   return (
     <li
       className={cn(
-        'border-b border-app-border-light px-3 py-2.5 last:border-b-0',
-        !item.read && 'bg-client-cyan-10/30',
+        'border-b border-app-border-light bg-white px-3 py-2.5 last:border-b-0',
+        !item.read && 'bg-client-cyan-10',
       )}
     >
       <div className="flex items-start gap-2">

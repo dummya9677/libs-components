@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
+import { useEffect, useRef } from 'react';
 import { BookOpen, Database, Network, Sparkles } from 'lucide-react';
 import type { AgentDefinition } from '../../data/agents';
 import { getAgentTheme } from '../../data/agents';
-import { useInfiniteChatMessages } from '../../hooks/useInfiniteChatMessages';
 import type { HistoryMessage } from '../../types';
 import { PromptComposer } from './PromptComposer';
 import { formatRelativeTime } from '../../utils/time';
@@ -167,23 +167,34 @@ function ChatMessage({
 
 interface ChatPanelProps {
   agent: AgentDefinition;
-  /** Defaults to `agent.id` for demo; pass real conversation id from the API later. */
-  conversationId?: string;
+  messages: HistoryMessage[];
+  onSend: (content: string) => void | Promise<void>;
+  streamingAnswer?: string;
+  isStreaming?: boolean;
+  isThreadReady?: boolean;
+  isCreatingThread?: boolean;
+  error?: string | null;
 }
 
 /**
- * Chat column — loads messages via RTK Query with server-side infinite scroll.
+ * Chat column — displays messages and streams assistant replies in real time.
  */
-export function ChatPanel({ agent, conversationId }: ChatPanelProps) {
-  const id = conversationId ?? agent.id;
-  const {
-    messages,
-    isLoading,
-    isFetchingOlder,
-    hasMore,
-    scrollRef,
-    topSentinelRef,
-  } = useInfiniteChatMessages(id);
+export function ChatPanel({
+  agent,
+  messages,
+  onSend,
+  streamingAnswer = '',
+  isStreaming = false,
+  isThreadReady = true,
+  isCreatingThread = false,
+  error = null,
+}: ChatPanelProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, streamingAnswer, isStreaming]);
 
   return (
     <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-app-border bg-surface shadow-card sm:rounded-2xl">
@@ -199,29 +210,39 @@ export function ChatPanel({ agent, conversationId }: ChatPanelProps) {
         ref={scrollRef}
         className="min-h-0 flex-1 space-y-2.5 overflow-y-auto px-3 py-2.5 scrollbar-thin sm:space-y-3 sm:px-4"
       >
-        <div ref={topSentinelRef} className="h-1 w-full shrink-0" aria-hidden />
-
-        {isFetchingOlder ? (
-          <p className="py-1 text-center text-[11px] text-ink-muted">
-            Loading older messages…
-          </p>
-        ) : null}
-
-        {!hasMore && messages.length > 0 ? (
-          <p className="py-1 text-center text-[11px] text-ink-muted">
-            Beginning of conversation
-          </p>
-        ) : null}
-
-        {isLoading ? (
+        {isCreatingThread ? (
           <p className="py-6 text-center text-[13px] text-ink-muted">
-            Loading chat…
+            Starting chat session…
+          </p>
+        ) : messages.length === 0 && !isStreaming ? (
+          <p className="py-6 text-center text-[13px] text-ink-muted">
+            Ask a question to start the conversation.
           </p>
         ) : (
           messages.map((message) => (
             <ChatMessage key={message.id} agent={agent} message={message} />
           ))
         )}
+
+        {isStreaming && streamingAnswer ? (
+          <MessageCard align="left" variant="assistant">
+            <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-ink">
+              {streamingAnswer}
+            </p>
+          </MessageCard>
+        ) : null}
+
+        {isStreaming && !streamingAnswer ? (
+          <p className="px-1 text-[13px] text-ink-muted">Analyzing…</p>
+        ) : null}
+
+        {error ? (
+          <p className="rounded-lg border border-status-danger/30 bg-red-50 px-3 py-2 text-[12px] text-status-danger">
+            {error}
+          </p>
+        ) : null}
+
+        <div ref={bottomRef} className="h-1 w-full shrink-0" aria-hidden />
       </div>
 
       <div className="shrink-0 border-t border-app-border-light p-2.5 sm:p-3">
@@ -229,6 +250,9 @@ export function ChatPanel({ agent, conversationId }: ChatPanelProps) {
           compact
           toolbar="chat"
           placeholder="Type your message..."
+          onSend={onSend}
+          disabled={isStreaming || !isThreadReady}
+          sendLabel="Analyze"
         />
       </div>
     </div>

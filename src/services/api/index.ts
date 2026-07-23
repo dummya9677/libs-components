@@ -2,6 +2,7 @@ import { api } from './apiSlice';
 
 import './authApi';
 import './historyApi';
+import './threadApi';
 import './chatApi';
 import './agentsApi';
 
@@ -18,5 +19,6 @@ export {
   useGetConversationMessagesQuery,
   useLazyGetConversationMessagesQuery,
 } from './historyApi';
+export { useCreateThreadMutation } from './threadApi';
 export { useSendMessageMutation } from './chatApi';
 export { useGetAgentsQuery } from './agentsApi';

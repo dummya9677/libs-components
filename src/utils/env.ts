@@ -19,6 +19,20 @@ export const env = {
     import.meta.env.VITE_MOCK_AUTH === 'true'
       ? import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'
       : required(import.meta.env.VITE_API_BASE_URL, 'VITE_API_BASE_URL'),
+  /**
+   * Paths are appended to `apiBaseUrl` (no leading slash required).
+   * Update these in `.env` to match your Python backend.
+   */
+  api: {
+    /** Optional POST — create thread if your backend needs it before /chat. */
+    createThreadPath:
+      import.meta.env.VITE_API_CREATE_THREAD_PATH || '/threads',
+    /** Streaming POST — analyze/query endpoint (primary chat integration). */
+    agentChatPath: import.meta.env.VITE_API_AGENT_CHAT_PATH || '/chat',
+    /** Optional GET — message history prefix for a thread. */
+    threadMessagesPath:
+      import.meta.env.VITE_API_THREAD_MESSAGES_PATH || '/history',
+  },
   /** When true, skip backend session and hydrate a demo user (UI preview). */
   mockAuth: import.meta.env.VITE_MOCK_AUTH === 'true',
   oidcProvider: (import.meta.env.VITE_OIDC_PROVIDER || 'entra') as OidcProvider,

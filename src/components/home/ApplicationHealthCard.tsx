@@ -66,7 +66,7 @@ export function ApplicationHealthCard({ className }: { className?: string }) {
 
   if (isLoading) {
     return (
-      <DashboardPanel title="Application Health" className={className}>
+      <DashboardPanel title="Application Health" className={cn('min-w-0', className)}>
         <div className="flex min-h-[148px] items-center justify-center text-[10px] text-ink-muted">
           Loading application health…
         </div>
@@ -76,7 +76,7 @@ export function ApplicationHealthCard({ className }: { className?: string }) {
 
   if (isError || !data) {
     return (
-      <DashboardPanel title="Application Health" className={className}>
+      <DashboardPanel title="Application Health" className={cn('min-w-0', className)}>
         <div className="flex min-h-[148px] items-center justify-center text-[10px] text-status-danger">
           Unable to load application health.
         </div>
@@ -87,9 +87,9 @@ export function ApplicationHealthCard({ className }: { className?: string }) {
   const segments = toChartSegments(data);
 
   return (
-    <DashboardPanel title="Application Health" className={className}>
-      <div className="flex items-center gap-3">
-        <div className="relative h-[118px] w-[118px] shrink-0 sm:h-[128px] sm:w-[128px]">
+    <DashboardPanel title="Application Health" className={cn('min-w-0', className)}>
+      <div className="flex min-w-0 flex-col items-center gap-3">
+        <div className="relative h-[112px] w-[112px] shrink-0 overflow-hidden">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -117,11 +117,11 @@ export function ApplicationHealthCard({ className }: { className?: string }) {
           </div>
         </div>
 
-        <ul className="min-w-0 flex-1 space-y-2">
+        <ul className="grid w-full grid-cols-2 gap-x-4 gap-y-1.5">
           {legendOrder.map((status) => (
             <li
               key={status}
-              className="flex items-center gap-2 text-[10px] text-ink-secondary sm:text-[11px]"
+              className="flex items-center gap-2 text-[10px] sm:text-[11px]"
             >
               <span
                 className={cn(
@@ -132,7 +132,7 @@ export function ApplicationHealthCard({ className }: { className?: string }) {
               <span className="font-medium text-ink">
                 {segmentMeta[status].label}
               </span>
-              <span className="text-ink-muted">
+              <span className="tabular-nums text-ink-muted">
                 ({getLegendValue(data, status)})
               </span>
             </li>

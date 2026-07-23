@@ -6,6 +6,7 @@ import { api } from './api/apiSlice';
 
 import './api/authApi';
 import './api/historyApi';
+import './api/threadApi';
 import './api/chatApi';
 import './api/agentsApi';
 import './api/applicationHealthApi';

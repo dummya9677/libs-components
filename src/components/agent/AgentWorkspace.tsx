@@ -99,12 +99,16 @@ interface AgentWorkspaceProps {
   agent: AgentDefinition;
   onPrompt?: (value: string) => void;
   hideGreeting?: boolean;
+  isAnalyzing?: boolean;
+  analyzeError?: string | null;
 }
 
 export function AgentWorkspace({
   agent,
   onPrompt,
   hideGreeting = false,
+  isAnalyzing = false,
+  analyzeError = null,
 }: AgentWorkspaceProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -191,7 +195,14 @@ export function AgentWorkspace({
             placeholder={agent.inputPlaceholder}
             onSend={onPrompt}
             toolbar="main"
+            disabled={isAnalyzing}
+            sendLabel="Analyze"
           />
+          {analyzeError ? (
+            <p className="mt-2 text-[11px] text-status-danger" role="alert">
+              {analyzeError}
+            </p>
+          ) : null}
         </section>
 
         <section className="mt-4 sm:mt-5">

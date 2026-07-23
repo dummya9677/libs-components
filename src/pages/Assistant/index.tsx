@@ -4,6 +4,7 @@ import { getAgentBySlug } from '../../data/agents';
 import { AgentWorkspace } from '../../components/agent/AgentWorkspace';
 import { ChatPanel } from '../../components/chat/ChatPanel';
 import { TopStatusBar } from '../../components/layout/TopStatusBar';
+import { useAgentChat } from '../../hooks/useAgentChat';
 import { useAuth } from '../../hooks/useAuth';
 import { useLayout } from '../../hooks/useLayout';
 import { cn } from '../../utils/cn';
@@ -15,9 +16,32 @@ export function AssistantPage() {
   const { openSidebar, chatOpen, toggleChat, closeChat } = useLayout();
   const firstName = user?.name?.split(' ')[0] ?? 'John';
 
+  const {
+    isCreatingThread,
+    isThreadReady,
+    messages,
+    streamingAnswer,
+    isStreaming,
+    error,
+    sendMessage,
+  } = useAgentChat(agent.id);
+
+  const chatPanel = (
+    <ChatPanel
+      agent={agent}
+      messages={messages}
+      onSend={sendMessage}
+      streamingAnswer={streamingAnswer}
+      isStreaming={isStreaming}
+      isThreadReady={isThreadReady}
+      isCreatingThread={isCreatingThread}
+      error={error}
+    />
+  );
+
   return (
     <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-app-bg">
-      <header className="flex shrink-0 flex-wrap items-start justify-between gap-3 px-3 pb-1.5 pt-3 sm:px-5 sm:pt-4 lg:px-6">
+      <header className="relative z-50 flex shrink-0 flex-wrap items-start justify-between gap-3 px-3 pb-1.5 pt-3 sm:px-5 sm:pt-4 lg:px-6">
         <div className="flex min-w-0 flex-1 items-start gap-2">
           <button
             type="button"
@@ -59,17 +83,20 @@ export function AssistantPage() {
       </header>
 
       <div className="relative flex min-h-0 flex-1 overflow-hidden">
-        {/* Must be a flex column so AgentWorkspace can scroll inside the viewport */}
         <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-          <AgentWorkspace agent={agent} hideGreeting />
+          <AgentWorkspace
+            agent={agent}
+            hideGreeting
+            onPrompt={sendMessage}
+            isAnalyzing={isStreaming || isCreatingThread}
+            analyzeError={error}
+          />
         </main>
 
-        {/* Desktop chat column */}
         <aside className="hidden h-full min-h-0 w-chat shrink-0 flex-col overflow-hidden bg-app-bg p-2 pt-0 xl:flex 2xl:w-chat-lg">
-          <ChatPanel agent={agent} />
+          {chatPanel}
         </aside>
 
-        {/* Tablet/mobile chat overlay */}
         <div
           className={cn(
             'absolute inset-0 z-30 bg-ink/30 transition-opacity xl:hidden',
@@ -84,7 +111,7 @@ export function AssistantPage() {
             chatOpen ? 'translate-x-0' : 'translate-x-full',
           )}
         >
-          <ChatPanel agent={agent} />
+          {chatPanel}
         </aside>
       </div>
     </div>

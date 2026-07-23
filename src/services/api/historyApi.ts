@@ -36,7 +36,7 @@ export const historyApi = api.injectEndpoints({
         }
 
         const result = await baseQuery({
-          url: `/history/${args.conversationId}/messages`,
+          url: `${env.api.threadMessagesPath}/${args.conversationId}/messages`,
           params: {
             ...(args.cursor ? { cursor: args.cursor } : {}),
             limit: args.limit ?? 20,

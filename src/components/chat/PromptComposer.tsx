@@ -20,6 +20,8 @@ interface PromptComposerProps {
   toolbar?: 'main' | 'chat';
   showSend?: boolean;
   gradientBorder?: boolean;
+  disabled?: boolean;
+  sendLabel?: string;
 }
 
 export function PromptComposer({
@@ -30,6 +32,8 @@ export function PromptComposer({
   toolbar = 'main',
   showSend = true,
   gradientBorder = true,
+  disabled = false,
+  sendLabel = 'Send',
 }: PromptComposerProps) {
   const [value, setValue] = useState('');
   const [speechError, setSpeechError] = useState<string | null>(null);
@@ -54,7 +58,7 @@ export function PromptComposer({
 
   const submit = () => {
     const trimmed = value.trim();
-    if (!trimmed) return;
+    if (!trimmed || disabled) return;
     onSend?.(trimmed);
     setValue('');
     speechBaseRef.current = '';
@@ -106,8 +110,9 @@ export function PromptComposer({
           onKeyDown={onKeyDown}
           rows={compact ? 2 : 2}
           placeholder={placeholder}
+          disabled={disabled}
           className={cn(
-            'w-full resize-none bg-transparent text-xs text-client-blue-helix-dark caret-client-cyan-helix-light placeholder:text-client-cyan-helix-light/55 focus:outline-none sm:text-sm',
+            'w-full resize-none bg-transparent text-xs text-client-blue-helix-dark caret-client-cyan-helix-light placeholder:text-client-cyan-helix-light/55 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 sm:text-sm',
             compact ? 'min-h-[40px]' : 'min-h-[48px]',
           )}
         />
@@ -166,8 +171,9 @@ export function PromptComposer({
             {showSend ? (
             <button
               type="submit"
-              disabled={!value.trim()}
-              aria-label="Send"
+              disabled={!value.trim() || disabled}
+              aria-label={sendLabel}
+              title={sendLabel}
               className="flex h-8 w-8 items-center justify-center rounded-lg bg-client-cyan-helix-light text-white transition hover:bg-client-blue-helix-dark disabled:cursor-not-allowed disabled:opacity-40"
             >
               <SendHorizonal className="h-3.5 w-3.5" />
