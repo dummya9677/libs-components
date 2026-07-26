@@ -3,16 +3,16 @@ import { Link } from 'react-router-dom';
 import { useLayout } from '../../hooks/useLayout';
 
 export function PlaceholderPage({ title }: { title: string }) {
-  const { openSidebar } = useLayout();
+  const { toggleSidebar } = useLayout();
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <div className="flex shrink-0 items-center gap-2 px-3 pt-3 lg:hidden">
         <button
           type="button"
-          onClick={openSidebar}
-          className="rounded-lg p-1.5 text-ink-secondary hover:bg-surface-muted"
-          aria-label="Open menu"
+          onClick={toggleSidebar}
+          className="relative z-[120] rounded-lg p-1.5 text-ink-secondary hover:bg-surface-muted lg:z-auto"
+          aria-label="Toggle menu"
         >
           <Menu className="h-5 w-5" />
         </button>

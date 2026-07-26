@@ -32,6 +32,9 @@ export const env = {
     /** Optional GET — message history prefix for a thread. */
     threadMessagesPath:
       import.meta.env.VITE_API_THREAD_MESSAGES_PATH || '/history',
+    /** GET — application list for thread creation ({ label, value }[]). */
+    applicationsPath:
+      import.meta.env.VITE_API_APPLICATIONS_PATH || '/applications',
   },
   /** When true, skip backend session and hydrate a demo user (UI preview). */
   mockAuth: import.meta.env.VITE_MOCK_AUTH === 'true',

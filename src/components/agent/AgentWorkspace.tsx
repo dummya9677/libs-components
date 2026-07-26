@@ -14,6 +14,7 @@ import type { AgentDefinition } from '../../data/agents';
 import { getAgentTheme } from '../../data/agents';
 import { CapabilityIcon } from '../icons/CapabilityIcon';
 import { FeatureCard } from './FeatureCard';
+import { ApplicationSelect } from '../application/ApplicationSelect';
 import { PromptComposer } from '../chat/PromptComposer';
 import { useAuth } from '../../hooks/useAuth';
 import { cn } from '../../utils/cn';
@@ -98,17 +99,23 @@ function AgentHeroIcon({ agent }: { agent: AgentDefinition }) {
 interface AgentWorkspaceProps {
   agent: AgentDefinition;
   onPrompt?: (value: string) => void;
+  applicationName: string;
+  onApplicationChange: (value: string) => void;
   hideGreeting?: boolean;
   isAnalyzing?: boolean;
   analyzeError?: string | null;
+  isThreadReady?: boolean;
 }
 
 export function AgentWorkspace({
   agent,
   onPrompt,
+  applicationName,
+  onApplicationChange,
   hideGreeting = false,
   isAnalyzing = false,
   analyzeError = null,
+  isThreadReady = true,
 }: AgentWorkspaceProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -188,14 +195,27 @@ export function AgentWorkspace({
         </section>
 
         <section className="mt-4 sm:mt-5">
-          <h3 className="mb-1.5 text-xs font-semibold text-ink sm:text-sm">
-            {agent.inputLabel}
-          </h3>
+          <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <h3 className="text-xs font-semibold text-ink sm:text-sm">
+              {agent.inputLabel}
+            </h3>
+            <ApplicationSelect
+              id="workspace-application-select"
+              value={applicationName}
+              onChange={onApplicationChange}
+              disabled={isAnalyzing}
+              className="sm:max-w-xs"
+            />
+          </div>
           <PromptComposer
-            placeholder={agent.inputPlaceholder}
+            placeholder={
+              applicationName
+                ? agent.inputPlaceholder
+                : 'Select an application above to ask a question…'
+            }
             onSend={onPrompt}
             toolbar="main"
-            disabled={isAnalyzing}
+            disabled={isAnalyzing || !applicationName || !isThreadReady}
             sendLabel="Analyze"
           />
           {analyzeError ? (

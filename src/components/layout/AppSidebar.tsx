@@ -1,10 +1,6 @@
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import {
-  FlaskConical,
-  GitBranch,
-  BookOpen,
   Home,
-  Settings2,
   Ticket,
   Activity,
   Database,
@@ -21,18 +17,14 @@ import { cn } from '../../utils/cn';
 
 const navItems = [
   { label: 'Homepage', path: '/', icon: Home },
-  { label: 'Analysis Studio', path: '/analysis-studio', icon: FlaskConical },
-  { label: 'Lineage Explorer', path: '/lineage', icon: GitBranch },
-  { label: 'Knowledge Hub', path: '/knowledge-hub', icon: BookOpen },
-  { label: 'Impact Simulator', path: '/impact-simulator', icon: Settings2 },
 ];
 
 const agentIcons: Record<string, typeof Ticket> = {
-  'ticket-intelligence': Ticket,
-  'impact-intelligence': Activity,
-  'data-intelligence': Database,
-  'knowledge-intelligence': Library,
   'data-quality-intelligence': ShieldCheck,
+  'ticket-intelligence': Ticket,
+  'data-intelligence': Database,
+  'impact-intelligence': Activity,
+  'knowledge-intelligence': Library,
   'cost-intelligence': CircleDollarSign,
 };
 
@@ -57,7 +49,7 @@ export function AppSidebar() {
       {/* Mobile backdrop */}
       <div
         className={cn(
-          'fixed inset-0 z-40 bg-ink/40 transition-opacity lg:hidden',
+          'fixed inset-0 z-[100] bg-ink/40 transition-opacity lg:hidden',
           sidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0',
         )}
         onClick={closeSidebar}
@@ -67,7 +59,7 @@ export function AppSidebar() {
       <aside
         className={cn(
           'flex h-full w-sidebar shrink-0 flex-col overflow-hidden border-r border-app-border bg-surface',
-          'fixed inset-y-0 left-0 z-50 transition-transform duration-200 lg:static lg:translate-x-0',
+          'fixed inset-y-0 left-0 z-[110] transition-transform duration-200 lg:static lg:translate-x-0',
           sidebarOpen ? 'translate-x-0' : '-translate-x-full',
         )}
       >

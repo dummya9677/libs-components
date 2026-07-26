@@ -19,7 +19,12 @@ export const threadApi = api.injectEndpoints({
       query: (body) => ({
         url: env.api.createThreadPath,
         method: 'POST',
-        body,
+        body: {
+          agentId: body.agentId,
+          intelligence: body.agentId,
+          applicationName: body.applicationName,
+          application_name: body.applicationName,
+        },
       }),
       transformResponse: (response: CreateThreadResponse | { thread_id?: string }) => ({
         threadId: normalizeThreadId(response),

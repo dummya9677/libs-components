@@ -6,6 +6,7 @@ import {
   Database,
   MessageCircle,
   Rocket,
+  ShieldCheck,
   Ticket,
   type LucideIcon,
 } from 'lucide-react';
@@ -16,22 +17,25 @@ import { cn } from '../../utils/cn';
 
 type WorkflowIconKey =
   | 'question'
+  | 'dataQuality'
   | 'ticket'
-  | 'impact'
   | 'data'
+  | 'impact'
   | 'knowledge'
   | 'resolution';
 
 type WorkflowThemeKey =
   | 'question'
+  | 'dataQuality'
   | 'ticket'
-  | 'impact'
   | 'data'
+  | 'impact'
   | 'knowledge'
   | 'resolution';
 
 const workflowIcons: Record<WorkflowIconKey, LucideIcon> = {
   question: MessageCircle,
+  dataQuality: ShieldCheck,
   ticket: Ticket,
   impact: Crosshair,
   data: Database,
@@ -47,6 +51,11 @@ const workflowThemeStyles: Record<
     gradientFrom: colors.brandSoft,
     primary: colors.brandDark,
     heroIcon: colors.brand,
+  },
+  dataQuality: {
+    gradientFrom: colors.agents.dataQuality.gradientFrom,
+    primary: colors.agents.dataQuality.primary,
+    heroIcon: colors.agents.dataQuality.heroIcon,
   },
   ticket: {
     gradientFrom: colors.agents.ticket.gradientFrom,
@@ -110,7 +119,7 @@ export function HowItWorksSection() {
           return (
             <div key={step.label} className="contents">
               <article
-                className="flex min-h-[88px] min-w-0 flex-1 flex-col items-center rounded-lg border border-app-border bg-surface p-2 text-center shadow-card"
+                className="flex min-h-[92px] min-w-0 flex-1 flex-col items-center rounded-lg border border-app-border bg-surface p-1.5 text-center shadow-card sm:p-2"
                 style={{
                   background: `linear-gradient(155deg, ${theme.gradientFrom} 0%, #ffffff 70%)`,
                 }}
@@ -125,12 +134,12 @@ export function HowItWorksSection() {
                   />
                 </div>
                 <h3
-                  className="mt-1.5 line-clamp-2 text-[9px] font-semibold leading-tight sm:text-[10px]"
+                  className="mt-1.5 w-full break-words px-0.5 text-[9px] font-semibold leading-snug sm:text-[10px]"
                   style={{ color: theme.primary }}
                 >
                   {step.label}
                 </h3>
-                <p className="mt-0.5 min-h-[20px] line-clamp-2 text-[8px] leading-snug text-ink-secondary sm:text-[9px]">
+                <p className="mt-0.5 min-h-[18px] w-full break-words px-0.5 text-[8px] leading-snug text-ink-secondary sm:text-[9px]">
                   {step.sub || '\u00A0'}
                 </p>
               </article>

@@ -1,5 +1,6 @@
 import { MessageSquare, Menu, X } from 'lucide-react';
-import { useParams } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
+import { useLocation, useParams } from 'react-router-dom';
 import { getAgentBySlug } from '../../data/agents';
 import { AgentWorkspace } from '../../components/agent/AgentWorkspace';
 import { ChatPanel } from '../../components/chat/ChatPanel';
@@ -7,34 +8,55 @@ import { TopStatusBar } from '../../components/layout/TopStatusBar';
 import { useAgentChat } from '../../hooks/useAgentChat';
 import { useAuth } from '../../hooks/useAuth';
 import { useLayout } from '../../hooks/useLayout';
+import { useSelectedApplication } from '../../hooks/useSelectedApplication';
 import { cn } from '../../utils/cn';
+
+interface AssistantLocationState {
+  initialPrompt?: string;
+}
 
 export function AssistantPage() {
   const { agentSlug } = useParams();
+  const location = useLocation();
   const agent = getAgentBySlug(agentSlug);
   const { user } = useAuth();
-  const { openSidebar, chatOpen, toggleChat, closeChat } = useLayout();
+  const { toggleSidebar, chatOpen, toggleChat, closeChat } = useLayout();
+  const { applicationName, setApplicationName } = useSelectedApplication();
   const firstName = user?.name?.split(' ')[0] ?? 'John';
+  const initialPromptSent = useRef(false);
 
   const {
     isCreatingThread,
     isThreadReady,
+    needsApplication,
     messages,
     streamingAnswer,
     isStreaming,
     error,
     sendMessage,
-  } = useAgentChat(agent.id);
+  } = useAgentChat(agent.id, applicationName || null);
+
+  useEffect(() => {
+    const state = location.state as AssistantLocationState | null;
+    const prompt = state?.initialPrompt?.trim();
+    if (!prompt || initialPromptSent.current || !isThreadReady) return;
+
+    initialPromptSent.current = true;
+    void sendMessage(prompt);
+  }, [isThreadReady, location.state, sendMessage]);
 
   const chatPanel = (
     <ChatPanel
       agent={agent}
       messages={messages}
       onSend={sendMessage}
+      applicationName={applicationName}
+      onApplicationChange={setApplicationName}
       streamingAnswer={streamingAnswer}
       isStreaming={isStreaming}
       isThreadReady={isThreadReady}
       isCreatingThread={isCreatingThread}
+      needsApplication={needsApplication}
       error={error}
     />
   );
@@ -45,9 +67,9 @@ export function AssistantPage() {
         <div className="flex min-w-0 flex-1 items-start gap-2">
           <button
             type="button"
-            onClick={openSidebar}
-            className="mt-0.5 rounded-lg p-1.5 text-ink-secondary hover:bg-surface-muted lg:hidden"
-            aria-label="Open menu"
+            onClick={toggleSidebar}
+            className="relative z-[120] mt-0.5 rounded-lg p-1.5 text-ink-secondary hover:bg-surface-muted lg:z-auto lg:hidden"
+            aria-label="Toggle menu"
           >
             <Menu className="h-5 w-5" />
           </button>
@@ -88,7 +110,10 @@ export function AssistantPage() {
             agent={agent}
             hideGreeting
             onPrompt={sendMessage}
+            applicationName={applicationName}
+            onApplicationChange={setApplicationName}
             isAnalyzing={isStreaming || isCreatingThread}
+            isThreadReady={isThreadReady}
             analyzeError={error}
           />
         </main>

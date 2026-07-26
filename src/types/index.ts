@@ -69,9 +69,15 @@ export interface Agent {
   isActive: boolean;
 }
 
+export interface ApplicationOption {
+  label: string;
+  value: string;
+}
+
 /** POST create-thread — maps to your backend `thread_id`. */
 export interface CreateThreadRequest {
   agentId: string;
+  applicationName: string;
 }
 
 export interface CreateThreadResponse {
@@ -83,6 +89,7 @@ export interface SendMessageRequest {
   threadId?: string;
   conversationId?: string;
   agentId?: string;
+  applicationName?: string;
   content: string;
 }
 

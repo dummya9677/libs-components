@@ -5,6 +5,7 @@ import './historyApi';
 import './threadApi';
 import './chatApi';
 import './agentsApi';
+import './applicationsApi';
 
 export { api };
 export {
@@ -22,3 +23,4 @@ export {
 export { useCreateThreadMutation } from './threadApi';
 export { useSendMessageMutation } from './chatApi';
 export { useGetAgentsQuery } from './agentsApi';
+export { useGetApplicationsQuery } from './applicationsApi';

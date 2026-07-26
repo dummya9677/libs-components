@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useCreateThreadMutation } from '../services/api';
+import {
+  useCreateThreadMutation,
+  useLazyGetConversationMessagesQuery,
+} from '../services/api';
 import { streamChat } from '../services/chat/streamChat';
 import type { HistoryMessage } from '../types';
 
@@ -28,13 +31,15 @@ function createAssistantMessage(
 
 /**
  * Agent chat lifecycle:
- * 1. On agent select → POST create-thread → store `threadId`
- * 2. On Analyze/send → POST /chat with the same `threadId` (streamed response)
+ * 1. User selects application → POST create-thread with agent + application → store `threadId`
+ * 2. Load existing messages for that thread (if any)
+ * 3. On send → POST /chat with agent, application, and thread id (streamed response)
  */
-export function useAgentChat(agentId: string) {
+export function useAgentChat(agentId: string, applicationName: string | null) {
   const [createThread] = useCreateThreadMutation();
+  const [fetchMessages] = useLazyGetConversationMessagesQuery();
   const [threadId, setThreadId] = useState<string | null>(null);
-  const [isCreatingThread, setIsCreatingThread] = useState(true);
+  const [isCreatingThread, setIsCreatingThread] = useState(false);
   const [threadError, setThreadError] = useState<string | null>(null);
   const [messages, setMessages] = useState<HistoryMessage[]>([]);
   const [streamingAnswer, setStreamingAnswer] = useState('');
@@ -47,18 +52,39 @@ export function useAgentChat(agentId: string) {
 
     abortRef.current?.abort();
     setThreadId(null);
-    setIsCreatingThread(true);
+    setIsCreatingThread(false);
     setThreadError(null);
     setMessages([]);
     setStreamingAnswer('');
     setError(null);
     setIsStreaming(false);
 
+    if (!applicationName) {
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    setIsCreatingThread(true);
+
     const initThread = async () => {
       try {
-        const result = await createThread({ agentId }).unwrap();
-        if (!cancelled) {
-          setThreadId(result.threadId);
+        const result = await createThread({ agentId, applicationName }).unwrap();
+        if (cancelled) return;
+
+        setThreadId(result.threadId);
+
+        try {
+          const historyPage = await fetchMessages({
+            conversationId: result.threadId,
+          }).unwrap();
+          if (!cancelled) {
+            setMessages(historyPage.items);
+          }
+        } catch {
+          if (!cancelled) {
+            setMessages([]);
+          }
         }
       } catch (err) {
         if (!cancelled) {
@@ -80,12 +106,17 @@ export function useAgentChat(agentId: string) {
     return () => {
       cancelled = true;
     };
-  }, [agentId, createThread]);
+  }, [agentId, applicationName, createThread, fetchMessages]);
 
   const sendMessage = useCallback(
     async (content: string) => {
       const trimmed = content.trim();
       if (!trimmed || isStreaming) return;
+
+      if (!applicationName) {
+        setError('Select an application before sending a message.');
+        return;
+      }
 
       if (!threadId) {
         setError(
@@ -109,6 +140,7 @@ export function useAgentChat(agentId: string) {
       try {
         await streamChat({
           agentId,
+          applicationName,
           threadId,
           content: trimmed,
           signal: abort.signal,
@@ -136,7 +168,14 @@ export function useAgentChat(agentId: string) {
         abortRef.current = null;
       }
     },
-    [agentId, isCreatingThread, isStreaming, threadError, threadId],
+    [
+      agentId,
+      applicationName,
+      isCreatingThread,
+      isStreaming,
+      threadError,
+      threadId,
+    ],
   );
 
   const cancelStream = useCallback(() => {
@@ -148,6 +187,7 @@ export function useAgentChat(agentId: string) {
     isCreatingThread,
     threadError,
     isThreadReady: Boolean(threadId),
+    needsApplication: !applicationName,
     messages,
     streamingAnswer,
     isStreaming,

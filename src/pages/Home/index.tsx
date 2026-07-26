@@ -10,32 +10,35 @@ import {
   Sparkles,
   Ticket,
 } from 'lucide-react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ApplicationHealthCard } from '../../components/home/ApplicationHealthCard';
 import { HowItWorksSection } from '../../components/home/HowItWorksSection';
 import { HomeRightRail } from '../../components/home/HomeRightRail';
 import { RecentInvestigationsCard } from '../../components/home/RecentInvestigationsCard';
 import { RecommendedActionsCard } from '../../components/home/RecommendedActionsCard';
-import { agents, getAgentTheme } from '../../data/agents';
+import { agents, DEFAULT_AGENT_SLUG, getAgentTheme } from '../../data/agents';
 import {
   comingSoonAgents,
   homeKpis,
   suggestedQueries,
 } from '../../data/homeDashboard';
 import { PromptComposer } from '../../components/chat/PromptComposer';
+import { ApplicationSelect } from '../../components/application/ApplicationSelect';
 import { TopStatusBar } from '../../components/layout/TopStatusBar';
 import { clientBrandCardGradient } from '../../config/clientColors';
 import { useAuth } from '../../hooks/useAuth';
 import { useLayout } from '../../hooks/useLayout';
+import { useSelectedApplication } from '../../hooks/useSelectedApplication';
 import { env } from '../../utils/env';
 import { cn } from '../../utils/cn';
 
 const agentIcons: Record<string, typeof Ticket> = {
-  'ticket-intelligence': Ticket,
-  'impact-intelligence': Network,
-  'data-intelligence': Database,
-  'knowledge-intelligence': BookOpen,
   'data-quality-intelligence': ShieldCheck,
+  'ticket-intelligence': Ticket,
+  'data-intelligence': Database,
+  'impact-intelligence': Network,
+  'knowledge-intelligence': BookOpen,
   'cost-intelligence': CircleDollarSign,
 };
 
@@ -48,12 +51,22 @@ function getGreeting() {
 
 export function HomePage() {
   const { user } = useAuth();
-  const { openSidebar } = useLayout();
+  const { toggleSidebar } = useLayout();
+  const { applicationName, setApplicationName } = useSelectedApplication();
   const navigate = useNavigate();
+  const [homePromptError, setHomePromptError] = useState<string | null>(null);
   const firstName = user?.name?.split(' ')[0] ?? 'John';
 
-  const openAgent = (slug: string) => {
-    navigate(`/assistant/${slug}`);
+  const openAgent = (slug: string, prompt?: string) => {
+    if (!applicationName) {
+      setHomePromptError('Select an application before continuing.');
+      return;
+    }
+
+    setHomePromptError(null);
+    navigate(`/assistant/${slug}`, {
+      state: prompt?.trim() ? { initialPrompt: prompt.trim() } : undefined,
+    });
   };
 
   return (
@@ -63,9 +76,9 @@ export function HomePage() {
           <div className="flex min-w-0 flex-1 items-start gap-2">
             <button
               type="button"
-              onClick={openSidebar}
-              className="mt-0.5 rounded-lg p-1.5 text-ink-secondary hover:bg-surface-muted lg:hidden"
-              aria-label="Open menu"
+              onClick={toggleSidebar}
+              className="relative z-[120] mt-0.5 rounded-lg p-1.5 text-ink-secondary hover:bg-surface-muted lg:z-auto lg:hidden"
+              aria-label="Toggle menu"
             >
               <Menu className="h-5 w-5" />
             </button>
@@ -122,18 +135,37 @@ export function HomePage() {
                     {env.appName} will handle the rest.
                   </span>
                 </p>
+                <ApplicationSelect
+                  id="home-application-select"
+                  value={applicationName}
+                  onChange={(value) => {
+                    setApplicationName(value);
+                    if (value) setHomePromptError(null);
+                  }}
+                  className="mb-2"
+                />
                 <PromptComposer
-                  placeholder="Ask anything about tickets, data issues, impact, knowledge..."
+                  placeholder={
+                    applicationName
+                      ? 'Ask anything about tickets, data issues, impact, knowledge...'
+                      : 'Select an application above to ask a question…'
+                  }
                   toolbar="main"
                   gradientBorder={false}
-                  onSend={() => openAgent('ticket-intelligence')}
+                  disabled={!applicationName}
+                  onSend={(text) => openAgent(DEFAULT_AGENT_SLUG, text)}
                 />
+                {homePromptError ? (
+                  <p className="mt-1.5 text-[10px] text-status-danger" role="alert">
+                    {homePromptError}
+                  </p>
+                ) : null}
                 <div className="mt-2 flex flex-wrap justify-start gap-1">
                 {suggestedQueries.map((query) => (
                   <button
                     key={query}
                     type="button"
-                    onClick={() => openAgent('ticket-intelligence')}
+                    onClick={() => openAgent(DEFAULT_AGENT_SLUG, query)}
                     className="rounded-full border border-white/80 bg-white/70 px-2 py-0.5 text-[9px] font-medium text-client-blue-helix-dark transition hover:border-client-cyan-helix-light/40 hover:bg-white hover:text-client-cyan-helix-light sm:text-[10px]"
                   >
                     {query}

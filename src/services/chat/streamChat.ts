@@ -3,6 +3,7 @@ import { env } from '../../utils/env';
 export interface StreamChatOptions {
   content: string;
   agentId?: string;
+  applicationName?: string;
   threadId?: string;
   signal?: AbortSignal;
   /** Called for each streamed text chunk — use to update UI (setAnswer pattern). */
@@ -111,6 +112,7 @@ async function readResponseStream(
 export async function streamChat({
   content,
   agentId,
+  applicationName,
   threadId,
   signal,
   onChunk,
@@ -128,6 +130,9 @@ export async function streamChat({
       message: content,
       query: content,
       agentId,
+      intelligence: agentId,
+      applicationName,
+      application_name: applicationName,
       threadId,
       thread_id: threadId,
     }),

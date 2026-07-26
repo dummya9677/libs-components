@@ -142,10 +142,16 @@ export const intelligenceStats = [
 
 export const workflowSteps = [
   {
-    label: 'Your Question or Issue',
-    sub: '',
+    label: 'Your Question',
+    sub: 'Describe your issue',
     icon: 'question' as const,
     theme: 'question' as const,
+  },
+  {
+    label: 'Data Quality Intelligence',
+    sub: 'Synthesize & Score',
+    icon: 'dataQuality' as const,
+    theme: 'dataQuality' as const,
   },
   {
     label: 'Ticket Intelligence',
@@ -154,16 +160,16 @@ export const workflowSteps = [
     theme: 'ticket' as const,
   },
   {
-    label: 'Impact Intelligence',
-    sub: 'Assess Impact',
-    icon: 'impact' as const,
-    theme: 'impact' as const,
-  },
-  {
     label: 'Data Intelligence',
     sub: 'Find Root Cause',
     icon: 'data' as const,
     theme: 'data' as const,
+  },
+  {
+    label: 'Impact Intelligence',
+    sub: 'Assess Impact',
+    icon: 'impact' as const,
+    theme: 'impact' as const,
   },
   {
     label: 'Knowledge Intelligence',
@@ -172,8 +178,8 @@ export const workflowSteps = [
     theme: 'knowledge' as const,
   },
   {
-    label: 'Recommendation & Resolution',
-    sub: 'AI-Powered Solution',
+    label: 'Suggested Solution',
+    sub: 'AI-Powered Resolution',
     icon: 'resolution' as const,
     theme: 'resolution' as const,
   },

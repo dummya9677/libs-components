@@ -52,6 +52,101 @@ export interface AgentDefinition {
 
 export const agents: AgentDefinition[] = [
   {
+    id: 'data-quality-intelligence',
+    slug: 'data-quality-intelligence',
+    name: 'Data Quality Intelligence',
+    shortName: 'Data Quality',
+    colorKey: 'dataQuality',
+    description:
+      'Synthesize and summarize findings from all intelligence agents into unified data quality insights.',
+    inputLabel: 'Ask about consolidated data quality or agent findings',
+    inputPlaceholder:
+      'E.g. Summarize all data quality issues found across agents today',
+    heroVariant: 'quality',
+    capabilities: [
+      { label: 'Cross-Agent Synthesis', icon: 'layers' },
+      { label: 'Quality Scoring', icon: 'check' },
+      { label: 'Unified Reporting', icon: 'book' },
+      { label: 'Trend Analysis', icon: 'search' },
+    ],
+    actions: [
+      {
+        id: 'summarize',
+        title: 'Summarize Agent Findings',
+        description: 'Consolidate outputs from all active intelligence agents.',
+        accent: 'blue',
+      },
+      {
+        id: 'score',
+        title: 'Quality Health Overview',
+        description: 'View overall data quality scores and trends.',
+        accent: 'green',
+      },
+      {
+        id: 'compare',
+        title: 'Compare Agent Outputs',
+        description: 'Correlate findings across ticket, data and impact agents.',
+        accent: 'purple',
+      },
+      {
+        id: 'report',
+        title: 'Generate Quality Report',
+        description: 'Create an executive summary of data health.',
+        accent: 'orange',
+      },
+    ],
+    examples: [
+      'Summarize all findings from today’s investigations',
+      'What is the overall data quality score this week?',
+      'Which tables have recurring quality issues?',
+      'Compare Ticket and Data Intelligence findings for INC-1284',
+    ],
+    demoMessages: [
+      {
+        id: '1',
+        role: 'assistant',
+        content: "Hello! I'm your AI Assistant. How can I help you today?",
+        sentAt: minutesAgoIso(5),
+      },
+      {
+        id: '2',
+        role: 'user',
+        content: 'Summarize all data quality findings from today’s investigations',
+        sentAt: minutesAgoIso(5),
+      },
+      {
+        id: '3',
+        role: 'status',
+        content:
+          'Gathering outputs from Ticket, Data, Impact and Knowledge Intelligence agents...',
+      },
+      {
+        id: '4',
+        role: 'progress',
+        progress: 82,
+        progressLabel: 'Data Quality Intelligence · Synthesizing agent findings…',
+      },
+      {
+        id: '5',
+        role: 'result',
+        content: "Here's your consolidated data quality summary:",
+        bullets: [
+          'Overall quality score: 87% (↑ 3% vs yesterday)',
+          '4 active issues across 3 datasets — 2 high priority',
+          'sales_report: ETL delay flagged by Ticket & Data Intelligence',
+          'customer_id nulls in staging — 18% records affected',
+          'product_dim schema change risk identified by Impact Intelligence',
+        ],
+        followUp: 'Would you like a detailed breakdown by agent?',
+        actions: [
+          { label: 'View by agent', variant: 'primary' },
+          { label: 'Export report', variant: 'link' },
+        ],
+        sentAt: minutesAgoIso(0),
+      },
+    ],
+  },
+  {
     id: 'ticket-intelligence',
     slug: 'ticket-intelligence',
     name: 'Ticket Intelligence',
@@ -140,6 +235,91 @@ export const agents: AgentDefinition[] = [
           { label: 'Show more details', variant: 'link' },
         ],
         sentAt: minutesAgoIso(5),
+      },
+    ],
+  },
+  {
+    id: 'data-intelligence',
+    slug: 'data-intelligence',
+    name: 'Data Intelligence',
+    shortName: 'Data',
+    colorKey: 'dataIssue',
+    description:
+      'Detect data issues, anomalies and root causes across pipelines and datasets.',
+    inputLabel: 'Describe your data issue or ask a question',
+    inputPlaceholder: 'E.g., Why are there null values in customer_id?',
+    heroVariant: 'database',
+    capabilities: [
+      { label: 'Anomaly Detection', icon: 'sparkles' },
+      { label: 'Data Quality Check', icon: 'check' },
+      { label: 'Root Cause Analysis', icon: 'search' },
+      { label: 'Issue Tracking', icon: 'target' },
+    ],
+    actions: [
+      {
+        id: 'anomalies',
+        title: 'Detect Anomalies',
+        description: 'Find unusual patterns and data anomalies.',
+        accent: 'purple',
+      },
+      {
+        id: 'quality',
+        title: 'Check Data Quality',
+        description: 'Validate data accuracy and consistency.',
+        accent: 'blue',
+      },
+      {
+        id: 'root',
+        title: 'Find Root Cause',
+        description: 'Trace the source of data issues.',
+        accent: 'green',
+      },
+    ],
+    examples: [
+      'Why are there nulls in customer_id?',
+      'Data mismatch in sales_report',
+      'Detect outliers in revenue data',
+    ],
+    demoMessages: [
+      {
+        id: '1',
+        role: 'assistant',
+        content: "Hello! I'm your AI Assistant. How can I help you today?",
+        sentAt: minutesAgoIso(5),
+      },
+      {
+        id: '2',
+        role: 'user',
+        content: 'Why are there null values in customer_id?',
+        sentAt: minutesAgoIso(5),
+      },
+      {
+        id: '3',
+        role: 'status',
+        content: 'Analyzing your data issue with the Data Intelligence agent...',
+      },
+      {
+        id: '4',
+        role: 'progress',
+        progress: 78,
+        progressLabel: 'Detecting anomalies and root cause analysis...',
+      },
+      {
+        id: '5',
+        role: 'result',
+        content: "Here's what I found:",
+        bullets: [
+          'Nulls introduced in staging.customer_data',
+          'Missing values after customer update flow',
+          '18% of records affected',
+          'Issue started 2 days ago after source update.',
+        ],
+        followUp: 'Would you like me to suggest a resolution step?',
+        actions: [
+          { label: 'Show resolution steps', variant: 'link' },
+          { label: 'Monitor this issue', variant: 'link' },
+        ],
+        sentAt: minutesAgoIso(0),
       },
     ],
   },
@@ -238,91 +418,6 @@ export const agents: AgentDefinition[] = [
     ],
   },
   {
-    id: 'data-intelligence',
-    slug: 'data-intelligence',
-    name: 'Data Intelligence',
-    shortName: 'Data',
-    colorKey: 'dataIssue',
-    description:
-      'Detect data issues, anomalies and root causes across pipelines and datasets.',
-    inputLabel: 'Describe your data issue or ask a question',
-    inputPlaceholder: 'E.g., Why are there null values in customer_id?',
-    heroVariant: 'database',
-    capabilities: [
-      { label: 'Anomaly Detection', icon: 'sparkles' },
-      { label: 'Data Quality Check', icon: 'check' },
-      { label: 'Root Cause Analysis', icon: 'search' },
-      { label: 'Issue Tracking', icon: 'target' },
-    ],
-    actions: [
-      {
-        id: 'anomalies',
-        title: 'Detect Anomalies',
-        description: 'Find unusual patterns and data anomalies.',
-        accent: 'purple',
-      },
-      {
-        id: 'quality',
-        title: 'Check Data Quality',
-        description: 'Validate data accuracy and consistency.',
-        accent: 'blue',
-      },
-      {
-        id: 'root',
-        title: 'Find Root Cause',
-        description: 'Trace the source of data issues.',
-        accent: 'green',
-      },
-    ],
-    examples: [
-      'Why are there nulls in customer_id?',
-      'Data mismatch in sales_report',
-      'Detect outliers in revenue data',
-    ],
-    demoMessages: [
-      {
-        id: '1',
-        role: 'assistant',
-        content: "Hello! I'm your AI Assistant. How can I help you today?",
-        sentAt: minutesAgoIso(5),
-      },
-      {
-        id: '2',
-        role: 'user',
-        content: 'Why are there null values in customer_id?',
-        sentAt: minutesAgoIso(5),
-      },
-      {
-        id: '3',
-        role: 'status',
-        content: 'Analyzing your data issue with the Data Intelligence agent...',
-      },
-      {
-        id: '4',
-        role: 'progress',
-        progress: 78,
-        progressLabel: 'Detecting anomalies and root cause analysis...',
-      },
-      {
-        id: '5',
-        role: 'result',
-        content: "Here's what I found:",
-        bullets: [
-          'Nulls introduced in staging.customer_data',
-          'Missing values after customer update flow',
-          '18% of records affected',
-          'Issue started 2 days ago after source update.',
-        ],
-        followUp: 'Would you like me to suggest a resolution step?',
-        actions: [
-          { label: 'Show resolution steps', variant: 'link' },
-          { label: 'Monitor this issue', variant: 'link' },
-        ],
-        sentAt: minutesAgoIso(0),
-      },
-    ],
-  },
-  {
     id: 'knowledge-intelligence',
     slug: 'knowledge-intelligence',
     name: 'Knowledge Intelligence',
@@ -409,101 +504,6 @@ export const agents: AgentDefinition[] = [
         actions: [
           { label: 'Open best practice guide', variant: 'link' },
           { label: 'Show more results', variant: 'link' },
-        ],
-        sentAt: minutesAgoIso(0),
-      },
-    ],
-  },
-  {
-    id: 'data-quality-intelligence',
-    slug: 'data-quality-intelligence',
-    name: 'Data Quality Intelligence',
-    shortName: 'Data Quality',
-    colorKey: 'dataQuality',
-    description:
-      'Synthesize and summarize findings from all intelligence agents into unified data quality insights.',
-    inputLabel: 'Ask about consolidated data quality or agent findings',
-    inputPlaceholder:
-      'E.g. Summarize all data quality issues found across agents today',
-    heroVariant: 'quality',
-    capabilities: [
-      { label: 'Cross-Agent Synthesis', icon: 'layers' },
-      { label: 'Quality Scoring', icon: 'check' },
-      { label: 'Unified Reporting', icon: 'book' },
-      { label: 'Trend Analysis', icon: 'search' },
-    ],
-    actions: [
-      {
-        id: 'summarize',
-        title: 'Summarize Agent Findings',
-        description: 'Consolidate outputs from all active intelligence agents.',
-        accent: 'blue',
-      },
-      {
-        id: 'score',
-        title: 'Quality Health Overview',
-        description: 'View overall data quality scores and trends.',
-        accent: 'green',
-      },
-      {
-        id: 'compare',
-        title: 'Compare Agent Outputs',
-        description: 'Correlate findings across ticket, data and impact agents.',
-        accent: 'purple',
-      },
-      {
-        id: 'report',
-        title: 'Generate Quality Report',
-        description: 'Create an executive summary of data health.',
-        accent: 'orange',
-      },
-    ],
-    examples: [
-      'Summarize all findings from today’s investigations',
-      'What is the overall data quality score this week?',
-      'Which tables have recurring quality issues?',
-      'Compare Ticket and Data Intelligence findings for INC-1284',
-    ],
-    demoMessages: [
-      {
-        id: '1',
-        role: 'assistant',
-        content: "Hello! I'm your AI Assistant. How can I help you today?",
-        sentAt: minutesAgoIso(5),
-      },
-      {
-        id: '2',
-        role: 'user',
-        content: 'Summarize all data quality findings from today’s investigations',
-        sentAt: minutesAgoIso(5),
-      },
-      {
-        id: '3',
-        role: 'status',
-        content:
-          'Gathering outputs from Ticket, Data, Impact and Knowledge Intelligence agents...',
-      },
-      {
-        id: '4',
-        role: 'progress',
-        progress: 82,
-        progressLabel: 'Data Quality Intelligence · Synthesizing agent findings…',
-      },
-      {
-        id: '5',
-        role: 'result',
-        content: "Here's your consolidated data quality summary:",
-        bullets: [
-          'Overall quality score: 87% (↑ 3% vs yesterday)',
-          '4 active issues across 3 datasets — 2 high priority',
-          'sales_report: ETL delay flagged by Ticket & Data Intelligence',
-          'customer_id nulls in staging — 18% records affected',
-          'product_dim schema change risk identified by Impact Intelligence',
-        ],
-        followUp: 'Would you like a detailed breakdown by agent?',
-        actions: [
-          { label: 'View by agent', variant: 'primary' },
-          { label: 'Export report', variant: 'link' },
         ],
         sentAt: minutesAgoIso(0),
       },
@@ -604,7 +604,7 @@ export const agents: AgentDefinition[] = [
   },
 ];
 
-export const DEFAULT_AGENT_SLUG = 'ticket-intelligence';
+export const DEFAULT_AGENT_SLUG = 'data-quality-intelligence';
 
 export function getAgentBySlug(slug?: string): AgentDefinition {
   return agents.find((a) => a.slug === slug) ?? agents[0];
