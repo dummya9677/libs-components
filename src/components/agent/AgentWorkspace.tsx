@@ -10,6 +10,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { getAgentHeroImage } from '../../assets/agentHeroImages';
 import type { AgentDefinition } from '../../data/agents';
 import { getAgentTheme } from '../../data/agents';
 import { CapabilityIcon } from '../icons/CapabilityIcon';
@@ -19,7 +20,25 @@ import { PromptComposer } from '../chat/PromptComposer';
 import { useAuth } from '../../hooks/useAuth';
 import { cn } from '../../utils/cn';
 
-function HeroArt({ variant }: { variant: AgentDefinition['heroVariant'] }) {
+function HeroArt({
+  agent,
+}: {
+  agent: AgentDefinition;
+}) {
+  const imageUrl = getAgentHeroImage(agent.slug);
+
+  if (imageUrl) {
+    return (
+      <img
+        src={imageUrl}
+        alt={`${agent.name} illustration`}
+        className="hidden h-24 w-32 shrink-0 object-contain object-bottom-right md:block lg:h-28 lg:w-36"
+      />
+    );
+  }
+
+  const variant = agent.heroVariant;
+
   if (variant === 'book') {
     return (
       <div className="relative hidden h-20 w-28 shrink-0 items-center justify-center md:flex lg:h-24 lg:w-36">
@@ -190,7 +209,7 @@ export function AgentWorkspace({
                 ))}
               </div>
             </div>
-            <HeroArt variant={agent.heroVariant} />
+            <HeroArt agent={agent} />
           </div>
         </section>
 

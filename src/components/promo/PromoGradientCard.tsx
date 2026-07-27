@@ -1,7 +1,7 @@
 import { cn } from '../../utils/cn';
 import { env } from '../../utils/env';
-import sidebarRobotImage from '../../assets/robot.png';
 import multiAgentImage from '../../assets/multi-agent-intelligence.png';
+import sidebarRobotImage from '../../assets/robot.png';
 
 export type PromoGradientVariant = 'sidebar' | 'rail';
 

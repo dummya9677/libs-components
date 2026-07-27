@@ -6,7 +6,16 @@ from pathlib import Path
 from PIL import Image
 
 ASSETS = Path(__file__).resolve().parents[1] / "src" / "assets"
-FILES = ["robot.png", "multi-agent-intelligence.png"]
+FILES = [
+    "robot.png",
+    "multi-agent-intelligence.png",
+    "data-issue-analyzer.png",
+    "impact-analyzer.png",
+    "knowledge-assistant.png",
+    "ticket-analyzer.png",
+    "dqintelligence.png",
+    "costintelligence.png",
+]
 PADDING = 0
 BG_THRESHOLD = 28
 
