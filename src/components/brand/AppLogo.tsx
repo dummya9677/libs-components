@@ -4,10 +4,12 @@ import { env } from '../../utils/env';
 export function AppLogo({
   collapsed = false,
   iconOnly = false,
+  variant = 'sidebar',
   className,
 }: {
   collapsed?: boolean;
   iconOnly?: boolean;
+  variant?: 'sidebar' | 'login';
   className?: string;
 }) {
   return (
@@ -18,7 +20,12 @@ export function AppLogo({
       <img
         src="/assets/app-logo.png"
         alt={env.appName}
-        className="block h-auto max-h-[8.5rem] w-[80%] object-contain object-left"
+        className={cn(
+          'block object-contain object-left',
+          variant === 'sidebar'
+            ? 'h-11 w-full max-w-none'
+            : 'h-10 w-auto max-w-[96px]',
+        )}
       />
       {!collapsed && !iconOnly ? (
         <span className="text-[15px] font-semibold tracking-tight text-logo sm:text-[16px]">

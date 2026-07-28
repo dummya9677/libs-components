@@ -34,6 +34,7 @@ export function BrandLockup({
         <AppLogo
           collapsed={collapsed}
           iconOnly
+          variant={variant}
           className="min-w-0 shrink"
         />
       </div>
