@@ -15,23 +15,14 @@ export function AppLogo({
       className={cn('flex items-center gap-2', className)}
       aria-label={iconOnly ? env.appName : undefined}
     >
-      <svg
-        viewBox="0 0 32 32"
-        fill="none"
-        aria-hidden
+      <img
+        src="/assets/app-logo.png"
+        alt={env.appName}
         className={cn(
-          'shrink-0',
+          'shrink-0 object-contain',
           iconOnly ? 'h-10 w-10' : 'h-9 w-9',
         )}
-      >
-        <rect x="4" y="4" width="24" height="24" rx="6" fill="var(--color-logo)" />
-        <path
-          d="M11 16h10M16 11v10"
-          stroke="white"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-      </svg>
+      />
       {!collapsed && !iconOnly ? (
         <span className="text-[15px] font-semibold tracking-tight text-logo sm:text-[16px]">
           {env.appName}

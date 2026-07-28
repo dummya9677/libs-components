@@ -28,8 +28,7 @@ export function LoginPage() {
     <div className="flex h-full min-h-dvh items-center justify-center overflow-y-auto bg-app-bg p-4">
       <div className="w-full max-w-md rounded-2xl border border-app-border bg-surface p-8 shadow-card">
         <BrandLockup variant="login" className="mb-6" />
-        <h1 className="text-2xl font-bold text-ink">{env.appName}</h1>
-        <p className="mt-2 text-sm text-ink-secondary">
+        <p className="text-sm text-ink-secondary">
           {env.mockAuth
             ? 'Demo mode — sign in with a placeholder account. No backend or SSO required.'
             : 'Sign in with your enterprise account to continue.'}

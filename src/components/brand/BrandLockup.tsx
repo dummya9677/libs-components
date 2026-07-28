@@ -27,7 +27,7 @@ export function BrandLockup({
       ) : null}
       <AppLogo
         collapsed={collapsed}
-        iconOnly={variant === 'sidebar'}
+        iconOnly
         className="min-w-0 shrink"
       />
     </div>
