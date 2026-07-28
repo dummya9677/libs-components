@@ -21,11 +21,15 @@ export function BrandLockup({
     >
       {!collapsed ? (
         <>
-          <PartnerLogo />
-          <span className="h-10 w-px bg-app-border" aria-hidden />
+          <PartnerLogo className="min-w-0 shrink" />
+          <span className="h-8 w-px shrink-0 bg-app-border" aria-hidden />
         </>
       ) : null}
-      <AppLogo collapsed={collapsed} iconOnly />
+      <AppLogo
+        collapsed={collapsed}
+        iconOnly
+        className={variant === 'sidebar' ? 'min-w-0 flex-1' : 'justify-center'}
+      />
     </div>
   );
 }
