@@ -22,7 +22,13 @@ export function BrandLockup({
       {!collapsed ? (
         <div className="flex shrink-0 items-center gap-2">
           <PartnerLogo className="min-w-0 shrink" />
-          <span className="h-10 w-px shrink-0 bg-app-border" aria-hidden />
+          <span
+            className={cn(
+              'w-px shrink-0 bg-app-border',
+              variant === 'sidebar' ? 'h-16' : 'h-10',
+            )}
+            aria-hidden
+          />
         </div>
       ) : null}
       <div
@@ -35,7 +41,7 @@ export function BrandLockup({
           collapsed={collapsed}
           iconOnly
           variant={variant}
-          className="min-w-0 shrink"
+          className="min-w-0 flex-1"
         />
       </div>
     </div>

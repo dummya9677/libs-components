@@ -21,9 +21,9 @@ export function AppLogo({
         src="/assets/app-logo.png"
         alt={env.appName}
         className={cn(
-          'block object-contain object-left',
+          'block shrink-0 object-contain object-left',
           variant === 'sidebar'
-            ? 'h-11 w-full max-w-none'
+            ? 'h-16 w-auto max-w-full'
             : 'h-10 w-auto max-w-[96px]',
         )}
       />
