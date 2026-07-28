@@ -23,7 +23,7 @@ export function AppLogo({
         className={cn(
           'block object-contain object-left',
           variant === 'sidebar'
-            ? 'h-auto w-full max-h-14'
+            ? 'h-auto w-full'
             : 'h-auto w-auto',
         )}
       />
