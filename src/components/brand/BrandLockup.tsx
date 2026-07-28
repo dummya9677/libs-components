@@ -15,21 +15,17 @@ export function BrandLockup({
     <div
       className={cn(
         'flex min-w-0 items-center',
-        variant === 'sidebar' ? 'gap-2' : 'gap-3',
+        variant === 'sidebar' ? 'gap-2' : 'w-full justify-center gap-3',
         className,
       )}
     >
       {!collapsed ? (
         <>
-          <PartnerLogo className="min-w-0 shrink" />
-          <span className="h-8 w-px shrink-0 bg-app-border" aria-hidden />
+          <PartnerLogo />
+          <span className="h-10 w-px bg-app-border" aria-hidden />
         </>
       ) : null}
-      <AppLogo
-        collapsed={collapsed}
-        iconOnly
-        className="min-w-0 shrink"
-      />
+      <AppLogo collapsed={collapsed} iconOnly />
     </div>
   );
 }

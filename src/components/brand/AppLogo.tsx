@@ -12,16 +12,13 @@ export function AppLogo({
 }) {
   return (
     <div
-      className={cn('flex items-center gap-2', className)}
+      className={cn('flex items-center', className)}
       aria-label={iconOnly ? env.appName : undefined}
     >
       <img
         src="/assets/app-logo.png"
         alt={env.appName}
-        className={cn(
-          'shrink-0 object-contain',
-          iconOnly ? 'h-10 w-10' : 'h-9 w-9',
-        )}
+        className="block h-auto w-auto object-contain object-left"
       />
       {!collapsed && !iconOnly ? (
         <span className="text-[15px] font-semibold tracking-tight text-logo sm:text-[16px]">

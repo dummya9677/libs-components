@@ -9,16 +9,13 @@ export function PartnerLogo({
 }) {
   return (
     <div
-      className={cn(
-        'flex h-8 w-[72px] shrink-0 items-center justify-center',
-        className,
-      )}
+      className={cn('flex items-center justify-center', className)}
       title="Partner logo"
     >
       <img
         src={partnerLogo}
         alt="Partner logo"
-        className="h-full w-full object-contain object-left"
+        className="h-auto w-auto max-h-10 object-contain object-left"
       />
     </div>
   );
