@@ -10,7 +10,7 @@ export function PartnerLogo({
   return (
     <div
       className={cn(
-        'flex h-8 w-[72px] shrink-0 items-center justify-center',
+        'flex h-10 w-[90px] shrink-0 items-center justify-center',
         className,
       )}
       title="Partner logo"

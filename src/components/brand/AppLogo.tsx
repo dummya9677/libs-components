@@ -18,7 +18,7 @@ export function AppLogo({
       <img
         src="/assets/app-logo.png"
         alt={env.appName}
-        className="block h-auto w-[75%] object-contain object-left"
+        className="block h-auto max-h-8 w-[60%] object-contain object-left"
       />
       {!collapsed && !iconOnly ? (
         <span className="text-[15px] font-semibold tracking-tight text-logo sm:text-[16px]">

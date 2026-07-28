@@ -15,21 +15,28 @@ export function BrandLockup({
     <div
       className={cn(
         'flex min-w-0 items-center',
-        variant === 'sidebar' ? 'gap-2' : 'w-full justify-center gap-3',
+        variant === 'sidebar' ? 'gap-2' : 'gap-3',
         className,
       )}
     >
       {!collapsed ? (
-        <>
+        <div className="flex shrink-0 items-center gap-2">
           <PartnerLogo className="min-w-0 shrink" />
-          <span className="h-8 w-px shrink-0 bg-app-border" aria-hidden />
-        </>
+          <span className="h-10 w-px shrink-0 bg-app-border" aria-hidden />
+        </div>
       ) : null}
-      <AppLogo
-        collapsed={collapsed}
-        iconOnly
-        className={variant === 'sidebar' ? 'min-w-0 flex-1' : 'justify-center'}
-      />
+      <div
+        className={cn(
+          'flex min-w-0 items-center',
+          variant === 'sidebar' ? 'flex-1' : 'w-full justify-center',
+        )}
+      >
+        <AppLogo
+          collapsed={collapsed}
+          iconOnly
+          className="min-w-0 shrink"
+        />
+      </div>
     </div>
   );
 }
