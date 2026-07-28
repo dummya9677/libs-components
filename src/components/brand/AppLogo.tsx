@@ -2,7 +2,7 @@ import { cn } from '../../utils/cn';
 import { env } from '../../utils/env';
 
 /** Crops built-in canvas padding in public/assets/app-logo.png */
-const LOGO_VIEW_BOX = 'inset(26% 15% 18% 15%)';
+const LOGO_VIEW_BOX = 'inset(20% 14% 28%)';
 
 const LOGO_HEIGHT = {
   sidebar: 'h-16',
