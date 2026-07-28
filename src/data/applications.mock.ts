@@ -1,6 +1,6 @@
 import type { ApplicationWithAgents } from '../types';
 
-/** Demo list used when VITE_MOCK_AUTH=true — mirrors GET /applications shape. */
+/** Demo list used when VITE_MOCK_API=true — mirrors GET /applications shape. */
 export const mockApplications: ApplicationWithAgents[] = [
   {
     id: 'sales-portal',

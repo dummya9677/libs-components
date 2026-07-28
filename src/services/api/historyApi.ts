@@ -32,7 +32,7 @@ export const historyApi = api.injectEndpoints({
           };
         }
 
-        if (env.mockAuth) {
+        if (env.mockApi) {
           const data = await fetchDummyMessagesPage({
             conversationId,
             limit: 100,
@@ -73,7 +73,7 @@ export const historyApi = api.injectEndpoints({
     /**
      * Infinite scroll: newest page first, then older pages via `cursor`.
      *
-     * Real API (when `VITE_MOCK_AUTH=false`):
+     * Real API (when `VITE_MOCK_API=false`):
      *   GET /history/:conversationId/messages?cursor=&limit=
      *   → { items, nextCursor, hasMore }
      *
@@ -81,7 +81,7 @@ export const historyApi = api.injectEndpoints({
      */
     getConversationMessages: builder.query<MessagesPage, GetMessagesArgs>({
       async queryFn(args, _api, _extraOptions, baseQuery) {
-        if (env.mockAuth) {
+        if (env.mockApi) {
           const data = await fetchDummyMessagesPage(args);
           return { data };
         }

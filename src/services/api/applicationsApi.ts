@@ -59,7 +59,7 @@ export const applicationsApi = api.injectEndpoints({
   endpoints: (builder) => ({
     getApplications: builder.query<ApplicationWithAgents[], void>({
       async queryFn(_arg, _api, _extraOptions, baseQuery) {
-        if (env.mockAuth) {
+        if (env.mockApi) {
           await new Promise((resolve) => setTimeout(resolve, 120));
           return { data: mockApplications };
         }

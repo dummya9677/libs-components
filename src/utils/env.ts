@@ -42,6 +42,16 @@ export const env = {
   },
   /** When true, skip backend session and hydrate a demo user (UI preview). */
   mockAuth: import.meta.env.VITE_MOCK_AUTH === 'true',
+  /**
+   * When true, applications/history use local mocks instead of the backend.
+   * Defaults to the same value as `VITE_MOCK_AUTH` when unset.
+   * Set `VITE_MOCK_API=false` with `VITE_MOCK_AUTH=true` to keep demo login
+   * while testing real GET /applications, GET /history, and POST /chat.
+   */
+  mockApi:
+    import.meta.env.VITE_MOCK_API !== undefined
+      ? import.meta.env.VITE_MOCK_API === 'true'
+      : import.meta.env.VITE_MOCK_AUTH === 'true',
   oidcProvider: (import.meta.env.VITE_OIDC_PROVIDER || 'entra') as OidcProvider,
   oidc: {
     authority: import.meta.env.VITE_OIDC_AUTHORITY || '',
