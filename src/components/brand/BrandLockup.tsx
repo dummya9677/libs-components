@@ -25,7 +25,12 @@ export function BrandLockup({
           <span className="h-10 w-px shrink-0 bg-app-border" aria-hidden />
         </>
       ) : null}
-      <AppLogo collapsed={collapsed} iconOnly />
+      <AppLogo
+        collapsed={collapsed}
+        iconOnly
+        variant={variant}
+        className={variant === 'sidebar' ? 'min-w-0 flex-1' : undefined}
+      />
     </div>
   );
 }
