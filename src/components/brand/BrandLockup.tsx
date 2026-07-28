@@ -29,7 +29,7 @@ export function BrandLockup({
         collapsed={collapsed}
         iconOnly
         variant={variant}
-        className={variant === 'sidebar' ? 'min-w-0 flex-1' : undefined}
+        className={variant === 'sidebar' ? 'min-w-0 flex-1' : 'w-full justify-center'}
       />
     </div>
   );
