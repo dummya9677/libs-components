@@ -1,13 +1,19 @@
 import { env } from '../../utils/env';
+import { parseChatResponse } from '../../utils/parseChatResponse';
 
 export interface StreamChatOptions {
-  content: string;
-  agentId?: string;
-  applicationName?: string;
-  threadId?: string;
+  application: string;
+  agentId: string;
+  message: string;
+  conversationId?: string | null;
+  userId: string;
   signal?: AbortSignal;
   /** Called for each streamed text chunk — use to update UI (setAnswer pattern). */
   onChunk: (chunk: string) => void;
+  /** Called when the API returns a conversation id (new or existing). */
+  onConversationId?: (conversationId: string) => void;
+  /** Called when the API returns suggested follow-up queries. */
+  onSuggestedQueries?: (queries: string[]) => void;
 }
 
 function buildChatUrl(): string {
@@ -17,34 +23,7 @@ function buildChatUrl(): string {
 }
 
 function extractTextFromJsonPayload(payload: unknown): string {
-  if (typeof payload === 'string') return payload;
-  if (!payload || typeof payload !== 'object') return '';
-
-  const record = payload as Record<string, unknown>;
-  const candidates = [
-    record.delta,
-    record.content,
-    record.text,
-    record.answer,
-    record.message,
-    record.token,
-  ];
-
-  for (const candidate of candidates) {
-    if (typeof candidate === 'string' && candidate) return candidate;
-    if (candidate && typeof candidate === 'object') {
-      const nested = extractTextFromJsonPayload(candidate);
-      if (nested) return nested;
-    }
-  }
-
-  const assistantMessage = record.assistantMessage;
-  if (assistantMessage && typeof assistantMessage === 'object') {
-    const content = (assistantMessage as Record<string, unknown>).content;
-    if (typeof content === 'string') return content;
-  }
-
-  return '';
+  return parseChatResponse(payload).text;
 }
 
 async function readResponseStream(
@@ -106,16 +85,19 @@ async function readResponseStream(
 }
 
 /**
- * POST /chat (or env path) and stream the assistant reply.
+ * POST /chat and stream the assistant reply.
  * Supports plain-text streams, SSE (`data:` lines), and JSON fallback.
  */
 export async function streamChat({
-  content,
+  application,
   agentId,
-  applicationName,
-  threadId,
+  message,
+  conversationId = null,
+  userId,
   signal,
   onChunk,
+  onConversationId,
+  onSuggestedQueries,
 }: StreamChatOptions): Promise<void> {
   const response = await fetch(buildChatUrl(), {
     method: 'POST',
@@ -126,15 +108,11 @@ export async function streamChat({
     credentials: 'include',
     signal,
     body: JSON.stringify({
-      content,
-      message: content,
-      query: content,
-      agentId,
-      intelligence: agentId,
-      applicationName,
-      application_name: applicationName,
-      threadId,
-      thread_id: threadId,
+      application,
+      agent_id: agentId,
+      message,
+      conversation_id: conversationId,
+      user_id: userId,
     }),
   });
 
@@ -147,8 +125,20 @@ export async function streamChat({
 
   if (contentType.includes('application/json')) {
     const data: unknown = await response.json();
-    const text = extractTextFromJsonPayload(data);
-    if (text) onChunk(text);
+    const parsed = parseChatResponse(data);
+
+    if (parsed.conversationId) {
+      onConversationId?.(parsed.conversationId);
+    }
+
+    if (parsed.text) {
+      onChunk(parsed.text);
+    }
+
+    if (parsed.suggestedQueries.length > 0) {
+      onSuggestedQueries?.(parsed.suggestedQueries);
+    }
+
     return;
   }
 

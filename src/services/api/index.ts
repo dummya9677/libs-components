@@ -17,6 +17,8 @@ export {
 export {
   useGetHistoryQuery,
   useGetConversationQuery,
+  useGetConversationHistoryQuery,
+  useLazyGetConversationHistoryQuery,
   useGetConversationMessagesQuery,
   useLazyGetConversationMessagesQuery,
 } from './historyApi';

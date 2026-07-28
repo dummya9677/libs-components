@@ -1,18 +1,45 @@
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { mockApplications } from '../../data/applications.mock';
-import type { ApplicationOption } from '../../types';
+import type { ApplicationAgent, ApplicationWithAgents } from '../../types';
 import { env } from '../../utils/env';
 import { api } from './apiSlice';
 
-function normalizeApplicationsResponse(data: unknown): ApplicationOption[] {
+function normalizeAgent(raw: Record<string, unknown>): ApplicationAgent {
+  const conversationId =
+    raw.conversationId ??
+    raw.conversation_id ??
+    raw.threadId ??
+    raw.thread_id ??
+    null;
+
+  return {
+    id: String(raw.id ?? ''),
+    name: String(raw.name ?? raw.label ?? raw.id ?? ''),
+    conversationId:
+      conversationId === null || conversationId === undefined
+        ? null
+        : String(conversationId),
+  };
+}
+
+function normalizeApplication(raw: Record<string, unknown>): ApplicationWithAgents {
+  const agentsRaw = raw.agents;
+  const agents = Array.isArray(agentsRaw)
+    ? agentsRaw.map((agent) => normalizeAgent(agent as Record<string, unknown>))
+    : [];
+
+  return {
+    id: String(raw.id ?? raw.name ?? ''),
+    name: String(raw.name ?? raw.label ?? raw.id ?? ''),
+    agents,
+  };
+}
+
+export function normalizeApplicationsResponse(data: unknown): ApplicationWithAgents[] {
   if (Array.isArray(data)) {
-    return data.map((item) => {
-      const row = item as Record<string, unknown>;
-      return {
-        label: String(row.label ?? row.name ?? row.value ?? ''),
-        value: String(row.value ?? row.id ?? row.name ?? ''),
-      };
-    });
+    return data.map((item) =>
+      normalizeApplication(item as Record<string, unknown>),
+    );
   }
 
   if (data && typeof data === 'object') {
@@ -30,7 +57,7 @@ function normalizeApplicationsResponse(data: unknown): ApplicationOption[] {
 
 export const applicationsApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    getApplications: builder.query<ApplicationOption[], void>({
+    getApplications: builder.query<ApplicationWithAgents[], void>({
       async queryFn(_arg, _api, _extraOptions, baseQuery) {
         if (env.mockAuth) {
           await new Promise((resolve) => setTimeout(resolve, 120));

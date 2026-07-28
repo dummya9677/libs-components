@@ -74,7 +74,19 @@ export interface ApplicationOption {
   value: string;
 }
 
-/** POST create-thread — maps to your backend `thread_id`. */
+export interface ApplicationAgent {
+  id: string;
+  name: string;
+  conversationId?: string | null;
+}
+
+export interface ApplicationWithAgents {
+  id: string;
+  name: string;
+  agents: ApplicationAgent[];
+}
+
+/** POST create-thread — legacy; conversation id now comes from GET /applications. */
 export interface CreateThreadRequest {
   agentId: string;
   applicationName: string;
@@ -85,12 +97,11 @@ export interface CreateThreadResponse {
 }
 
 export interface SendMessageRequest {
-  /** Backend thread id (same as `threadId` from create-thread). */
-  threadId?: string;
-  conversationId?: string;
-  agentId?: string;
-  applicationName?: string;
-  content: string;
+  application: string;
+  agentId: string;
+  message: string;
+  conversationId?: string | null;
+  userId: string;
 }
 
 export interface SendMessageResponse {

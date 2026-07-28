@@ -24,17 +24,21 @@ export const env = {
    * Update these in `.env` to match your Python backend.
    */
   api: {
-    /** Optional POST — create thread if your backend needs it before /chat. */
+    /** Optional POST — legacy thread bootstrap (no longer used by default). */
     createThreadPath:
       import.meta.env.VITE_API_CREATE_THREAD_PATH || '/threads',
-    /** Streaming POST — analyze/query endpoint (primary chat integration). */
+    /** POST — chat endpoint. */
     agentChatPath: import.meta.env.VITE_API_AGENT_CHAT_PATH || '/chat',
-    /** Optional GET — message history prefix for a thread. */
-    threadMessagesPath:
-      import.meta.env.VITE_API_THREAD_MESSAGES_PATH || '/history',
-    /** GET — application list for thread creation ({ label, value }[]). */
+    /** GET — application list with nested agents and conversation ids. */
     applicationsPath:
       import.meta.env.VITE_API_APPLICATIONS_PATH || '/applications',
+    /** GET — conversation history prefix: /history/conversations/{conversation_id} */
+    conversationHistoryPath:
+      import.meta.env.VITE_API_CONVERSATION_HISTORY_PATH ||
+      '/history/conversations',
+    /** Legacy message history prefix (infinite scroll). */
+    threadMessagesPath:
+      import.meta.env.VITE_API_THREAD_MESSAGES_PATH || '/history',
   },
   /** When true, skip backend session and hydrate a demo user (UI preview). */
   mockAuth: import.meta.env.VITE_MOCK_AUTH === 'true',

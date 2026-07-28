@@ -226,6 +226,11 @@ export function AgentWorkspace({
               className="sm:max-w-xs"
             />
           </div>
+          {!applicationName ? (
+            <p className="mb-2 rounded-lg bg-feature-yellow/25 px-3 py-2.5 text-center text-xs font-medium text-ink sm:text-sm">
+              You have to select the application first and then proceed.
+            </p>
+          ) : null}
           <PromptComposer
             placeholder={
               applicationName

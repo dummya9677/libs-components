@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  useCreateThreadMutation,
-  useLazyGetConversationMessagesQuery,
+  useGetApplicationsQuery,
+  useLazyGetConversationHistoryQuery,
 } from '../services/api';
 import { streamChat } from '../services/chat/streamChat';
 import type { HistoryMessage } from '../types';
+import { resolveApplicationAgent } from '../utils/applicationAgents';
+import { useAuth } from './useAuth';
 
 function createUserMessage(content: string, conversationId: string): HistoryMessage {
   return {
@@ -19,6 +21,7 @@ function createUserMessage(content: string, conversationId: string): HistoryMess
 function createAssistantMessage(
   content: string,
   conversationId: string,
+  suggestedQueries: string[] = [],
 ): HistoryMessage {
   return {
     id: `assistant-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -26,87 +29,146 @@ function createAssistantMessage(
     content,
     createdAt: new Date().toISOString(),
     conversationId,
+    actions: suggestedQueries.map((label) => ({
+      label,
+      variant: 'link' as const,
+    })),
   };
+}
+
+function buildSessionKey(applicationName: string | null, agentId: string): string {
+  return `${applicationName ?? ''}:${agentId}`;
 }
 
 /**
  * Agent chat lifecycle:
- * 1. User selects application → POST create-thread with agent + application → store `threadId`
- * 2. Load existing messages for that thread (if any)
- * 3. On send → POST /chat with agent, application, and thread id (streamed response)
+ * 1. GET /applications → resolve agent + optional conversation_id for (app, agent)
+ * 2. GET /history/conversations/{conversation_id} when an id exists (empty on 404)
+ * 3. POST /chat with application, agent_id, message, conversation_id, user_id
+ * 4. Follow-up messages reuse the same conversation_id returned from /chat
  */
 export function useAgentChat(agentId: string, applicationName: string | null) {
-  const [createThread] = useCreateThreadMutation();
-  const [fetchMessages] = useLazyGetConversationMessagesQuery();
-  const [threadId, setThreadId] = useState<string | null>(null);
-  const [isCreatingThread, setIsCreatingThread] = useState(false);
-  const [threadError, setThreadError] = useState<string | null>(null);
+  const { user } = useAuth();
+  const { data: applications = [], isLoading: isLoadingApplications } =
+    useGetApplicationsQuery();
+  const [fetchHistory] = useLazyGetConversationHistoryQuery();
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [backendAgentId, setBackendAgentId] = useState<string | null>(null);
+  const [isLoadingSession, setIsLoadingSession] = useState(false);
+  const [sessionError, setSessionError] = useState<string | null>(null);
   const [messages, setMessages] = useState<HistoryMessage[]>([]);
   const [streamingAnswer, setStreamingAnswer] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const conversationIdRef = useRef<string | null>(null);
+  const sessionKeyRef = useRef('');
+  const sessionBootstrappedRef = useRef('');
+
+  const syncConversationId = useCallback((nextConversationId: string | null) => {
+    conversationIdRef.current = nextConversationId;
+    setConversationId(nextConversationId);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
+    const sessionKey = buildSessionKey(applicationName, agentId);
+    const isNewSession = sessionKeyRef.current !== sessionKey;
 
-    abortRef.current?.abort();
-    setThreadId(null);
-    setIsCreatingThread(false);
-    setThreadError(null);
-    setMessages([]);
-    setStreamingAnswer('');
-    setError(null);
-    setIsStreaming(false);
+    if (isNewSession) {
+      sessionKeyRef.current = sessionKey;
+      sessionBootstrappedRef.current = '';
+      abortRef.current?.abort();
+      syncConversationId(null);
+      setBackendAgentId(null);
+      setSessionError(null);
+      setMessages([]);
+      setStreamingAnswer('');
+      setError(null);
+      setIsStreaming(false);
+    }
 
     if (!applicationName) {
+      setIsLoadingSession(false);
       return () => {
         cancelled = true;
       };
     }
 
-    setIsCreatingThread(true);
+    if (isLoadingApplications) {
+      setIsLoadingSession(true);
+      return () => {
+        cancelled = true;
+      };
+    }
 
-    const initThread = async () => {
+    if (sessionBootstrappedRef.current === sessionKey) {
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    const resolved = resolveApplicationAgent(
+      applications,
+      applicationName,
+      agentId,
+    );
+
+    if (!resolved) {
+      setSessionError(
+        'This agent is not available for the selected application.',
+      );
+      setIsLoadingSession(false);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    sessionBootstrappedRef.current = sessionKey;
+    setBackendAgentId(resolved.agent.id);
+
+    const initialConversationId = resolved.agent.conversationId ?? null;
+    syncConversationId(initialConversationId);
+
+    if (!initialConversationId) {
+      setIsLoadingSession(false);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    setIsLoadingSession(true);
+
+    const loadHistory = async () => {
       try {
-        const result = await createThread({ agentId, applicationName }).unwrap();
-        if (cancelled) return;
-
-        setThreadId(result.threadId);
-
-        try {
-          const historyPage = await fetchMessages({
-            conversationId: result.threadId,
-          }).unwrap();
-          if (!cancelled) {
-            setMessages(historyPage.items);
-          }
-        } catch {
-          if (!cancelled) {
-            setMessages([]);
-          }
-        }
-      } catch (err) {
+        const historyPage = await fetchHistory(initialConversationId).unwrap();
         if (!cancelled) {
-          const message =
-            err instanceof Error
-              ? err.message
-              : 'Failed to create a chat thread for this agent';
-          setThreadError(message);
+          setMessages(historyPage.items);
+        }
+      } catch {
+        if (!cancelled) {
+          setMessages([]);
         }
       } finally {
         if (!cancelled) {
-          setIsCreatingThread(false);
+          setIsLoadingSession(false);
         }
       }
     };
 
-    void initThread();
+    void loadHistory();
 
     return () => {
       cancelled = true;
     };
-  }, [agentId, applicationName, createThread, fetchMessages]);
+  }, [
+    agentId,
+    applicationName,
+    applications,
+    fetchHistory,
+    isLoadingApplications,
+    syncConversationId,
+  ]);
 
   const sendMessage = useCallback(
     async (content: string) => {
@@ -118,17 +180,33 @@ export function useAgentChat(agentId: string, applicationName: string | null) {
         return;
       }
 
-      if (!threadId) {
+      if (!backendAgentId) {
         setError(
-          isCreatingThread
-            ? 'Setting up chat session…'
-            : threadError ?? 'Chat session is not ready. Please try again.',
+          sessionError ??
+            'Chat session is not ready for this application and agent.',
         );
         return;
       }
 
+      const resolved = resolveApplicationAgent(
+        applications,
+        applicationName,
+        agentId,
+      );
+
+      if (!resolved) {
+        setError('This agent is not available for the selected application.');
+        return;
+      }
+
+      const currentConversationId = conversationIdRef.current;
+      const messageConversationId = currentConversationId ?? 'pending';
+
       setError(null);
-      setMessages((prev) => [...prev, createUserMessage(trimmed, threadId)]);
+      setMessages((prev) => [
+        ...prev,
+        createUserMessage(trimmed, messageConversationId),
+      ]);
       setStreamingAnswer('');
       setIsStreaming(true);
 
@@ -136,24 +214,42 @@ export function useAgentChat(agentId: string, applicationName: string | null) {
       abortRef.current = abort;
 
       let fullAnswer = '';
+      let suggestedQueries: string[] = [];
+      let resolvedConversationId = messageConversationId;
 
       try {
         await streamChat({
-          agentId,
-          applicationName,
-          threadId,
-          content: trimmed,
+          application: resolved.application.name,
+          agentId: backendAgentId,
+          message: trimmed,
+          conversationId: currentConversationId,
+          userId: user?.id ?? 'yesh',
           signal: abort.signal,
           onChunk: (chunk) => {
             fullAnswer += chunk;
             setStreamingAnswer(fullAnswer);
           },
+          onConversationId: (nextConversationId) => {
+            resolvedConversationId = nextConversationId;
+            syncConversationId(nextConversationId);
+          },
+          onSuggestedQueries: (queries) => {
+            suggestedQueries = queries;
+          },
         });
+
+        if (!conversationIdRef.current && resolvedConversationId !== 'pending') {
+          syncConversationId(resolvedConversationId);
+        }
 
         if (fullAnswer.trim()) {
           setMessages((prev) => [
             ...prev,
-            createAssistantMessage(fullAnswer.trim(), threadId),
+            createAssistantMessage(
+              fullAnswer.trim(),
+              conversationIdRef.current ?? resolvedConversationId,
+              suggestedQueries,
+            ),
           ]);
         }
       } catch (err) {
@@ -171,10 +267,12 @@ export function useAgentChat(agentId: string, applicationName: string | null) {
     [
       agentId,
       applicationName,
-      isCreatingThread,
+      applications,
+      backendAgentId,
       isStreaming,
-      threadError,
-      threadId,
+      sessionError,
+      syncConversationId,
+      user?.id,
     ],
   );
 
@@ -183,15 +281,15 @@ export function useAgentChat(agentId: string, applicationName: string | null) {
   }, []);
 
   return {
-    threadId,
-    isCreatingThread,
-    threadError,
-    isThreadReady: Boolean(threadId),
+    conversationId,
+    isCreatingThread: isLoadingSession || isLoadingApplications,
+    threadError: sessionError,
+    isThreadReady: Boolean(applicationName && backendAgentId),
     needsApplication: !applicationName,
     messages,
     streamingAnswer,
     isStreaming,
-    error: error ?? threadError,
+    error: error ?? sessionError,
     sendMessage,
     cancelStream,
   };

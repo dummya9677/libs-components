@@ -144,6 +144,11 @@ export function HomePage() {
                   }}
                   className="mb-2"
                 />
+                {!applicationName ? (
+                  <p className="mb-2 rounded-lg bg-feature-yellow/25 px-3 py-2 text-center text-[10px] font-medium text-ink sm:text-[11px]">
+                    You have to select the application first and then proceed.
+                  </p>
+                ) : null}
                 <PromptComposer
                   placeholder={
                     applicationName

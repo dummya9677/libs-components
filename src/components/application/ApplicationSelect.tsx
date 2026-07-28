@@ -48,8 +48,8 @@ export function ApplicationSelect({
             {isLoading ? 'Loading applications…' : 'Select application'}
           </option>
           {applications.map((app) => (
-            <option key={app.value} value={app.value}>
-              {app.label}
+            <option key={app.id} value={app.id}>
+              {app.name}
             </option>
           ))}
         </select>

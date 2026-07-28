@@ -106,9 +106,11 @@ function MessageCard({
 function ChatMessage({
   agent,
   message,
+  onSend,
 }: {
   agent: AgentDefinition;
   message: HistoryMessage;
+  onSend?: (content: string) => void | Promise<void>;
 }) {
   if (message.role === 'progress') {
     return <ProgressCard agent={agent} message={message} />;
@@ -155,6 +157,7 @@ function ChatMessage({
             <button
               key={action.label}
               type="button"
+              onClick={() => void onSend?.(action.label)}
               className="text-[13px] font-medium text-brand hover:underline"
             >
               {action.label}
@@ -228,9 +231,11 @@ export function ChatPanel({
         className="min-h-0 flex-1 space-y-2.5 overflow-y-auto px-3 py-2.5 scrollbar-thin sm:space-y-3 sm:px-4"
       >
         {needsApplication ? (
-          <p className="py-6 text-center text-[13px] text-ink-muted">
-            Select an application above to start a chat session.
-          </p>
+          <div className="flex flex-1 items-center justify-center py-6">
+            <p className="max-w-[18rem] rounded-lg bg-feature-yellow/25 px-3 py-2.5 text-center text-[13px] font-medium text-ink">
+              You have to select the application first and then proceed.
+            </p>
+          </div>
         ) : isCreatingThread ? (
           <p className="py-6 text-center text-[13px] text-ink-muted">
             Starting chat session…
@@ -241,7 +246,12 @@ export function ChatPanel({
           </p>
         ) : (
           messages.map((message) => (
-            <ChatMessage key={message.id} agent={agent} message={message} />
+            <ChatMessage
+              key={message.id}
+              agent={agent}
+              message={message}
+              onSend={onSend}
+            />
           ))
         )}
 

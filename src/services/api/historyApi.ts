@@ -2,6 +2,7 @@ import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { api } from './apiSlice';
 import { fetchDummyMessagesPage } from '../../data/dummyChatHistory';
 import { env } from '../../utils/env';
+import { normalizeConversationHistory } from '../../utils/normalizeConversationHistory';
 import type {
   Conversation,
   GetMessagesArgs,
@@ -17,6 +18,56 @@ export const historyApi = api.injectEndpoints({
     getConversation: builder.query<Conversation, string>({
       query: (id) => `/history/${id}`,
       providesTags: (_result, _error, id) => [{ type: 'Conversation', id }],
+    }),
+
+    /**
+     * GET /history/conversations/{conversation_id}
+     * Returns an empty list when history is unavailable (404 / empty body).
+     */
+    getConversationHistory: builder.query<MessagesPage, string>({
+      async queryFn(conversationId, _api, _extraOptions, baseQuery) {
+        if (!conversationId) {
+          return {
+            data: { items: [], nextCursor: null, hasMore: false },
+          };
+        }
+
+        if (env.mockAuth) {
+          const data = await fetchDummyMessagesPage({
+            conversationId,
+            limit: 100,
+          });
+          return { data };
+        }
+
+        const result = await baseQuery({
+          url: `${env.api.conversationHistoryPath}/${conversationId}`,
+        });
+
+        if (result.error) {
+          const status =
+            typeof result.error === 'object' &&
+            result.error !== null &&
+            'status' in result.error
+              ? result.error.status
+              : null;
+
+          if (status === 404) {
+            return {
+              data: { items: [], nextCursor: null, hasMore: false },
+            };
+          }
+
+          return { error: result.error as FetchBaseQueryError };
+        }
+
+        return {
+          data: normalizeConversationHistory(result.data, conversationId),
+        };
+      },
+      providesTags: (_result, _error, conversationId) => [
+        { type: 'Message', id: conversationId },
+      ],
     }),
 
     /**
@@ -79,6 +130,8 @@ export const historyApi = api.injectEndpoints({
 export const {
   useGetHistoryQuery,
   useGetConversationQuery,
+  useGetConversationHistoryQuery,
+  useLazyGetConversationHistoryQuery,
   useGetConversationMessagesQuery,
   useLazyGetConversationMessagesQuery,
 } = historyApi;

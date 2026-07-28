@@ -9,9 +9,11 @@ export const chatApi = api.injectEndpoints({
         url: env.api.agentChatPath,
         method: 'POST',
         body: {
-          ...body,
-          // Prefer threadId; fall back to conversationId for older call sites.
-          threadId: body.threadId ?? body.conversationId,
+          application: body.application,
+          agent_id: body.agentId,
+          message: body.message,
+          conversation_id: body.conversationId ?? null,
+          user_id: body.userId,
         },
       }),
       invalidatesTags: ['Conversation', 'Message'],
