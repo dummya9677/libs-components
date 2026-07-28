@@ -21,10 +21,10 @@ export function AppLogo({
         src="/assets/app-logo.png"
         alt={env.appName}
         className={cn(
-          'block shrink-0 object-contain object-left',
+          'block object-contain object-left',
           variant === 'sidebar'
-            ? 'h-16 w-auto max-w-full'
-            : 'h-10 w-auto max-w-[96px]',
+            ? 'h-auto w-[80%] max-h-[8.5rem]'
+            : 'h-auto w-[50%] max-h-10',
         )}
       />
       {!collapsed && !iconOnly ? (
