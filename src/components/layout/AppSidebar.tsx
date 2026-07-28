@@ -7,6 +7,7 @@ import {
   Library,
   ShieldCheck,
   CircleDollarSign,
+  Briefcase,
   X,
 } from 'lucide-react';
 import { agents } from '../../data/agents';
@@ -21,6 +22,7 @@ const navItems = [
 
 const agentIcons: Record<string, typeof Ticket> = {
   'data-quality-intelligence': ShieldCheck,
+  'bau-intelligence': Briefcase,
   'ticket-intelligence': Ticket,
   'data-intelligence': Database,
   'impact-intelligence': Activity,
@@ -63,7 +65,7 @@ export function AppSidebar() {
           sidebarOpen ? 'translate-x-0' : '-translate-x-full',
         )}
       >
-        <div className="flex h-14 shrink-0 items-center justify-between gap-1 border-b border-app-border/60 px-3">
+        <div className="flex h-16 shrink-0 items-center justify-between gap-1 border-b border-app-border/60 px-3">
           <BrandLockup className="min-w-0 flex-1" />
           <button
             type="button"
@@ -75,95 +77,103 @@ export function AppSidebar() {
           </button>
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain scrollbar-thin">
-          <nav className="shrink-0 px-2.5 pt-2.5">
-            <ul className="space-y-0.5">
-            {navItems.map((item) => {
-              const active =
-                item.path === '/'
-                  ? isHomepage
-                  : location.pathname.startsWith(item.path);
-              const Icon = item.icon;
-              return (
-                <li key={item.path}>
-                  <Link
-                    to={item.path}
-                    onClick={closeSidebar}
-                    className={cn(
-                      'flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors',
-                      active
-                        ? 'bg-client-cyan-10 text-client-blue-helix-dark'
-                        : 'text-ink-secondary hover:bg-surface-muted hover:text-ink',
-                    )}
-                  >
-                    <Icon
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain scrollbar-thin">
+            <nav className="shrink-0 px-2.5 pt-2.5">
+              <ul className="space-y-0.5">
+              {navItems.map((item) => {
+                const active =
+                  item.path === '/'
+                    ? isHomepage
+                    : location.pathname.startsWith(item.path);
+                const Icon = item.icon;
+                return (
+                  <li key={item.path}>
+                    <Link
+                      to={item.path}
+                      onClick={closeSidebar}
                       className={cn(
-                        'h-4 w-4 shrink-0',
-                        active ? 'text-client-cyan-helix-light' : 'text-ink-muted',
+                        'flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-colors',
+                        active
+                          ? 'bg-client-cyan-10 text-client-blue-helix-dark'
+                          : 'text-ink-secondary hover:bg-surface-muted hover:text-ink',
                       )}
-                      strokeWidth={1.75}
-                    />
-                    <span className="truncate">{item.label}</span>
-                  </Link>
-                </li>
-              );
-            })}
-            </ul>
-          </nav>
+                    >
+                      <Icon
+                        className={cn(
+                          'h-4 w-4 shrink-0',
+                          active ? 'text-client-cyan-helix-light' : 'text-ink-muted',
+                        )}
+                        strokeWidth={1.75}
+                      />
+                      <span className="truncate">{item.label}</span>
+                    </Link>
+                  </li>
+                );
+              })}
+              </ul>
+            </nav>
 
-          <div className="mx-2.5 mt-4 shrink-0 overflow-hidden rounded-xl border border-client-cyan-30/30 bg-gradient-to-b from-client-cyan-10 via-white to-white p-2.5 shadow-card">
-          <p className="mb-1.5 px-1 text-[10px] font-semibold uppercase tracking-wider text-ink-muted">
-            AI Agents
-          </p>
-          <ul className="space-y-0.5">
-            {agents.map((agent) => {
-              const selected = isOnAgentPage && agent.slug === activeSlug;
-              const Icon = agentIcons[agent.slug] ?? Database;
-              return (
-                <li key={agent.id}>
-                  <button
-                    type="button"
-                    onClick={() => go(`/assistant/${agent.slug}`)}
-                    className={cn(
-                      'relative flex w-full items-center gap-2 rounded-lg py-2 pl-2.5 pr-2 text-left text-[12px] transition-colors',
-                      selected
-                        ? 'bg-white font-medium text-client-blue-helix-dark shadow-card'
-                        : 'text-ink-secondary hover:bg-white/70 hover:text-ink',
-                    )}
-                  >
-                    {selected ? (
-                      <span className="absolute inset-y-1 left-0 w-[3px] rounded-full bg-client-cyan-helix-light" />
-                    ) : null}
-                    <Icon
-                      className={cn(
-                        'h-3.5 w-3.5 shrink-0',
-                        selected ? 'text-client-cyan-helix-light' : 'text-ink-muted',
-                      )}
-                      strokeWidth={1.75}
-                    />
-                    <span className="min-w-0 flex-1 truncate">{agent.name}</span>
-                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-status-success" />
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+            <div className="mx-2.5 mt-4 shrink-0 overflow-hidden rounded-xl border border-client-cyan-30/30 bg-gradient-to-b from-client-cyan-10 via-white to-white p-2.5 shadow-card">
+              <p className="mb-1.5 px-1 text-[10px] font-semibold uppercase tracking-wider text-ink-muted">
+                AI Agents
+              </p>
+              <ul className="space-y-0.5">
+                {agents.map((agent) => {
+                  const selected = isOnAgentPage && agent.slug === activeSlug;
+                  const Icon = agentIcons[agent.slug] ?? Database;
+                  return (
+                    <li key={agent.id}>
+                      <button
+                        type="button"
+                        onClick={() => go(`/assistant/${agent.slug}`)}
+                        className={cn(
+                          'relative flex w-full items-center gap-2 rounded-lg py-2 pl-2.5 pr-2 text-left text-[12px] transition-colors',
+                          selected
+                            ? 'bg-white font-medium text-client-blue-helix-dark shadow-card'
+                            : 'text-ink-secondary hover:bg-white/70 hover:text-ink',
+                        )}
+                      >
+                        {selected ? (
+                          <span className="absolute inset-y-1 left-0 w-[3px] rounded-full bg-client-cyan-helix-light" />
+                        ) : null}
+                        <Icon
+                          className={cn(
+                            'h-3.5 w-3.5 shrink-0',
+                            selected ? 'text-client-cyan-helix-light' : 'text-ink-muted',
+                          )}
+                          strokeWidth={1.75}
+                        />
+                        <span className="min-w-0 flex-1 truncate">{agent.name}</span>
+                        {agent.comingSoon ? (
+                          <span className="shrink-0 rounded-full bg-client-cyan-10 px-1.5 py-0.5 text-[9px] font-medium text-client-blue-helix-dark">
+                            Soon
+                          </span>
+                        ) : (
+                          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-status-success" />
+                        )}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </div>
 
-        <div className="mx-2.5 mb-2.5 mt-4 shrink-0">
-          <PromoGradientCard
-            variant="sidebar"
-            title="Need help fast?"
-            description="Ask our AI Assistant"
-            imageUrl={promoImages.sidebarAssistant}
-            imageAlt="AI assistant illustration"
-            placeholderLabel="Add PNG to public/images/sidebar-assistant-promo.png"
-            action={{
-              label: 'Start a conversation →',
-              onClick: () => go(`/assistant/${agents[0].slug}`),
-            }}
-          />
-        </div>
+          <div className="mt-auto shrink-0 px-2.5 pb-2.5 pt-2">
+            <PromoGradientCard
+              variant="sidebar"
+              title="Need help fast?"
+              description="Ask our AI Assistant"
+              imageUrl={promoImages.sidebarAssistant}
+              imageAlt="AI assistant illustration"
+              placeholderLabel="Add PNG to public/images/sidebar-assistant-promo.png"
+              action={{
+                label: 'Start a conversation →',
+                onClick: () => go(`/assistant/${agents[0].slug}`),
+              }}
+            />
+          </div>
         </div>
       </aside>
     </>

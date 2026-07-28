@@ -1,13 +1,5 @@
 import { useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
-import {
-  Code2,
-  Globe,
-  Mic,
-  Paperclip,
-  SendHorizonal,
-  Settings2,
-  Table2,
-} from 'lucide-react';
+import { Mic, SendHorizonal } from 'lucide-react';
 import { clientBrandCardGradient } from '../../config/clientColors';
 import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
 import { cn } from '../../utils/cn';
@@ -17,7 +9,6 @@ interface PromptComposerProps {
   onSend?: (value: string) => void;
   compact?: boolean;
   className?: string;
-  toolbar?: 'main' | 'chat';
   showSend?: boolean;
   gradientBorder?: boolean;
   disabled?: boolean;
@@ -29,7 +20,6 @@ export function PromptComposer({
   onSend,
   compact = false,
   className,
-  toolbar = 'main',
   showSend = true,
   gradientBorder = true,
   disabled = false,
@@ -85,11 +75,6 @@ export function PromptComposer({
     toggleListening();
   };
 
-  const tools =
-    toolbar === 'chat'
-      ? [Paperclip, Table2, Code2, Settings2]
-      : [Paperclip, Table2, Code2, Globe];
-
   const form = (
     <form
       onSubmit={onSubmit}
@@ -123,21 +108,7 @@ export function PromptComposer({
           </p>
         ) : null}
 
-        <div className="mt-1.5 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-0.5">
-            {tools.map((Icon, i) => (
-              <button
-                key={i}
-                type="button"
-                className="rounded-md p-1.5 text-client-cyan-helix-light/70 transition hover:bg-client-cyan-10 hover:text-client-blue-helix-dark"
-                aria-label="Composer tool"
-              >
-                <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" strokeWidth={1.75} />
-              </button>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-1">
+        <div className="mt-1.5 flex items-center justify-end gap-1">
             <button
               type="button"
               onClick={handleMicToggle}
@@ -179,7 +150,6 @@ export function PromptComposer({
               <SendHorizonal className="h-3.5 w-3.5" />
             </button>
             ) : null}
-          </div>
         </div>
       </form>
   );

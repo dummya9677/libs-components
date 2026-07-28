@@ -1,6 +1,7 @@
 import {
   BookOpen,
   Bot,
+  Briefcase,
   ChevronRight,
   Crosshair,
   Database,
@@ -18,6 +19,7 @@ import { cn } from '../../utils/cn';
 type WorkflowIconKey =
   | 'question'
   | 'dataQuality'
+  | 'bau'
   | 'ticket'
   | 'data'
   | 'impact'
@@ -27,6 +29,7 @@ type WorkflowIconKey =
 type WorkflowThemeKey =
   | 'question'
   | 'dataQuality'
+  | 'bau'
   | 'ticket'
   | 'data'
   | 'impact'
@@ -36,6 +39,7 @@ type WorkflowThemeKey =
 const workflowIcons: Record<WorkflowIconKey, LucideIcon> = {
   question: MessageCircle,
   dataQuality: ShieldCheck,
+  bau: Briefcase,
   ticket: Ticket,
   impact: Crosshair,
   data: Database,
@@ -56,6 +60,11 @@ const workflowThemeStyles: Record<
     gradientFrom: colors.agents.dataQuality.gradientFrom,
     primary: colors.agents.dataQuality.primary,
     heroIcon: colors.agents.dataQuality.heroIcon,
+  },
+  bau: {
+    gradientFrom: colors.agents.bau.gradientFrom,
+    primary: colors.agents.bau.primary,
+    heroIcon: colors.agents.bau.heroIcon,
   },
   ticket: {
     gradientFrom: colors.agents.ticket.gradientFrom,

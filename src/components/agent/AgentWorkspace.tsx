@@ -1,6 +1,7 @@
 import {
   ArrowLeft,
   BookOpen,
+  Briefcase,
   CircleDollarSign,
   Database,
   Network,
@@ -16,6 +17,7 @@ import { getAgentTheme } from '../../data/agents';
 import { CapabilityIcon } from '../icons/CapabilityIcon';
 import { FeatureCard } from './FeatureCard';
 import { ApplicationSelect } from '../application/ApplicationSelect';
+import { ApplicationRequiredNotice } from '../application/ApplicationRequiredNotice';
 import { PromptComposer } from '../chat/PromptComposer';
 import { useAuth } from '../../hooks/useAuth';
 import { cn } from '../../utils/cn';
@@ -82,6 +84,15 @@ function HeroArt({
       </div>
     );
   }
+  if (variant === 'bau') {
+    return (
+      <div className="relative hidden h-20 w-28 md:block lg:h-24 lg:w-32">
+        <div className="absolute left-5 top-4 h-10 w-12 rounded-lg bg-white/60 shadow-card" />
+        <div className="absolute right-4 top-6 h-8 w-10 rounded-md bg-white/90 shadow-md" />
+        <div className="absolute bottom-3 left-8 h-5 w-14 rounded-full bg-white/50" />
+      </div>
+    );
+  }
   return (
     <div className="relative hidden h-20 w-28 md:block lg:h-24 lg:w-32">
       <div className="absolute left-3 top-4 h-8 w-8 rotate-12 rounded-lg bg-white/50" />
@@ -103,7 +114,9 @@ function AgentHeroIcon({ agent }: { agent: AgentDefinition }) {
             ? ShieldCheck
             : agent.colorKey === 'cost'
               ? CircleDollarSign
-              : Database;
+              : agent.colorKey === 'bau'
+                ? Briefcase
+                : Database;
 
   return (
     <div
@@ -226,11 +239,7 @@ export function AgentWorkspace({
               className="sm:max-w-xs"
             />
           </div>
-          {!applicationName ? (
-            <p className="mb-2 rounded-lg bg-feature-yellow/25 px-3 py-2.5 text-center text-xs font-medium text-ink sm:text-sm">
-              You have to select the application first and then proceed.
-            </p>
-          ) : null}
+          {!applicationName ? <ApplicationRequiredNotice /> : null}
           <PromptComposer
             placeholder={
               applicationName
@@ -238,7 +247,6 @@ export function AgentWorkspace({
                 : 'Select an application above to ask a question…'
             }
             onSend={onPrompt}
-            toolbar="main"
             disabled={isAnalyzing || !applicationName || !isThreadReady}
             sendLabel="Analyze"
           />

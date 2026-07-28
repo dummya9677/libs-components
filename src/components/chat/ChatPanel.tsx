@@ -4,8 +4,8 @@ import { BookOpen, Database, Network, Sparkles } from 'lucide-react';
 import type { AgentDefinition } from '../../data/agents';
 import { getAgentTheme } from '../../data/agents';
 import type { HistoryMessage } from '../../types';
-import { ApplicationSelect } from '../application/ApplicationSelect';
 import { PromptComposer } from './PromptComposer';
+import { ApplicationRequiredNotice } from '../application/ApplicationRequiredNotice';
 import { formatRelativeTime } from '../../utils/time';
 import { cn } from '../../utils/cn';
 
@@ -173,8 +173,6 @@ interface ChatPanelProps {
   agent: AgentDefinition;
   messages: HistoryMessage[];
   onSend: (content: string) => void | Promise<void>;
-  applicationName: string;
-  onApplicationChange: (value: string) => void;
   streamingAnswer?: string;
   isStreaming?: boolean;
   isThreadReady?: boolean;
@@ -190,8 +188,6 @@ export function ChatPanel({
   agent,
   messages,
   onSend,
-  applicationName,
-  onApplicationChange,
   streamingAnswer = '',
   isStreaming = false,
   isThreadReady = true,
@@ -208,22 +204,12 @@ export function ChatPanel({
 
   return (
     <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-app-border bg-surface shadow-card sm:rounded-2xl">
-      <div className="flex shrink-0 items-start justify-between gap-2 px-3 pb-1.5 pt-3 sm:px-4 sm:pt-3.5">
-        <div className="min-w-0">
-          <h2 className="text-sm font-bold text-ink sm:text-base">AI Assistant</h2>
-          <div className="mt-0.5 flex items-center gap-1.5 text-[11px] text-ink-secondary sm:text-xs">
-            <span className="h-1.5 w-1.5 rounded-full bg-status-success sm:h-2 sm:w-2" />
-            Online
-          </div>
+      <div className="flex shrink-0 flex-col items-center px-3 pb-1.5 pt-3 text-center sm:px-4 sm:pt-3.5">
+        <h2 className="text-sm font-bold text-ink sm:text-base">AI Assistant</h2>
+        <div className="mt-0.5 flex items-center justify-center gap-1.5 text-[11px] text-ink-secondary sm:text-xs">
+          <span className="h-1.5 w-1.5 rounded-full bg-status-success sm:h-2 sm:w-2" />
+          Online
         </div>
-        <ApplicationSelect
-          id="chat-application-select"
-          variant="compact"
-          value={applicationName}
-          onChange={onApplicationChange}
-          disabled={isStreaming}
-          className="shrink-0"
-        />
       </div>
 
       <div
@@ -231,10 +217,8 @@ export function ChatPanel({
         className="min-h-0 flex-1 space-y-2.5 overflow-y-auto px-3 py-2.5 scrollbar-thin sm:space-y-3 sm:px-4"
       >
         {needsApplication ? (
-          <div className="flex flex-1 items-center justify-center py-6">
-            <p className="max-w-[18rem] rounded-lg bg-feature-yellow/25 px-3 py-2.5 text-center text-[13px] font-medium text-ink">
-              You have to select the application first and then proceed.
-            </p>
+          <div className="flex flex-1 items-center justify-center px-2 py-6">
+            <ApplicationRequiredNotice message="Select an application in the workspace to start chatting." />
           </div>
         ) : isCreatingThread ? (
           <p className="py-6 text-center text-[13px] text-ink-muted">
@@ -279,10 +263,9 @@ export function ChatPanel({
       <div className="shrink-0 border-t border-app-border-light p-2.5 sm:p-3">
         <PromptComposer
           compact
-          toolbar="chat"
           placeholder={
             needsApplication
-              ? 'Select an application to start chatting…'
+              ? 'Select an application in the workspace to chat…'
               : 'Type your message...'
           }
           onSend={onSend}

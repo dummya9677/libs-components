@@ -2,6 +2,7 @@ import { MessageSquare, Menu, X } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { getAgentBySlug } from '../../data/agents';
+import { AgentComingSoon } from '../../components/agent/AgentComingSoon';
 import { AgentWorkspace } from '../../components/agent/AgentWorkspace';
 import { ChatPanel } from '../../components/chat/ChatPanel';
 import { TopStatusBar } from '../../components/layout/TopStatusBar';
@@ -9,16 +10,15 @@ import { useAgentChat } from '../../hooks/useAgentChat';
 import { useAuth } from '../../hooks/useAuth';
 import { useLayout } from '../../hooks/useLayout';
 import { useSelectedApplication } from '../../hooks/useSelectedApplication';
+import type { AgentDefinition } from '../../data/agents';
 import { cn } from '../../utils/cn';
 
 interface AssistantLocationState {
   initialPrompt?: string;
 }
 
-export function AssistantPage() {
-  const { agentSlug } = useParams();
+function AssistantPageContent({ agent }: { agent: AgentDefinition }) {
   const location = useLocation();
-  const agent = getAgentBySlug(agentSlug);
   const { user } = useAuth();
   const { toggleSidebar, chatOpen, toggleChat, closeChat } = useLayout();
   const { applicationName, setApplicationName } = useSelectedApplication();
@@ -50,8 +50,6 @@ export function AssistantPage() {
       agent={agent}
       messages={messages}
       onSend={sendMessage}
-      applicationName={applicationName}
-      onApplicationChange={setApplicationName}
       streamingAnswer={streamingAnswer}
       isStreaming={isStreaming}
       isThreadReady={isThreadReady}
@@ -141,4 +139,15 @@ export function AssistantPage() {
       </div>
     </div>
   );
+}
+
+export function AssistantPage() {
+  const { agentSlug } = useParams();
+  const agent = getAgentBySlug(agentSlug);
+
+  if (agent.comingSoon) {
+    return <AgentComingSoon agent={agent} />;
+  }
+
+  return <AssistantPageContent agent={agent} />;
 }

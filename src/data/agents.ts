@@ -47,7 +47,8 @@ export interface AgentDefinition {
   actions: AgentAction[];
   examples: string[];
   demoMessages: AgentDemoMessage[];
-  heroVariant: 'cubes' | 'glass' | 'database' | 'book' | 'quality' | 'cost';
+  heroVariant: 'cubes' | 'glass' | 'database' | 'book' | 'quality' | 'cost' | 'bau';
+  comingSoon?: boolean;
 }
 
 export const agents: AgentDefinition[] = [
@@ -145,6 +146,58 @@ export const agents: AgentDefinition[] = [
         sentAt: minutesAgoIso(0),
       },
     ],
+  },
+  {
+    id: 'bau-intelligence',
+    slug: 'bau-intelligence',
+    name: 'BAU Intelligence',
+    shortName: 'BAU',
+    colorKey: 'bau',
+    description:
+      'Monitor business-as-usual operations, track routine health signals and surface operational insights.',
+    inputLabel: 'Ask about BAU operations or routine health',
+    inputPlaceholder: 'E.g. What routine jobs failed during last night’s BAU window?',
+    heroVariant: 'bau',
+    comingSoon: true,
+    capabilities: [
+      { label: 'Routine Monitoring', icon: 'check' },
+      { label: 'Operational Insights', icon: 'search' },
+      { label: 'Health Signals', icon: 'shield' },
+      { label: 'Trend Tracking', icon: 'layers' },
+    ],
+    actions: [
+      {
+        id: 'monitor',
+        title: 'Monitor BAU Jobs',
+        description: 'Track scheduled jobs and routine operational tasks.',
+        accent: 'blue',
+      },
+      {
+        id: 'health',
+        title: 'Operational Health',
+        description: 'View health signals across BAU processes.',
+        accent: 'purple',
+      },
+      {
+        id: 'alerts',
+        title: 'Routine Alerts',
+        description: 'Review alerts from business-as-usual workflows.',
+        accent: 'green',
+      },
+      {
+        id: 'trends',
+        title: 'BAU Trends',
+        description: 'Spot patterns in recurring operational activity.',
+        accent: 'orange',
+      },
+    ],
+    examples: [
+      'Which BAU jobs failed last night?',
+      'Show operational health for today',
+      'Summarize routine alerts this week',
+      'What changed in BAU workflows yesterday?',
+    ],
+    demoMessages: [],
   },
   {
     id: 'ticket-intelligence',

@@ -12,6 +12,11 @@ export const mockApplications: ApplicationWithAgents[] = [
         conversationId: 'conv-sales-dq',
       },
       {
+        id: 'agent_bau',
+        name: 'BAU Intelligence',
+        conversationId: null,
+      },
+      {
         id: 'agent_ticket',
         name: 'Ticket Intelligence',
         conversationId: 'conv-sales-ticket',
@@ -45,6 +50,11 @@ export const mockApplications: ApplicationWithAgents[] = [
       {
         id: 'agent_dq',
         name: 'Data Quality Intelligence',
+        conversationId: null,
+      },
+      {
+        id: 'agent_bau',
+        name: 'BAU Intelligence',
         conversationId: null,
       },
       {

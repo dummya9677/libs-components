@@ -40,85 +40,91 @@ const statIcons = {
 
 export function HomeRightRail() {
   return (
-    <aside className="flex w-home-rail shrink-0 flex-col gap-2.5 overflow-y-auto border-l border-app-border bg-surface/60 p-2.5 scrollbar-thin">
-      <DashboardCard
-        title="Today's AI Insights"
-        action={
-          <span className="text-[9px] font-medium text-ink-muted">Updated 5 min ago</span>
-        }
-      >
-        <ul className="space-y-1.5">
-          {aiInsights.map((insight) => {
-            const Icon = insightIcons[insight.type];
-            return (
-              <li
-                key={insight.id}
-                className="flex gap-2 rounded-lg border border-app-border-light bg-surface px-2 py-1.5"
-              >
-                <span
-                  className={cn(
-                    'mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md',
-                    insightStyles[insight.type],
-                  )}
-                >
-                  <Icon className="h-3.5 w-3.5" strokeWidth={1.75} />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-semibold leading-snug text-ink">
-                    {insight.title}
-                  </p>
-                  <p className="mt-0.5 text-[9px] leading-snug text-ink-muted">
-                    {insight.subtitle}
-                  </p>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-        <button
-          type="button"
-          className="mt-2 text-[10px] font-semibold text-client-cyan-helix-light hover:underline"
-        >
-          View all insights →
-        </button>
-      </DashboardCard>
+    <aside className="flex h-full min-h-0 w-home-rail shrink-0 flex-col overflow-hidden border-l border-app-border bg-surface/60">
+      <div className="min-h-0 flex-1 overflow-y-auto p-2.5 scrollbar-thin">
+        <div className="flex flex-col gap-2.5">
+          <DashboardCard
+            title="Today's AI Insights"
+            action={
+              <span className="text-[9px] font-medium text-ink-muted">Updated 5 min ago</span>
+            }
+          >
+            <ul className="space-y-1.5">
+              {aiInsights.map((insight) => {
+                const Icon = insightIcons[insight.type];
+                return (
+                  <li
+                    key={insight.id}
+                    className="flex gap-2 rounded-lg border border-app-border-light bg-surface px-2 py-1.5"
+                  >
+                    <span
+                      className={cn(
+                        'mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md',
+                        insightStyles[insight.type],
+                      )}
+                    >
+                      <Icon className="h-3.5 w-3.5" strokeWidth={1.75} />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[10px] font-semibold leading-snug text-ink">
+                        {insight.title}
+                      </p>
+                      <p className="mt-0.5 text-[9px] leading-snug text-ink-muted">
+                        {insight.subtitle}
+                      </p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+            <button
+              type="button"
+              className="mt-2 text-[10px] font-semibold text-client-cyan-helix-light hover:underline"
+            >
+              View all insights →
+            </button>
+          </DashboardCard>
 
-      <DashboardCard
-        title={`${env.appName} Intelligence`}
-        action={
-          <span className="flex items-center gap-1 text-[9px] font-medium text-status-success">
-            <span className="h-1.5 w-1.5 rounded-full bg-status-success" />
-            Live
-          </span>
-        }
-      >
-        <div className="grid grid-cols-2 gap-1.5">
-          {intelligenceStats.map((stat) => {
-            const Icon = statIcons[stat.icon];
-            return (
-              <div
-                key={stat.label}
-                className="rounded-lg border border-app-border-light bg-client-cyan-10/40 px-2 py-1.5"
-              >
-                <div className="mb-1 flex items-center gap-1">
-                  <Icon className="h-3 w-3 text-client-cyan-helix-light" strokeWidth={1.75} />
-                  <p className="text-sm font-bold leading-none text-ink">{stat.value}</p>
-                </div>
-                <p className="text-[8px] leading-tight text-ink-muted">{stat.label}</p>
-              </div>
-            );
-          })}
+          <DashboardCard
+            title={`${env.appName} Intelligence`}
+            action={
+              <span className="flex items-center gap-1 text-[9px] font-medium text-status-success">
+                <span className="h-1.5 w-1.5 rounded-full bg-status-success" />
+                Live
+              </span>
+            }
+          >
+            <div className="grid grid-cols-2 gap-1.5">
+              {intelligenceStats.map((stat) => {
+                const Icon = statIcons[stat.icon];
+                return (
+                  <div
+                    key={stat.label}
+                    className="rounded-lg border border-app-border-light bg-client-cyan-10/40 px-2 py-1.5"
+                  >
+                    <div className="mb-1 flex items-center gap-1">
+                      <Icon className="h-3 w-3 text-client-cyan-helix-light" strokeWidth={1.75} />
+                      <p className="text-sm font-bold leading-none text-ink">{stat.value}</p>
+                    </div>
+                    <p className="text-[8px] leading-tight text-ink-muted">{stat.label}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </DashboardCard>
         </div>
-      </DashboardCard>
+      </div>
 
-      <PromoGradientCard
-        variant="rail"
-        title="Multi-Agent Intelligence"
-        description={`${env.appName} orchestrates multiple AI agents to analyze, correlate and resolve your issues faster.`}
-        imageUrl={promoImages.multiAgent}
-        imageAlt="Multi-agent intelligence illustration"
-        placeholderLabel="Add PNG to public/images/multi-agent-promo.png"
-      />
+      <div className="mt-auto shrink-0 p-2.5 pt-2">
+        <PromoGradientCard
+          variant="rail"
+          title="Multi-Agent Intelligence"
+          description={`${env.appName} orchestrates multiple AI agents to analyze, correlate and resolve your issues faster.`}
+          imageUrl={promoImages.multiAgent}
+          imageAlt="Multi-agent intelligence illustration"
+          placeholderLabel="Add PNG to public/images/multi-agent-promo.png"
+        />
+      </div>
     </aside>
   );
 }

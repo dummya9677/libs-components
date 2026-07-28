@@ -1,6 +1,7 @@
 import {
   ArrowRight,
   BookOpen,
+  Briefcase,
   CircleDollarSign,
   Database,
   Menu,
@@ -25,6 +26,7 @@ import {
 } from '../../data/homeDashboard';
 import { PromptComposer } from '../../components/chat/PromptComposer';
 import { ApplicationSelect } from '../../components/application/ApplicationSelect';
+import { ApplicationRequiredNotice } from '../../components/application/ApplicationRequiredNotice';
 import { TopStatusBar } from '../../components/layout/TopStatusBar';
 import { clientBrandCardGradient } from '../../config/clientColors';
 import { useAuth } from '../../hooks/useAuth';
@@ -35,6 +37,7 @@ import { cn } from '../../utils/cn';
 
 const agentIcons: Record<string, typeof Ticket> = {
   'data-quality-intelligence': ShieldCheck,
+  'bau-intelligence': Briefcase,
   'ticket-intelligence': Ticket,
   'data-intelligence': Database,
   'impact-intelligence': Network,
@@ -58,7 +61,9 @@ export function HomePage() {
   const firstName = user?.name?.split(' ')[0] ?? 'John';
 
   const openAgent = (slug: string, prompt?: string) => {
-    if (!applicationName) {
+    const agent = agents.find((a) => a.slug === slug);
+
+    if (!agent?.comingSoon && !applicationName) {
       setHomePromptError('Select an application before continuing.');
       return;
     }
@@ -144,18 +149,13 @@ export function HomePage() {
                   }}
                   className="mb-2"
                 />
-                {!applicationName ? (
-                  <p className="mb-2 rounded-lg bg-feature-yellow/25 px-3 py-2 text-center text-[10px] font-medium text-ink sm:text-[11px]">
-                    You have to select the application first and then proceed.
-                  </p>
-                ) : null}
+                {!applicationName ? <ApplicationRequiredNotice /> : null}
                 <PromptComposer
                   placeholder={
                     applicationName
                       ? 'Ask anything about tickets, data issues, impact, knowledge...'
                       : 'Select an application above to ask a question…'
                   }
-                  toolbar="main"
                   gradientBorder={false}
                   disabled={!applicationName}
                   onSend={(text) => openAgent(DEFAULT_AGENT_SLUG, text)}
@@ -183,7 +183,7 @@ export function HomePage() {
           <section className="mt-3">
             <div className="mb-2 flex items-center justify-between gap-2">
               <h2 className="text-xs font-semibold text-ink sm:text-sm">AI Agents</h2>
-              <span className="text-[10px] text-ink-muted">6 agents available</span>
+              <span className="text-[10px] text-ink-muted">{agents.length} agents available</span>
             </div>
             <div className="grid gap-2 lg:grid-cols-[1fr_108px]">
               <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 xl:grid-cols-3">
@@ -222,7 +222,7 @@ export function HomePage() {
                         onClick={() => openAgent(agent.slug)}
                         className="mt-1.5 inline-flex items-center gap-1 text-[9px] font-semibold text-client-cyan-helix-light hover:underline"
                       >
-                        Open
+                        {agent.comingSoon ? 'Coming Soon' : 'Open'}
                         <ArrowRight className="h-2.5 w-2.5" />
                       </button>
                     </article>
@@ -257,7 +257,7 @@ export function HomePage() {
           </section>
         </main>
 
-        <div className="hidden min-h-0 lg:flex">
+        <div className="hidden h-full min-h-0 shrink-0 lg:flex">
           <HomeRightRail />
         </div>
       </div>

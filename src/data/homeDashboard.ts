@@ -154,6 +154,12 @@ export const workflowSteps = [
     theme: 'dataQuality' as const,
   },
   {
+    label: 'BAU Intelligence',
+    sub: 'Monitor Operations',
+    icon: 'bau' as const,
+    theme: 'bau' as const,
+  },
+  {
     label: 'Ticket Intelligence',
     sub: 'Analyze & Understand',
     icon: 'ticket' as const,

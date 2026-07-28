@@ -19,13 +19,17 @@ export function BrandLockup({
         className,
       )}
     >
-      <AppLogo collapsed={collapsed} className="min-w-0 shrink" />
       {!collapsed ? (
         <>
-          <span className="h-6 w-px shrink-0 bg-app-border" aria-hidden />
           <PartnerLogo className="min-w-0 shrink" />
+          <span className="h-8 w-px shrink-0 bg-app-border" aria-hidden />
         </>
       ) : null}
+      <AppLogo
+        collapsed={collapsed}
+        iconOnly={variant === 'sidebar'}
+        className="min-w-0 shrink"
+      />
     </div>
   );
 }
