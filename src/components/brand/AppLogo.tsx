@@ -2,7 +2,7 @@ import { cn } from '../../utils/cn';
 import { env } from '../../utils/env';
 
 /** Crops built-in canvas padding in public/assets/app-logo.png */
-const LOGO_VIEW_BOX = 'inset(28% 17% 28% 17%)';
+const LOGO_VIEW_BOX = 'inset(26% 15% 18% 15%)';
 
 const LOGO_HEIGHT = {
   sidebar: 'h-16',
@@ -31,7 +31,7 @@ export function AppLogo({
     >
       <div
         className={cn(
-          'overflow-hidden',
+          'flex items-end overflow-hidden',
           LOGO_HEIGHT[variant],
           variant === 'sidebar'
             ? 'w-full'
@@ -41,7 +41,7 @@ export function AppLogo({
         <img
           src="/assets/app-logo.png"
           alt={env.appName}
-          className="block h-full w-full object-fill"
+          className="block h-full w-full object-fill object-left-bottom"
           style={{ objectViewBox: LOGO_VIEW_BOX }}
         />
       </div>
