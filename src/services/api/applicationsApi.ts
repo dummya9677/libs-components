@@ -26,12 +26,12 @@ function normalizeApplication(raw: Record<string, unknown>): ApplicationWithAgen
   const agentsRaw = raw.agents;
   const agents = Array.isArray(agentsRaw)
     ? agentsRaw.map((agent) => normalizeAgent(agent as Record<string, unknown>))
-    : [];
+    : undefined;
 
   return {
     id: String(raw.id ?? raw.name ?? ''),
     name: String(raw.name ?? raw.label ?? raw.id ?? ''),
-    agents,
+    ...(agents && agents.length > 0 ? { agents } : {}),
   };
 }
 

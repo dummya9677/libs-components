@@ -2,12 +2,13 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   useGetApplicationsQuery,
   useLazyGetConversationHistoryQuery,
+  useStartConversationMutation,
 } from '../services/api';
 import { streamChat } from '../services/chat/streamChat';
 import type { HistoryMessage } from '../types';
 import {
   findApplicationById,
-  findAgentInApplication,
+  findAgentForFrontend,
   resolveApplicationAgent,
 } from '../utils/applicationAgents';
 import { useAuth } from './useAuth';
@@ -46,15 +47,16 @@ function buildSessionKey(applicationName: string | null, agentId: string): strin
 
 /**
  * Agent chat lifecycle:
- * 1. GET /applications → resolve agent + optional conversation_id for (app, agent)
- * 2. GET /history/conversations/{conversation_id} when an id exists (empty on 404)
- * 3. POST /chat with application, agent_id, message, conversation_id, user_id
- * 4. Follow-up messages reuse the same conversation_id returned from /chat
+ * 1. GET /applications → resolve application id
+ * 2. POST /history/conversations/start → conversation_id for (username, app, agent)
+ * 3. GET /history/conversations/{conversation_id} (empty on 404)
+ * 4. POST /chat with application id, agent_id, message, conversation_id, user_id (username)
  */
 export function useAgentChat(agentId: string, applicationName: string | null) {
   const { user } = useAuth();
   const { data: applications = [], isLoading: isLoadingApplications } =
     useGetApplicationsQuery();
+  const [startConversation] = useStartConversationMutation();
   const [fetchHistory] = useLazyGetConversationHistoryQuery();
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [backendAgentId, setBackendAgentId] = useState<string | null>(null);
@@ -123,12 +125,20 @@ export function useAgentChat(agentId: string, applicationName: string | null) {
       };
     }
 
-    const backendAgent = findAgentInApplication(application, agentId);
+    const backendAgent = findAgentForFrontend(agentId);
 
     if (!backendAgent) {
-      setSessionError(
-        'This agent is not available for the selected application.',
-      );
+      setSessionError('This agent is not available.');
+      setBackendAgentId(null);
+      setIsLoadingSession(false);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    const username = user?.name?.trim();
+    if (!username) {
+      setSessionError('User profile is not loaded. Please sign in again.');
       setBackendAgentId(null);
       setIsLoadingSession(false);
       return () => {
@@ -138,27 +148,39 @@ export function useAgentChat(agentId: string, applicationName: string | null) {
 
     sessionBootstrappedRef.current = sessionKey;
     setBackendAgentId(backendAgent.id);
-
-    const initialConversationId = backendAgent.conversationId ?? null;
-    syncConversationId(initialConversationId);
-
-    if (!initialConversationId) {
-      setIsLoadingSession(false);
-      return () => {
-        cancelled = true;
-      };
-    }
-
     setIsLoadingSession(true);
+    setSessionError(null);
 
-    const loadHistory = async () => {
+    const bootstrapSession = async () => {
       try {
-        const historyPage = await fetchHistory(initialConversationId).unwrap();
-        if (!cancelled) {
-          setMessages(historyPage.items);
+        const started = await startConversation({
+          userId: username,
+          application: application.id,
+          agentId: backendAgent.id,
+        }).unwrap();
+
+        if (cancelled) return;
+
+        syncConversationId(started.conversationId);
+
+        try {
+          const historyPage = await fetchHistory(started.conversationId).unwrap();
+          if (!cancelled) {
+            setMessages(historyPage.items);
+          }
+        } catch {
+          if (!cancelled) {
+            setMessages([]);
+          }
         }
-      } catch {
+      } catch (err) {
         if (!cancelled) {
+          const message =
+            err instanceof Error
+              ? err.message
+              : 'Failed to start a conversation for this application and agent.';
+          setSessionError(message);
+          syncConversationId(null);
           setMessages([]);
         }
       } finally {
@@ -168,7 +190,7 @@ export function useAgentChat(agentId: string, applicationName: string | null) {
       }
     };
 
-    void loadHistory();
+    void bootstrapSession();
 
     return () => {
       cancelled = true;
@@ -179,7 +201,9 @@ export function useAgentChat(agentId: string, applicationName: string | null) {
     applications,
     fetchHistory,
     isLoadingApplications,
+    startConversation,
     syncConversationId,
+    user?.name,
   ]);
 
   const sendMessage = useCallback(
@@ -211,6 +235,12 @@ export function useAgentChat(agentId: string, applicationName: string | null) {
         return;
       }
 
+      const username = user?.name?.trim();
+      if (!username) {
+        setError('User profile is not loaded. Please sign in again.');
+        return;
+      }
+
       const currentConversationId = conversationIdRef.current;
       const messageConversationId = currentConversationId ?? 'pending';
 
@@ -231,11 +261,11 @@ export function useAgentChat(agentId: string, applicationName: string | null) {
 
       try {
         await streamChat({
-          application: resolved.application.name,
+          application: resolved.application.id,
           agentId: backendAgentId,
           message: trimmed,
           conversationId: currentConversationId,
-          userId: user?.id ?? 'yesh',
+          userId: username,
           signal: abort.signal,
           onChunk: (chunk) => {
             fullAnswer += chunk;
@@ -284,7 +314,7 @@ export function useAgentChat(agentId: string, applicationName: string | null) {
       isStreaming,
       sessionError,
       syncConversationId,
-      user?.id,
+      user?.name,
     ],
   );
 
@@ -300,7 +330,7 @@ export function useAgentChat(agentId: string, applicationName: string | null) {
     conversationId,
     isCreatingThread: isLoadingSession || isLoadingApplications,
     threadError: sessionError,
-    isThreadReady: Boolean(resolvedApplication && backendAgentId),
+    isThreadReady: Boolean(resolvedApplication && backendAgentId && conversationId),
     needsApplication:
       !applicationName ||
       (!isLoadingApplications &&

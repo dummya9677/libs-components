@@ -83,7 +83,18 @@ export interface ApplicationAgent {
 export interface ApplicationWithAgents {
   id: string;
   name: string;
-  agents: ApplicationAgent[];
+  /** Optional — agents are defined locally in src/data/backendAgents.ts */
+  agents?: ApplicationAgent[];
+}
+
+export interface StartConversationRequest {
+  userId: string;
+  application: string;
+  agentId: string;
+}
+
+export interface StartConversationResponse {
+  conversationId: string;
 }
 
 /** POST create-thread — legacy; conversation id now comes from GET /applications. */

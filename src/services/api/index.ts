@@ -17,6 +17,7 @@ export {
 export {
   useGetHistoryQuery,
   useGetConversationQuery,
+  useStartConversationMutation,
   useGetConversationHistoryQuery,
   useLazyGetConversationHistoryQuery,
   useGetConversationMessagesQuery,

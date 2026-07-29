@@ -1,9 +1,5 @@
-import { agents } from '../data/agents';
-import type { ApplicationAgent, ApplicationWithAgents } from '../types';
-
-function normalizeAgentName(value: string): string {
-  return value.trim().toLowerCase();
-}
+import { findBackendAgent } from '../data/backendAgents';
+import type { ApplicationWithAgents } from '../types';
 
 export function findApplicationById(
   applications: ApplicationWithAgents[],
@@ -17,40 +13,27 @@ export function findApplicationById(
 }
 
 /**
- * Match the UI agent (slug/id) to the agent entry returned by GET /applications.
+ * Resolve the static backend agent for a UI agent slug/id.
  */
-export function findAgentInApplication(
-  application: ApplicationWithAgents | undefined,
-  frontendAgentId: string,
-): ApplicationAgent | undefined {
-  if (!application) return undefined;
-
-  const frontendAgent = agents.find(
-    (agent) => agent.id === frontendAgentId || agent.slug === frontendAgentId,
-  );
-
-  return application.agents.find((agent) => {
-    if (agent.id === frontendAgentId) return true;
-    if (frontendAgent && agent.id === frontendAgent.slug) return true;
-    if (
-      frontendAgent &&
-      normalizeAgentName(agent.name) === normalizeAgentName(frontendAgent.name)
-    ) {
-      return true;
-    }
-    return false;
-  });
+export function findAgentForFrontend(frontendAgentId: string) {
+  return findBackendAgent(frontendAgentId);
 }
 
 export function resolveApplicationAgent(
   applications: ApplicationWithAgents[],
   applicationId: string,
   frontendAgentId: string,
-): { application: ApplicationWithAgents; agent: ApplicationAgent } | null {
+): {
+  application: ApplicationWithAgents;
+  agent: { id: string; name: string };
+} | null {
   const application = findApplicationById(applications, applicationId);
-  const agent = findAgentInApplication(application, frontendAgentId);
+  const agent = findBackendAgent(frontendAgentId);
 
   if (!application || !agent) return null;
 
-  return { application, agent };
+  return {
+    application,
+    agent: { id: agent.id, name: agent.name },
+  };
 }

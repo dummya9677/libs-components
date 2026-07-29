@@ -32,6 +32,10 @@ export const env = {
     /** GET — application list with nested agents and conversation ids. */
     applicationsPath:
       import.meta.env.VITE_API_APPLICATIONS_PATH || '/applications',
+    /** POST — start or resume a conversation for (user, application, agent). */
+    conversationStartPath:
+      import.meta.env.VITE_API_CONVERSATION_START_PATH ||
+      '/history/conversations/start',
     /** GET — conversation history prefix: /history/conversations/{conversation_id} */
     conversationHistoryPath:
       import.meta.env.VITE_API_CONVERSATION_HISTORY_PATH ||
