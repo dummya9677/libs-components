@@ -34,7 +34,6 @@ function AssistantPageContent({ agent }: { agent: AgentDefinition }) {
     isThreadReady,
     needsApplication,
     messages,
-    streamingAnswer,
     isStreaming,
     error,
     sendMessage,
@@ -54,7 +53,6 @@ function AssistantPageContent({ agent }: { agent: AgentDefinition }) {
       agent={agent}
       messages={messages}
       onSend={sendMessage}
-      streamingAnswer={streamingAnswer}
       isStreaming={isStreaming}
       isThreadReady={isThreadReady}
       isCreatingThread={isCreatingThread}

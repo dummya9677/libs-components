@@ -32,6 +32,11 @@ export function parseChatResponse(payload: unknown): ParsedChatResponse {
   if (!payload || typeof payload !== 'object') return empty;
 
   const record = payload as Record<string, unknown>;
+
+  if (record.data && typeof record.data === 'object') {
+    return parseChatResponse(record.data);
+  }
+
   const conversationId =
     typeof record.conversation_id === 'string'
       ? record.conversation_id

@@ -1,5 +1,10 @@
 import { env } from '../../utils/env';
-import { parseChatResponse } from '../../utils/parseChatResponse';
+import {
+  parseChatResponse,
+  type ParsedChatResponse,
+} from '../../utils/parseChatResponse';
+
+export type { ParsedChatResponse };
 
 export interface StreamChatOptions {
   application: string;
@@ -22,33 +27,120 @@ function buildChatUrl(): string {
   return `${base}/${path}`;
 }
 
-function extractTextFromJsonPayload(payload: unknown): string {
-  return parseChatResponse(payload).text;
+function emitParsedResponse(
+  parsed: ParsedChatResponse,
+  onChunk: (chunk: string) => void,
+  onConversationId?: (conversationId: string) => void,
+  onSuggestedQueries?: (queries: string[]) => void,
+): ParsedChatResponse {
+  if (parsed.conversationId) {
+    onConversationId?.(parsed.conversationId);
+  }
+
+  if (parsed.text) {
+    onChunk(parsed.text);
+  }
+
+  if (parsed.suggestedQueries.length > 0) {
+    onSuggestedQueries?.(parsed.suggestedQueries);
+  }
+
+  return parsed;
+}
+
+function tryParseChatBody(raw: string): ParsedChatResponse | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+
+  if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+    try {
+      const json: unknown = JSON.parse(trimmed);
+      const parsed = parseChatResponse(json);
+      if (parsed.text || parsed.conversationId || parsed.suggestedQueries.length > 0) {
+        return parsed;
+      }
+    } catch {
+      // Fall through to python-style string parsing.
+    }
+  }
+
+  const parsed = parseChatResponse(trimmed);
+  if (parsed.text || parsed.conversationId || parsed.suggestedQueries.length > 0) {
+    return parsed;
+  }
+
+  return null;
+}
+
+async function readFullBody(response: Response): Promise<string> {
+  const reader = response.body?.getReader();
+  if (!reader) return '';
+
+  const decoder = new TextDecoder();
+  let accumulated = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    accumulated += decoder.decode(value, { stream: true });
+  }
+
+  accumulated += decoder.decode();
+  return accumulated;
 }
 
 async function readResponseStream(
   response: Response,
   onChunk: (chunk: string) => void,
-): Promise<void> {
-  const reader = response.body?.getReader();
-  if (!reader) return;
-
-  const decoder = new TextDecoder();
+  onConversationId?: (conversationId: string) => void,
+  onSuggestedQueries?: (queries: string[]) => void,
+): Promise<ParsedChatResponse> {
   const contentType = response.headers.get('content-type') ?? '';
   const isSse = contentType.includes('text/event-stream');
+
+  if (!isSse) {
+    const body = await readFullBody(response);
+    const parsed = tryParseChatBody(body);
+
+    if (parsed) {
+      return emitParsedResponse(
+        parsed,
+        onChunk,
+        onConversationId,
+        onSuggestedQueries,
+      );
+    }
+
+    if (body.trim()) {
+      onChunk(body.trim());
+    }
+
+    return {
+      conversationId: null,
+      text: body.trim(),
+      suggestedQueries: [],
+    };
+  }
+
+  const reader = response.body?.getReader();
+  if (!reader) {
+    return { conversationId: null, text: '', suggestedQueries: [] };
+  }
+
+  const decoder = new TextDecoder();
   let buffer = '';
+  let streamedText = '';
+  let lastParsed: ParsedChatResponse = {
+    conversationId: null,
+    text: '',
+    suggestedQueries: [],
+  };
 
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
 
-    const text = decoder.decode(value, { stream: true });
-    if (!isSse) {
-      if (text) onChunk(text);
-      continue;
-    }
-
-    buffer += text;
+    buffer += decoder.decode(value, { stream: true });
     const lines = buffer.split('\n');
     buffer = lines.pop() ?? '';
 
@@ -61,27 +153,78 @@ async function readResponseStream(
 
       try {
         const parsed: unknown = JSON.parse(payload);
-        const piece = extractTextFromJsonPayload(parsed);
-        if (piece) onChunk(piece);
+        lastParsed = emitParsedResponse(
+          parseChatResponse(parsed),
+          onChunk,
+          onConversationId,
+          onSuggestedQueries,
+        );
+        streamedText = lastParsed.text || streamedText;
       } catch {
-        onChunk(payload);
+        const parsed = tryParseChatBody(payload);
+        if (parsed) {
+          lastParsed = emitParsedResponse(
+            parsed,
+            onChunk,
+            onConversationId,
+            onSuggestedQueries,
+          );
+          streamedText = lastParsed.text || streamedText;
+        } else if (payload) {
+          streamedText += payload;
+          onChunk(payload);
+        }
       }
     }
   }
 
   const trailing = buffer.trim();
-  if (isSse && trailing.startsWith('data:')) {
+  if (trailing.startsWith('data:')) {
     const payload = trailing.slice(5).trim();
     if (payload && payload !== '[DONE]') {
       try {
         const parsed: unknown = JSON.parse(payload);
-        const piece = extractTextFromJsonPayload(parsed);
-        if (piece) onChunk(piece);
+        lastParsed = emitParsedResponse(
+          parseChatResponse(parsed),
+          onChunk,
+          onConversationId,
+          onSuggestedQueries,
+        );
+        streamedText = lastParsed.text || streamedText;
       } catch {
-        onChunk(payload);
+        const parsed = tryParseChatBody(payload);
+        if (parsed) {
+          lastParsed = emitParsedResponse(
+            parsed,
+            onChunk,
+            onConversationId,
+            onSuggestedQueries,
+          );
+          streamedText = lastParsed.text || streamedText;
+        }
       }
     }
+  } else if (trailing) {
+    const parsed = tryParseChatBody(trailing);
+    if (parsed) {
+      lastParsed = emitParsedResponse(
+        parsed,
+        onChunk,
+        onConversationId,
+        onSuggestedQueries,
+      );
+      streamedText = lastParsed.text || streamedText;
+    }
   }
+
+  if (streamedText) {
+    return {
+      ...lastParsed,
+      text: streamedText,
+    };
+  }
+
+  return lastParsed;
 }
 
 /**
@@ -98,7 +241,7 @@ export async function streamChat({
   onChunk,
   onConversationId,
   onSuggestedQueries,
-}: StreamChatOptions): Promise<void> {
+}: StreamChatOptions): Promise<ParsedChatResponse> {
   const response = await fetch(buildChatUrl(), {
     method: 'POST',
     headers: {
@@ -123,24 +266,20 @@ export async function streamChat({
 
   const contentType = response.headers.get('content-type') ?? '';
 
-  if (contentType.includes('application/json')) {
+  if (contentType.includes('application/json') || contentType.includes('text/json')) {
     const data: unknown = await response.json();
-    const parsed = parseChatResponse(data);
-
-    if (parsed.conversationId) {
-      onConversationId?.(parsed.conversationId);
-    }
-
-    if (parsed.text) {
-      onChunk(parsed.text);
-    }
-
-    if (parsed.suggestedQueries.length > 0) {
-      onSuggestedQueries?.(parsed.suggestedQueries);
-    }
-
-    return;
+    return emitParsedResponse(
+      parseChatResponse(data),
+      onChunk,
+      onConversationId,
+      onSuggestedQueries,
+    );
   }
 
-  await readResponseStream(response, onChunk);
+  return readResponseStream(
+    response,
+    onChunk,
+    onConversationId,
+    onSuggestedQueries,
+  );
 }

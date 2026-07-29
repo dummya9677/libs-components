@@ -36,6 +36,8 @@ export interface HistoryMessage {
   progressLabel?: string;
   actions?: { label: string; variant?: 'primary' | 'link' }[];
   followUp?: string;
+  /** Optimistic placeholder while waiting for POST /chat to complete. */
+  isPending?: boolean;
 }
 
 /** Cursor-paginated page of conversation messages (oldest → newest within the page). */

@@ -174,6 +174,27 @@ function ChatMessage({
   message: HistoryMessage;
   onSend?: (content: string) => void | Promise<void>;
 }) {
+  if (message.isPending) {
+    if (message.content?.trim()) {
+      return (
+        <MessageBubble
+          align="left"
+          sentAt={message.createdAt}
+          variant="assistant"
+          agent={agent}
+        >
+          <FormattedMessageContent
+            text={message.content}
+            className="text-[13px] leading-relaxed text-ink-secondary"
+          />
+          <span className="ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-brand align-middle" />
+        </MessageBubble>
+      );
+    }
+
+    return <AssistantMessageSkeleton agent={agent} />;
+  }
+
   if (message.role === 'progress') {
     return <ProgressCard agent={agent} message={message} />;
   }
@@ -202,12 +223,14 @@ function ChatMessage({
         variant="assistant"
         agent={agent}
       >
-        {message.content ? (
+        {message.content?.trim() ? (
           <FormattedMessageContent
             text={message.content}
             className="text-[13px] leading-relaxed text-ink-secondary"
           />
-        ) : null}
+        ) : (
+          <p className="text-[13px] italic text-ink-muted">No message content.</p>
+        )}
         {message.bullets?.length ? (
           <ul className="mt-2 list-disc space-y-1 pl-4 text-[13px] text-ink-secondary">
             {message.bullets.map((bullet) => (
@@ -243,7 +266,6 @@ interface ChatPanelProps {
   agent: AgentDefinition;
   messages: HistoryMessage[];
   onSend: (content: string) => void | Promise<void>;
-  streamingAnswer?: string;
   isStreaming?: boolean;
   isThreadReady?: boolean;
   isCreatingThread?: boolean;
@@ -258,7 +280,6 @@ export function ChatPanel({
   agent,
   messages,
   onSend,
-  streamingAnswer = '',
   isStreaming = false,
   isThreadReady = true,
   isCreatingThread = false,
@@ -267,22 +288,10 @@ export function ChatPanel({
 }: ChatPanelProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const streamingStartedAt = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (isStreaming && !streamingStartedAt.current) {
-      streamingStartedAt.current = new Date().toISOString();
-      return;
-    }
-
-    if (!isStreaming) {
-      streamingStartedAt.current = null;
-    }
-  }, [isStreaming]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, streamingAnswer, isStreaming]);
+  }, [messages, isStreaming]);
 
   return (
     <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-app-border bg-surface shadow-card sm:rounded-2xl">
@@ -302,42 +311,31 @@ export function ChatPanel({
           <div className="flex flex-1 items-center justify-center px-2 py-6">
             <ApplicationRequiredNotice message="Select an application in the workspace to start chatting." />
           </div>
-        ) : isCreatingThread ? (
-          <div className="flex flex-col items-center gap-3 py-8">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand/20 border-t-brand" />
-            <p className="text-[13px] text-ink-muted">Loading conversation…</p>
-          </div>
-        ) : messages.length === 0 && !isStreaming ? (
-          <p className="py-8 text-center text-[13px] text-ink-muted">
-            Ask a question to start the conversation.
-          </p>
         ) : (
-          messages.map((message) => (
-            <ChatMessage
-              key={message.id}
-              agent={agent}
-              message={message}
-              onSend={onSend}
-            />
-          ))
+          <>
+            {isCreatingThread && messages.length === 0 && !isStreaming ? (
+              <div className="flex flex-col items-center gap-3 py-8">
+                <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand/20 border-t-brand" />
+                <p className="text-[13px] text-ink-muted">Loading conversation…</p>
+              </div>
+            ) : null}
+
+            {messages.length === 0 && !isStreaming && !isCreatingThread ? (
+              <p className="py-8 text-center text-[13px] text-ink-muted">
+                Ask a question to start the conversation.
+              </p>
+            ) : null}
+
+            {messages.map((message) => (
+              <ChatMessage
+                key={message.id}
+                agent={agent}
+                message={message}
+                onSend={onSend}
+              />
+            ))}
+          </>
         )}
-
-        {isStreaming && !streamingAnswer ? <AssistantMessageSkeleton agent={agent} /> : null}
-
-        {isStreaming && streamingAnswer ? (
-          <MessageBubble
-            align="left"
-            variant="assistant"
-            agent={agent}
-            sentAt={streamingStartedAt.current ?? new Date().toISOString()}
-          >
-            <FormattedMessageContent
-              text={streamingAnswer}
-              className="text-[13px] leading-relaxed text-ink-secondary"
-            />
-            <span className="ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-brand align-middle" />
-          </MessageBubble>
-        ) : null}
 
         {error ? (
           <p className="rounded-lg border border-status-danger/30 bg-red-50 px-3 py-2 text-[12px] text-status-danger">
