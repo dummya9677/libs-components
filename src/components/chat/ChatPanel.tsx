@@ -3,13 +3,20 @@ import { useEffect, useRef } from 'react';
 import { BookOpen, Database, Network, Sparkles } from 'lucide-react';
 import type { AgentDefinition } from '../../data/agents';
 import { getAgentTheme } from '../../data/agents';
+import { useRelativeTime } from '../../hooks/useRelativeTime';
 import type { HistoryMessage } from '../../types';
 import { PromptComposer } from './PromptComposer';
 import { ApplicationRequiredNotice } from '../application/ApplicationRequiredNotice';
-import { formatRelativeTime } from '../../utils/time';
+import { FormattedMessageContent } from './FormattedMessageContent';
 import { cn } from '../../utils/cn';
 
-function AgentIcon({ agent }: { agent: AgentDefinition }) {
+function AgentIcon({
+  agent,
+  size = 'md',
+}: {
+  agent: AgentDefinition;
+  size?: 'sm' | 'md';
+}) {
   const theme = getAgentTheme(agent.colorKey);
   const Icon =
     agent.colorKey === 'knowledge'
@@ -20,14 +27,27 @@ function AgentIcon({ agent }: { agent: AgentDefinition }) {
           ? Sparkles
           : Database;
 
+  const dimensions = size === 'sm' ? 'h-7 w-7' : 'h-9 w-9';
+  const iconSize = size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4';
+
   return (
     <div
-      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-white"
+      className={cn(
+        'flex shrink-0 items-center justify-center rounded-full text-white shadow-sm',
+        dimensions,
+      )}
       style={{ backgroundColor: theme.heroIcon }}
     >
-      <Icon className="h-5 w-5" strokeWidth={1.5} />
+      <Icon className={iconSize} strokeWidth={1.75} />
     </div>
   );
+}
+
+function MessageTimestamp({ sentAt }: { sentAt?: string }) {
+  const label = useRelativeTime(sentAt);
+  if (!label) return null;
+
+  return <span className="text-[10px] font-medium text-ink-muted">{label}</span>;
 }
 
 function ProgressCard({
@@ -66,38 +86,80 @@ function ProgressCard({
   );
 }
 
-function MessageCard({
+function MessageBubble({
   children,
   align = 'left',
   sentAt,
   variant = 'assistant',
+  agent,
+  isPending = false,
 }: {
   children: ReactNode;
   align?: 'left' | 'right';
   sentAt?: string;
   variant?: 'assistant' | 'user';
+  agent?: AgentDefinition;
+  isPending?: boolean;
 }) {
   return (
-    <div className={cn('flex', align === 'right' ? 'justify-end' : 'justify-start')}>
+    <div
+      className={cn(
+        'flex gap-2',
+        align === 'right' ? 'flex-row-reverse' : 'flex-row',
+      )}
+    >
+      {variant === 'assistant' && agent ? <AgentIcon agent={agent} size="sm" /> : null}
+
       <div
         className={cn(
-          'max-w-[92%] rounded-2xl px-3.5 py-3 shadow-card',
-          variant === 'user'
-            ? 'bg-brand-soft'
-            : 'border border-app-border bg-surface-muted',
+          'min-w-0 max-w-[88%] sm:max-w-[82%]',
+          align === 'right' ? 'items-end' : 'items-start',
+          'flex flex-col gap-1',
         )}
       >
-        {children}
-        {sentAt ? (
-          <p
-            className={cn(
-              'mt-2 text-[11px] text-ink-muted',
-              align === 'right' ? 'text-right' : 'text-left',
-            )}
-          >
-            {formatRelativeTime(sentAt)}
-          </p>
-        ) : null}
+        <div
+          className={cn(
+            'rounded-2xl px-3.5 py-2.5 shadow-card',
+            variant === 'user'
+              ? 'rounded-br-md bg-brand text-white'
+              : 'rounded-bl-md border border-app-border bg-surface',
+            isPending && 'opacity-90',
+          )}
+        >
+          {children}
+        </div>
+        <div
+          className={cn(
+            'px-1',
+            align === 'right' ? 'text-right' : 'text-left',
+          )}
+        >
+          <MessageTimestamp sentAt={sentAt} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AssistantMessageSkeleton({ agent }: { agent: AgentDefinition }) {
+  return (
+    <div className="flex gap-2">
+      <AgentIcon agent={agent} size="sm" />
+      <div className="min-w-0 max-w-[88%] sm:max-w-[82%]">
+        <div className="rounded-2xl rounded-bl-md border border-app-border bg-surface px-3.5 py-3 shadow-card">
+          <div className="mb-2 flex items-center gap-2">
+            <span className="inline-flex h-1.5 w-1.5 animate-pulse rounded-full bg-brand" />
+            <span className="text-[11px] font-medium text-ink-secondary">
+              {agent.shortName} is thinking…
+            </span>
+          </div>
+          <div className="space-y-2">
+            <div className="h-2.5 w-full animate-pulse rounded-full bg-surface-muted" />
+            <div className="h-2.5 w-[92%] animate-pulse rounded-full bg-surface-muted" />
+            <div className="h-2.5 w-[76%] animate-pulse rounded-full bg-surface-muted" />
+          </div>
+        </div>
+        <p className="mt-1 px-1 text-[10px] font-medium text-ink-muted">Just now</p>
       </div>
     </div>
   );
@@ -118,30 +180,38 @@ function ChatMessage({
 
   if (message.role === 'status') {
     return (
-      <p className="px-1 text-[13px] text-ink-secondary">{message.content}</p>
+      <p className="px-1 text-center text-[12px] text-ink-secondary">{message.content}</p>
     );
   }
 
   if (message.role === 'user') {
     return (
-      <MessageCard align="right" sentAt={message.createdAt} variant="user">
-        <p className="text-[13px] font-medium leading-relaxed text-brand">
+      <MessageBubble align="right" sentAt={message.createdAt} variant="user">
+        <p className="whitespace-pre-wrap text-[13px] font-medium leading-relaxed">
           {message.content}
         </p>
-      </MessageCard>
+      </MessageBubble>
     );
   }
 
   return (
     <div className="space-y-2">
-      <MessageCard align="left" sentAt={message.createdAt} variant="assistant">
+      <MessageBubble
+        align="left"
+        sentAt={message.createdAt}
+        variant="assistant"
+        agent={agent}
+      >
         {message.content ? (
-          <p className="text-[13px] leading-relaxed text-ink">{message.content}</p>
+          <FormattedMessageContent
+            text={message.content}
+            className="text-[13px] leading-relaxed text-ink-secondary"
+          />
         ) : null}
         {message.bullets?.length ? (
           <ul className="mt-2 list-disc space-y-1 pl-4 text-[13px] text-ink-secondary">
-            {message.bullets.map((b) => (
-              <li key={b}>{b}</li>
+            {message.bullets.map((bullet) => (
+              <li key={bullet}>{bullet}</li>
             ))}
           </ul>
         ) : null}
@@ -150,15 +220,15 @@ function ChatMessage({
             {message.followUp}
           </p>
         ) : null}
-      </MessageCard>
+      </MessageBubble>
       {message.actions?.length ? (
-        <div className="flex flex-wrap gap-x-4 gap-y-1 px-1">
+        <div className="flex flex-wrap gap-2 pl-9">
           {message.actions.map((action) => (
             <button
               key={action.label}
               type="button"
               onClick={() => void onSend?.(action.label)}
-              className="text-[13px] font-medium text-brand hover:underline"
+              className="rounded-full border border-brand/25 bg-brand-soft px-3 py-1 text-[12px] font-medium text-brand transition hover:bg-brand/10"
             >
               {action.label}
             </button>
@@ -197,6 +267,18 @@ export function ChatPanel({
 }: ChatPanelProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const streamingStartedAt = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (isStreaming && !streamingStartedAt.current) {
+      streamingStartedAt.current = new Date().toISOString();
+      return;
+    }
+
+    if (!isStreaming) {
+      streamingStartedAt.current = null;
+    }
+  }, [isStreaming]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -214,18 +296,19 @@ export function ChatPanel({
 
       <div
         ref={scrollRef}
-        className="min-h-0 flex-1 space-y-2.5 overflow-y-auto px-3 py-2.5 scrollbar-thin sm:space-y-3 sm:px-4"
+        className="min-h-0 flex-1 space-y-3 overflow-y-auto px-3 py-2.5 scrollbar-thin sm:space-y-3.5 sm:px-4"
       >
         {needsApplication ? (
           <div className="flex flex-1 items-center justify-center px-2 py-6">
             <ApplicationRequiredNotice message="Select an application in the workspace to start chatting." />
           </div>
         ) : isCreatingThread ? (
-          <p className="py-6 text-center text-[13px] text-ink-muted">
-            Starting chat session…
-          </p>
+          <div className="flex flex-col items-center gap-3 py-8">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand/20 border-t-brand" />
+            <p className="text-[13px] text-ink-muted">Loading conversation…</p>
+          </div>
         ) : messages.length === 0 && !isStreaming ? (
-          <p className="py-6 text-center text-[13px] text-ink-muted">
+          <p className="py-8 text-center text-[13px] text-ink-muted">
             Ask a question to start the conversation.
           </p>
         ) : (
@@ -239,16 +322,21 @@ export function ChatPanel({
           ))
         )}
 
-        {isStreaming && streamingAnswer ? (
-          <MessageCard align="left" variant="assistant">
-            <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-ink">
-              {streamingAnswer}
-            </p>
-          </MessageCard>
-        ) : null}
+        {isStreaming && !streamingAnswer ? <AssistantMessageSkeleton agent={agent} /> : null}
 
-        {isStreaming && !streamingAnswer ? (
-          <p className="px-1 text-[13px] text-ink-muted">Analyzing…</p>
+        {isStreaming && streamingAnswer ? (
+          <MessageBubble
+            align="left"
+            variant="assistant"
+            agent={agent}
+            sentAt={streamingStartedAt.current ?? new Date().toISOString()}
+          >
+            <FormattedMessageContent
+              text={streamingAnswer}
+              className="text-[13px] leading-relaxed text-ink-secondary"
+            />
+            <span className="ml-0.5 inline-block h-4 w-0.5 animate-pulse bg-brand align-middle" />
+          </MessageBubble>
         ) : null}
 
         {error ? (

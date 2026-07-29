@@ -1,99 +1,13 @@
+import {
+  extractTextFromContentBlocks,
+  parseLooseObject,
+  parseMessagePayload,
+} from './parseMessageContent';
+
 export interface ParsedChatResponse {
   conversationId: string | null;
   text: string;
   suggestedQueries: string[];
-}
-
-function parseLooseObject(value: unknown): Record<string, unknown> | null {
-  if (value && typeof value === 'object' && !Array.isArray(value)) {
-    return value as Record<string, unknown>;
-  }
-
-  if (typeof value !== 'string') return null;
-
-  const trimmed = value.trim();
-  if (!trimmed) return null;
-
-  try {
-    const parsed: unknown = JSON.parse(trimmed);
-    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-      return parsed as Record<string, unknown>;
-    }
-  } catch {
-    // Fall through to Python-style dict parsing.
-  }
-
-  try {
-    const jsonish = trimmed
-      .replace(/\bNone\b/g, 'null')
-      .replace(/\bTrue\b/g, 'true')
-      .replace(/\bFalse\b/g, 'false')
-      .replace(/'/g, '"');
-    const parsed: unknown = JSON.parse(jsonish);
-    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-      return parsed as Record<string, unknown>;
-    }
-  } catch {
-    return null;
-  }
-
-  return null;
-}
-
-function extractTextFromContentBlocks(content: unknown): {
-  text: string;
-  suggestedQueries: string[];
-} {
-  if (!Array.isArray(content)) {
-    return { text: '', suggestedQueries: [] };
-  }
-
-  const textParts: string[] = [];
-  const suggestedQueries: string[] = [];
-
-  for (const block of content) {
-    if (!block || typeof block !== 'object') continue;
-
-    const record = block as Record<string, unknown>;
-    const type = String(record.type ?? '');
-
-    if (type === 'text') {
-      const text = record.text;
-      if (typeof text === 'string' && text.trim()) {
-        textParts.push(text);
-      }
-      continue;
-    }
-
-    if (type === 'thinking') {
-      continue;
-    }
-
-    if (type === 'suggested_queries') {
-      const queries = record.suggested_queries ?? record.suggestedQueries;
-      if (!Array.isArray(queries)) continue;
-
-      for (const query of queries) {
-        if (typeof query === 'string' && query.trim()) {
-          suggestedQueries.push(query.trim());
-          continue;
-        }
-
-        if (query && typeof query === 'object') {
-          const row = query as Record<string, unknown>;
-          const label = row.query ?? row.text ?? row.label;
-          if (typeof label === 'string' && label.trim()) {
-            suggestedQueries.push(label.trim());
-          }
-        }
-      }
-    }
-  }
-
-  return {
-    text: textParts.join('').trim(),
-    suggestedQueries,
-  };
 }
 
 /**
@@ -139,6 +53,15 @@ export function parseChatResponse(payload: unknown): ParsedChatResponse {
     if (text || suggestedQueries.length > 0) {
       return { conversationId, text, suggestedQueries };
     }
+  }
+
+  const parsed = parseMessagePayload(record.response ?? record);
+  if (parsed.text || parsed.suggestedQueries.length > 0) {
+    return {
+      conversationId,
+      text: parsed.text,
+      suggestedQueries: parsed.suggestedQueries,
+    };
   }
 
   const fallbackText =
