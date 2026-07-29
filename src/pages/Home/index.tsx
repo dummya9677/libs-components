@@ -31,7 +31,7 @@ import { TopStatusBar } from '../../components/layout/TopStatusBar';
 import { clientBrandCardGradient } from '../../config/clientColors';
 import { useAuth } from '../../hooks/useAuth';
 import { useLayout } from '../../hooks/useLayout';
-import { useSelectedApplication } from '../../hooks/useSelectedApplication';
+import { useValidatedSelectedApplication } from '../../hooks/useValidatedSelectedApplication';
 import { env } from '../../utils/env';
 import { cn } from '../../utils/cn';
 
@@ -55,7 +55,8 @@ function getGreeting() {
 export function HomePage() {
   const { user } = useAuth();
   const { toggleSidebar } = useLayout();
-  const { applicationName, setApplicationName } = useSelectedApplication();
+  const { applicationName, setApplicationName, requiresApplicationSelection } =
+    useValidatedSelectedApplication();
   const navigate = useNavigate();
   const [homePromptError, setHomePromptError] = useState<string | null>(null);
   const firstName = user?.name?.split(' ')[0] ?? 'John';
@@ -63,7 +64,7 @@ export function HomePage() {
   const openAgent = (slug: string, prompt?: string) => {
     const agent = agents.find((a) => a.slug === slug);
 
-    if (!agent?.comingSoon && !applicationName) {
+    if (!agent?.comingSoon && requiresApplicationSelection) {
       setHomePromptError('Select an application before continuing.');
       return;
     }
@@ -149,15 +150,15 @@ export function HomePage() {
                   }}
                   className="mb-2"
                 />
-                {!applicationName ? <ApplicationRequiredNotice /> : null}
+                {requiresApplicationSelection ? <ApplicationRequiredNotice /> : null}
                 <PromptComposer
                   placeholder={
-                    applicationName
-                      ? 'Ask anything about tickets, data issues, impact, knowledge...'
-                      : 'Select an application above to ask a question…'
+                    requiresApplicationSelection
+                      ? 'Select an application above to ask a question…'
+                      : 'Ask anything about tickets, data issues, impact, knowledge...'
                   }
                   gradientBorder={false}
-                  disabled={!applicationName}
+                  disabled={requiresApplicationSelection}
                   onSend={(text) => openAgent(DEFAULT_AGENT_SLUG, text)}
                 />
                 {homePromptError ? (

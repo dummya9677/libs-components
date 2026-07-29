@@ -3,13 +3,13 @@ import type { ApplicationWithAgents } from '../types';
 /** Demo list used when VITE_MOCK_API=true — mirrors GET /applications shape. */
 export const mockApplications: ApplicationWithAgents[] = [
   {
-    id: 'sales-portal',
-    name: 'Sales Portal',
+    id: 'GBICC',
+    name: 'GBICC',
     agents: [
       {
         id: 'agent_dq',
         name: 'Data Quality Intelligence',
-        conversationId: 'conv-sales-dq',
+        conversationId: 'conv-gbicc-dq',
       },
       {
         id: 'agent_bau',
@@ -19,7 +19,7 @@ export const mockApplications: ApplicationWithAgents[] = [
       {
         id: 'agent_ticket',
         name: 'Ticket Intelligence',
-        conversationId: 'conv-sales-ticket',
+        conversationId: 'conv-gbicc-ticket',
       },
       {
         id: 'agent_data',
@@ -44,8 +44,8 @@ export const mockApplications: ApplicationWithAgents[] = [
     ],
   },
   {
-    id: 'customer-360',
-    name: 'Customer 360',
+    id: 'SMART EU',
+    name: 'SMART EU',
     agents: [
       {
         id: 'agent_dq',
@@ -75,7 +75,7 @@ export const mockApplications: ApplicationWithAgents[] = [
       {
         id: 'agent_kb',
         name: 'Knowledge Intelligence',
-        conversationId: 'conv-c360-kb',
+        conversationId: 'conv-smart-eu-kb',
       },
       {
         id: 'agent_cost',

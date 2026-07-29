@@ -5,7 +5,11 @@ import {
 } from '../services/api';
 import { streamChat } from '../services/chat/streamChat';
 import type { HistoryMessage } from '../types';
-import { resolveApplicationAgent } from '../utils/applicationAgents';
+import {
+  findApplicationById,
+  findAgentInApplication,
+  resolveApplicationAgent,
+} from '../utils/applicationAgents';
 import { useAuth } from './useAuth';
 
 function createUserMessage(content: string, conversationId: string): HistoryMessage {
@@ -108,16 +112,24 @@ export function useAgentChat(agentId: string, applicationName: string | null) {
       };
     }
 
-    const resolved = resolveApplicationAgent(
-      applications,
-      applicationName,
-      agentId,
-    );
+    const application = findApplicationById(applications, applicationName);
 
-    if (!resolved) {
+    if (!application) {
+      setSessionError(null);
+      setBackendAgentId(null);
+      setIsLoadingSession(false);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    const backendAgent = findAgentInApplication(application, agentId);
+
+    if (!backendAgent) {
       setSessionError(
         'This agent is not available for the selected application.',
       );
+      setBackendAgentId(null);
       setIsLoadingSession(false);
       return () => {
         cancelled = true;
@@ -125,9 +137,9 @@ export function useAgentChat(agentId: string, applicationName: string | null) {
     }
 
     sessionBootstrappedRef.current = sessionKey;
-    setBackendAgentId(resolved.agent.id);
+    setBackendAgentId(backendAgent.id);
 
-    const initialConversationId = resolved.agent.conversationId ?? null;
+    const initialConversationId = backendAgent.conversationId ?? null;
     syncConversationId(initialConversationId);
 
     if (!initialConversationId) {
@@ -280,12 +292,20 @@ export function useAgentChat(agentId: string, applicationName: string | null) {
     abortRef.current?.abort();
   }, []);
 
+  const resolvedApplication = applicationName
+    ? findApplicationById(applications, applicationName)
+    : undefined;
+
   return {
     conversationId,
     isCreatingThread: isLoadingSession || isLoadingApplications,
     threadError: sessionError,
-    isThreadReady: Boolean(applicationName && backendAgentId),
-    needsApplication: !applicationName,
+    isThreadReady: Boolean(resolvedApplication && backendAgentId),
+    needsApplication:
+      !applicationName ||
+      (!isLoadingApplications &&
+        Boolean(applicationName) &&
+        !resolvedApplication),
     messages,
     streamingAnswer,
     isStreaming,

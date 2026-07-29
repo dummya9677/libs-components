@@ -9,7 +9,7 @@ import { TopStatusBar } from '../../components/layout/TopStatusBar';
 import { useAgentChat } from '../../hooks/useAgentChat';
 import { useAuth } from '../../hooks/useAuth';
 import { useLayout } from '../../hooks/useLayout';
-import { useSelectedApplication } from '../../hooks/useSelectedApplication';
+import { useValidatedSelectedApplication } from '../../hooks/useValidatedSelectedApplication';
 import type { AgentDefinition } from '../../data/agents';
 import { cn } from '../../utils/cn';
 
@@ -21,7 +21,11 @@ function AssistantPageContent({ agent }: { agent: AgentDefinition }) {
   const location = useLocation();
   const { user } = useAuth();
   const { toggleSidebar, chatOpen, toggleChat, closeChat } = useLayout();
-  const { applicationName, setApplicationName } = useSelectedApplication();
+  const {
+    applicationName,
+    setApplicationName,
+    requiresApplicationSelection,
+  } = useValidatedSelectedApplication();
   const firstName = user?.name?.split(' ')[0] ?? 'John';
   const initialPromptSent = useRef(false);
 
@@ -110,6 +114,7 @@ function AssistantPageContent({ agent }: { agent: AgentDefinition }) {
             onPrompt={sendMessage}
             applicationName={applicationName}
             onApplicationChange={setApplicationName}
+            requiresApplicationSelection={requiresApplicationSelection}
             isAnalyzing={isStreaming || isCreatingThread}
             isThreadReady={isThreadReady}
             analyzeError={error}

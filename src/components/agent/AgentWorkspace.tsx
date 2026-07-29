@@ -133,6 +133,7 @@ interface AgentWorkspaceProps {
   onPrompt?: (value: string) => void;
   applicationName: string;
   onApplicationChange: (value: string) => void;
+  requiresApplicationSelection?: boolean;
   hideGreeting?: boolean;
   isAnalyzing?: boolean;
   analyzeError?: string | null;
@@ -144,6 +145,7 @@ export function AgentWorkspace({
   onPrompt,
   applicationName,
   onApplicationChange,
+  requiresApplicationSelection = !applicationName,
   hideGreeting = false,
   isAnalyzing = false,
   analyzeError = null,
@@ -239,15 +241,15 @@ export function AgentWorkspace({
               className="sm:max-w-xs"
             />
           </div>
-          {!applicationName ? <ApplicationRequiredNotice /> : null}
+          {requiresApplicationSelection ? <ApplicationRequiredNotice /> : null}
           <PromptComposer
             placeholder={
-              applicationName
-                ? agent.inputPlaceholder
-                : 'Select an application above to ask a question…'
+              requiresApplicationSelection
+                ? 'Select an application above to ask a question…'
+                : agent.inputPlaceholder
             }
             onSend={onPrompt}
-            disabled={isAnalyzing || !applicationName || !isThreadReady}
+            disabled={isAnalyzing || requiresApplicationSelection || !isThreadReady}
             sendLabel="Analyze"
           />
           {analyzeError ? (

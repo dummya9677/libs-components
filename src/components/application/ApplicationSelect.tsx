@@ -1,4 +1,5 @@
 import { ChevronDown, Loader2 } from 'lucide-react';
+import { findApplicationById } from '../../utils/applicationAgents';
 import { useGetApplicationsQuery } from '../../services/api/applicationsApi';
 import { cn } from '../../utils/cn';
 
@@ -23,6 +24,10 @@ export function ApplicationSelect({
   const { data: applications = [], isLoading, isError } = useGetApplicationsQuery();
 
   const isCompact = variant === 'compact';
+  const selectedApplication = value
+    ? findApplicationById(applications, value)
+    : undefined;
+  const selectValue = selectedApplication?.id ?? '';
 
   return (
     <div className={cn('min-w-0', className)}>
@@ -32,7 +37,7 @@ export function ApplicationSelect({
       <div className="relative">
         <select
           id={id}
-          value={value}
+          value={selectValue}
           onChange={(event) => onChange(event.target.value)}
           disabled={disabled || isLoading}
           className={cn(
