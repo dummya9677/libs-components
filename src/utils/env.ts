@@ -29,9 +29,8 @@ export const env = {
       import.meta.env.VITE_API_CREATE_THREAD_PATH || '/threads',
     /** POST — chat endpoint. */
     agentChatPath: import.meta.env.VITE_API_AGENT_CHAT_PATH || '/chat',
-    /** GET — application list with nested agents and conversation ids. */
-    applicationsPath:
-      import.meta.env.VITE_API_APPLICATIONS_PATH || '/applications',
+    /** GET — agent access list (includes application per agent). */
+    agentsPath: import.meta.env.VITE_API_AGENTS_PATH || '/agents',
     /** POST — start or resume a conversation for (user, application, agent). */
     conversationStartPath:
       import.meta.env.VITE_API_CONVERSATION_START_PATH ||
@@ -50,7 +49,7 @@ export const env = {
    * When true, applications/history use local mocks instead of the backend.
    * Defaults to the same value as `VITE_MOCK_AUTH` when unset.
    * Set `VITE_MOCK_API=false` with `VITE_MOCK_AUTH=true` to keep demo login
-   * while testing real GET /applications, GET /history, and POST /chat.
+   * while testing real GET /agents, GET /history, and POST /chat.
    */
   mockApi:
     import.meta.env.VITE_MOCK_API !== undefined

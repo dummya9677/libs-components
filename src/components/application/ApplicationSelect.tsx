@@ -1,6 +1,11 @@
 import { ChevronDown, Loader2 } from 'lucide-react';
-import { findApplicationById } from '../../utils/applicationAgents';
-import { useGetApplicationsQuery } from '../../services/api/applicationsApi';
+import { useMemo } from 'react';
+import { useGetAgentsQuery } from '../../services/api/agentsApi';
+import { useAuth } from '../../hooks/useAuth';
+import {
+  findApplicationById,
+  getApplicationsForDropdown,
+} from '../../utils/applicationAgents';
 import { cn } from '../../utils/cn';
 
 interface ApplicationSelectProps {
@@ -11,6 +16,8 @@ interface ApplicationSelectProps {
   variant?: 'default' | 'compact';
   disabled?: boolean;
   id?: string;
+  /** When set, only companies with this agent available are listed. */
+  agentSlug?: string;
 }
 
 export function ApplicationSelect({
@@ -20,14 +27,27 @@ export function ApplicationSelect({
   variant = 'default',
   disabled = false,
   id = 'application-select',
+  agentSlug,
 }: ApplicationSelectProps) {
-  const { data: applications = [], isLoading, isError } = useGetApplicationsQuery();
+  const { isAuthenticated } = useAuth();
+  const { data: agents = [], isLoading, isError } = useGetAgentsQuery(
+    undefined,
+    { skip: !isAuthenticated },
+  );
+
+  const applications = useMemo(
+    () => getApplicationsForDropdown(agents, agentSlug),
+    [agents, agentSlug],
+  );
 
   const isCompact = variant === 'compact';
   const selectedApplication = value
     ? findApplicationById(applications, value)
     : undefined;
   const selectValue = selectedApplication?.id ?? '';
+  const emptyLabel = agentSlug
+    ? 'No applications available for this agent'
+    : 'No applications available';
 
   return (
     <div className={cn('min-w-0', className)}>
@@ -39,7 +59,7 @@ export function ApplicationSelect({
           id={id}
           value={selectValue}
           onChange={(event) => onChange(event.target.value)}
-          disabled={disabled || isLoading}
+          disabled={disabled || isLoading || applications.length === 0}
           className={cn(
             'w-full appearance-none truncate rounded-lg border border-app-border bg-surface pr-8 font-medium text-ink shadow-card transition',
             'focus:border-client-cyan-helix-light focus:outline-none focus:ring-2 focus:ring-client-cyan-30/40',
@@ -50,7 +70,11 @@ export function ApplicationSelect({
           )}
         >
           <option value="">
-            {isLoading ? 'Loading applications…' : 'Select application'}
+            {isLoading
+              ? 'Loading applications…'
+              : applications.length === 0
+                ? emptyLabel
+                : 'Select application'}
           </option>
           {applications.map((app) => (
             <option key={app.id} value={app.id}>
@@ -68,8 +92,7 @@ export function ApplicationSelect({
       </div>
       {isError ? (
         <p className="mt-1 text-[10px] text-status-danger" role="alert">
-          Could not load applications. Check{' '}
-          <code className="text-[9px]">VITE_API_APPLICATIONS_PATH</code>.
+          Could not load applications from the agents list.
         </p>
       ) : null}
     </div>

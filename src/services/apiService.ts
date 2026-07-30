@@ -10,7 +10,6 @@ import './api/threadApi';
 import './api/chatApi';
 import './api/agentsApi';
 import './api/applicationHealthApi';
-import './api/applicationsApi';
 import './api/notificationsApi';
 
 export const serverAPI = api;

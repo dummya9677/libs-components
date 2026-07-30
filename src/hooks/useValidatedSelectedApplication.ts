@@ -1,16 +1,28 @@
-import { useEffect } from 'react';
-import { useGetApplicationsQuery } from '../services/api/applicationsApi';
-import { findApplicationById } from '../utils/applicationAgents';
+import { useEffect, useMemo } from 'react';
+import { useGetAgentsQuery } from '../services/api/agentsApi';
+import {
+  findApplicationById,
+  getApplicationsForDropdown,
+} from '../utils/applicationAgents';
+import { useAuth } from './useAuth';
 import { useSelectedApplication } from './useSelectedApplication';
 
 /**
- * Keeps application selection in sync with GET /applications.
+ * Keeps application selection in sync with GET /agents.
  * Clears stale sessionStorage values that are not in the API response.
  */
-export function useValidatedSelectedApplication() {
+export function useValidatedSelectedApplication(agentSlug?: string) {
+  const { isAuthenticated } = useAuth();
   const selection = useSelectedApplication();
-  const { data: applications = [], isLoading, isFetching } =
-    useGetApplicationsQuery();
+  const { data: agents = [], isLoading, isFetching } = useGetAgentsQuery(
+    undefined,
+    { skip: !isAuthenticated },
+  );
+
+  const applications = useMemo(
+    () => getApplicationsForDropdown(agents, agentSlug),
+    [agents, agentSlug],
+  );
 
   const isResolvingApplications = isLoading || isFetching;
   const validApplication = selection.applicationName
@@ -44,5 +56,7 @@ export function useValidatedSelectedApplication() {
     hasApplication: Boolean(applicationName),
     requiresApplicationSelection,
     validApplication,
+    applications,
+    isResolvingApplications,
   };
 }

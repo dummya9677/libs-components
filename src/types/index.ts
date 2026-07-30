@@ -64,11 +64,16 @@ export interface Conversation {
   preview?: string;
 }
 
-export interface Agent {
+/** Row from GET /agents — one backend agent scoped to an application. */
+export interface BackendAgentAccess {
   id: string;
+  slug: string;
   name: string;
   description: string;
-  isActive: boolean;
+  /** Backend application id sent to chat/history APIs (e.g. GBICC, SMART_EU). */
+  application: string;
+  applicationName: string;
+  available: boolean;
 }
 
 export interface ApplicationOption {
@@ -79,14 +84,16 @@ export interface ApplicationOption {
 export interface ApplicationAgent {
   id: string;
   name: string;
+  slug: string;
+  description?: string;
+  available: boolean;
   conversationId?: string | null;
 }
 
 export interface ApplicationWithAgents {
   id: string;
   name: string;
-  /** Optional — agents are defined locally in src/data/backendAgents.ts */
-  agents?: ApplicationAgent[];
+  agents: ApplicationAgent[];
 }
 
 export interface StartConversationRequest {

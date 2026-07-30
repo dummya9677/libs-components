@@ -1,5 +1,4 @@
-import { findBackendAgent } from '../data/backendAgents';
-import type { ApplicationWithAgents } from '../types';
+import type { ApplicationWithAgents, BackendAgentAccess } from '../types';
 
 export function findApplicationById(
   applications: ApplicationWithAgents[],
@@ -12,28 +11,99 @@ export function findApplicationById(
   );
 }
 
+export function groupAgentsByApplication(
+  agents: BackendAgentAccess[],
+): ApplicationWithAgents[] {
+  const map = new Map<string, ApplicationWithAgents>();
+
+  for (const agent of agents) {
+    if (!agent.application) continue;
+
+    let application = map.get(agent.application);
+    if (!application) {
+      application = {
+        id: agent.application,
+        name: agent.applicationName || agent.application,
+        agents: [],
+      };
+      map.set(agent.application, application);
+    }
+
+    application.agents.push({
+      id: agent.id,
+      name: agent.name,
+      slug: agent.slug,
+      description: agent.description,
+      available: agent.available,
+    });
+  }
+
+  return Array.from(map.values());
+}
+
 /**
- * Resolve the static backend agent for a UI agent slug/id.
+ * Applications for the company dropdown, derived from GET /agents.
+ * When `agentSlug` is set (assistant page), only companies with that agent available are returned.
  */
-export function findAgentForFrontend(frontendAgentId: string) {
-  return findBackendAgent(frontendAgentId);
+export function getApplicationsForDropdown(
+  agents: BackendAgentAccess[],
+  agentSlug?: string,
+): ApplicationWithAgents[] {
+  const availableAgents = agents.filter((agent) => agent.available);
+
+  if (agentSlug) {
+    const applicationIds = new Set(
+      availableAgents
+        .filter((agent) => agent.slug === agentSlug)
+        .map((agent) => agent.application),
+    );
+
+    return groupAgentsByApplication(availableAgents).filter((application) =>
+      applicationIds.has(application.id),
+    );
+  }
+
+  const applicationIds = new Set(
+    availableAgents.map((agent) => agent.application),
+  );
+
+  return groupAgentsByApplication(availableAgents).filter((application) =>
+    applicationIds.has(application.id),
+  );
+}
+
+export function findAgentAccess(
+  agents: BackendAgentAccess[],
+  applicationId: string,
+  frontendAgentSlug: string,
+): BackendAgentAccess | undefined {
+  if (!applicationId || !frontendAgentSlug) return undefined;
+
+  return agents.find(
+    (agent) =>
+      (agent.application === applicationId ||
+        agent.applicationName === applicationId) &&
+      agent.slug === frontendAgentSlug &&
+      agent.available,
+  );
 }
 
 export function resolveApplicationAgent(
-  applications: ApplicationWithAgents[],
+  agents: BackendAgentAccess[],
   applicationId: string,
-  frontendAgentId: string,
+  frontendAgentSlug: string,
 ): {
   application: ApplicationWithAgents;
   agent: { id: string; name: string };
 } | null {
+  const applications = groupAgentsByApplication(agents);
   const application = findApplicationById(applications, applicationId);
-  const agent = findBackendAgent(frontendAgentId);
+  const agentAccess = findAgentAccess(agents, applicationId, frontendAgentSlug);
 
-  if (!application || !agent) return null;
+  if (!application || !agentAccess) return null;
 
   return {
     application,
-    agent: { id: agent.id, name: agent.name },
+    agent: { id: agentAccess.id, name: agentAccess.name },
   };
 }

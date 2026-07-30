@@ -25,7 +25,7 @@ function AssistantPageContent({ agent }: { agent: AgentDefinition }) {
     applicationName,
     setApplicationName,
     requiresApplicationSelection,
-  } = useValidatedSelectedApplication();
+  } = useValidatedSelectedApplication(agent.slug);
   const firstName = user?.name?.split(' ')[0] ?? 'John';
   const initialPromptSent = useRef(false);
 

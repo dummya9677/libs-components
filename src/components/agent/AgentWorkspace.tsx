@@ -239,6 +239,7 @@ export function AgentWorkspace({
               onChange={onApplicationChange}
               disabled={isAnalyzing}
               className="sm:max-w-xs"
+              agentSlug={agent.slug}
             />
           </div>
           {requiresApplicationSelection ? <ApplicationRequiredNotice /> : null}

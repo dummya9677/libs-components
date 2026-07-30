@@ -9,7 +9,7 @@ interface ImportMetaEnv {
   readonly VITE_MOCK_AUTH: string;
   readonly VITE_MOCK_API: string;
   readonly VITE_API_AGENT_CHAT_PATH: string;
-  readonly VITE_API_APPLICATIONS_PATH: string;
+  readonly VITE_API_AGENTS_PATH: string;
   readonly VITE_API_CONVERSATION_HISTORY_PATH: string;
   readonly VITE_OIDC_PROVIDER: 'entra' | 'okta' | 'keycloak' | 'auth0';
   readonly VITE_OIDC_AUTHORITY: string;
