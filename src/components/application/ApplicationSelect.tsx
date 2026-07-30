@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { useGetAgentsQuery } from '../../services/api/agentsApi';
 import { useAuth } from '../../hooks/useAuth';
 import {
+  EMPTY_AGENT_ACCESS_LIST,
   findApplicationById,
   getApplicationsForDropdown,
 } from '../../utils/applicationAgents';
@@ -30,10 +31,11 @@ export function ApplicationSelect({
   agentSlug,
 }: ApplicationSelectProps) {
   const { isAuthenticated } = useAuth();
-  const { data: agents = [], isLoading, isError } = useGetAgentsQuery(
+  const { data: agentsData, isLoading, isError } = useGetAgentsQuery(
     undefined,
     { skip: !isAuthenticated },
   );
+  const agents = agentsData ?? EMPTY_AGENT_ACCESS_LIST;
 
   const applications = useMemo(
     () => getApplicationsForDropdown(agents, agentSlug),

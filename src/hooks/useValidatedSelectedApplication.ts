@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { useGetAgentsQuery } from '../services/api/agentsApi';
 import {
+  EMPTY_AGENT_ACCESS_LIST,
   findApplicationById,
   getApplicationsForDropdown,
 } from '../utils/applicationAgents';
@@ -14,40 +15,43 @@ import { useSelectedApplication } from './useSelectedApplication';
 export function useValidatedSelectedApplication(agentSlug?: string) {
   const { isAuthenticated } = useAuth();
   const selection = useSelectedApplication();
-  const { data: agents = [], isLoading, isFetching } = useGetAgentsQuery(
-    undefined,
-    { skip: !isAuthenticated },
-  );
+  const { data: agentsData, isLoading } = useGetAgentsQuery(undefined, {
+    skip: !isAuthenticated,
+  });
+  const agents = agentsData ?? EMPTY_AGENT_ACCESS_LIST;
 
   const applications = useMemo(
     () => getApplicationsForDropdown(agents, agentSlug),
     [agents, agentSlug],
   );
 
-  const isResolvingApplications = isLoading || isFetching;
   const validApplication = selection.applicationName
     ? findApplicationById(applications, selection.applicationName)
     : undefined;
 
   const requiresApplicationSelection =
-    !selection.applicationName ||
-    (!isResolvingApplications && !validApplication);
+    !selection.applicationName || (!isLoading && !validApplication);
 
   const applicationName =
-    validApplication?.id ??
-    (isResolvingApplications ? selection.applicationName : '');
+    validApplication?.id ?? (isLoading ? selection.applicationName : '');
 
   useEffect(() => {
-    if (!selection.applicationName || isResolvingApplications) return;
+    if (!selection.applicationName || isLoading) return;
 
     if (!validApplication) {
       selection.clearApplicationName();
+      return;
+    }
+
+    if (selection.applicationName !== validApplication.id) {
+      selection.setApplicationName(validApplication.id);
     }
   }, [
-    isResolvingApplications,
+    isLoading,
     selection.applicationName,
     selection.clearApplicationName,
-    validApplication,
+    selection.setApplicationName,
+    validApplication?.id,
   ]);
 
   return {
@@ -57,6 +61,6 @@ export function useValidatedSelectedApplication(agentSlug?: string) {
     requiresApplicationSelection,
     validApplication,
     applications,
-    isResolvingApplications,
+    isResolvingApplications: isLoading,
   };
 }

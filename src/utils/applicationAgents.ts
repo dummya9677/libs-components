@@ -1,5 +1,7 @@
 import type { ApplicationWithAgents, BackendAgentAccess } from '../types';
 
+export const EMPTY_AGENT_ACCESS_LIST: BackendAgentAccess[] = [];
+
 export function findApplicationById(
   applications: ApplicationWithAgents[],
   applicationId: string,

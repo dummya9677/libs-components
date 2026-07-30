@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   useGetAgentsQuery,
   useLazyGetConversationHistoryQuery,
@@ -7,6 +7,7 @@ import {
 import { streamChat } from '../services/chat/streamChat';
 import type { HistoryMessage } from '../types';
 import {
+  EMPTY_AGENT_ACCESS_LIST,
   findAgentAccess,
   findApplicationById,
   getApplicationsForDropdown,
@@ -69,10 +70,11 @@ function buildSessionKey(
  */
 export function useAgentChat(agentSlug: string, applicationName: string | null) {
   const { user, isAuthenticated } = useAuth();
-  const { data: agents = [], isLoading: isLoadingAgents } = useGetAgentsQuery(
+  const { data: agentsData, isLoading: isLoadingAgents } = useGetAgentsQuery(
     undefined,
     { skip: !isAuthenticated },
   );
+  const agents = agentsData ?? EMPTY_AGENT_ACCESS_LIST;
   const [startConversation] = useStartConversationMutation();
   const [fetchHistory] = useLazyGetConversationHistoryQuery();
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -89,8 +91,20 @@ export function useAgentChat(agentSlug: string, applicationName: string | null) 
   const sessionBootstrappedRef = useRef('');
   const bootstrapAttemptRef = useRef(0);
   const isStreamingRef = useRef(false);
+  const agentsRef = useRef(agents);
+  const startConversationRef = useRef(startConversation);
+  const fetchHistoryRef = useRef(fetchHistory);
 
-  const applications = getApplicationsForDropdown(agents, agentSlug);
+  agentsRef.current = agents;
+  startConversationRef.current = startConversation;
+  fetchHistoryRef.current = fetchHistory;
+
+  const applications = useMemo(
+    () => getApplicationsForDropdown(agents, agentSlug),
+    [agents, agentSlug],
+  );
+
+  const username = user?.name?.trim() ?? '';
 
   const syncConversationId = useCallback((nextConversationId: string | null) => {
     conversationIdRef.current = nextConversationId;
@@ -107,6 +121,7 @@ export function useAgentChat(agentSlug: string, applicationName: string | null) 
 
     if (!applicationName) {
       sessionKeyRef.current = '';
+      sessionBootstrappedRef.current = '';
       setIsLoadingSession(false);
       return () => {
         cancelled = true;
@@ -137,8 +152,17 @@ export function useAgentChat(agentSlug: string, applicationName: string | null) 
       isStreamingRef.current = false;
     }
 
-    const application = findApplicationById(applications, applicationName);
-    const agentAccess = findAgentAccess(agents, applicationName, agentSlug);
+    const currentAgents = agentsRef.current;
+    const currentApplications = getApplicationsForDropdown(
+      currentAgents,
+      agentSlug,
+    );
+    const application = findApplicationById(currentApplications, applicationName);
+    const agentAccess = findAgentAccess(
+      currentAgents,
+      applicationName,
+      agentSlug,
+    );
 
     if (!application || !agentAccess) {
       setSessionError(
@@ -153,11 +177,10 @@ export function useAgentChat(agentSlug: string, applicationName: string | null) 
       };
     }
 
-    const username = user?.name?.trim();
     if (!username) {
       setSessionError(null);
       setBackendAgentId(null);
-      setIsLoadingSession(true);
+      setIsLoadingSession(false);
       return () => {
         cancelled = true;
       };
@@ -180,18 +203,22 @@ export function useAgentChat(agentSlug: string, applicationName: string | null) 
 
     const bootstrapSession = async () => {
       try {
-        const started = await startConversation({
-          userId: username,
-          application: agentAccess.application,
-          agentId: agentAccess.id,
-        }).unwrap();
+        const started = await startConversationRef
+          .current({
+            userId: username,
+            application: agentAccess.application,
+            agentId: agentAccess.id,
+          })
+          .unwrap();
 
         if (cancelled || attempt !== bootstrapAttemptRef.current) return;
 
         syncConversationId(started.conversationId);
 
         try {
-          const historyPage = await fetchHistory(started.conversationId).unwrap();
+          const historyPage = await fetchHistoryRef
+            .current(started.conversationId)
+            .unwrap();
           if (!cancelled && attempt === bootstrapAttemptRef.current) {
             setMessages((prev) =>
               prev.length > 0 ? prev : historyPage.items,
@@ -217,7 +244,7 @@ export function useAgentChat(agentSlug: string, applicationName: string | null) 
           setMessages([]);
         }
       } finally {
-        if (!cancelled && attempt === bootstrapAttemptRef.current) {
+        if (attempt === bootstrapAttemptRef.current) {
           setIsLoadingSession(false);
         }
       }
@@ -231,13 +258,9 @@ export function useAgentChat(agentSlug: string, applicationName: string | null) 
   }, [
     agentSlug,
     applicationName,
-    agents,
-    applications,
-    fetchHistory,
     isLoadingAgents,
-    startConversation,
     syncConversationId,
-    user?.name,
+    username,
   ]);
 
   const sendMessage = useCallback(
@@ -259,7 +282,7 @@ export function useAgentChat(agentSlug: string, applicationName: string | null) 
       }
 
       const resolved = resolveApplicationAgent(
-        agents,
+        agentsRef.current,
         applicationName,
         agentSlug,
       );
@@ -269,7 +292,6 @@ export function useAgentChat(agentSlug: string, applicationName: string | null) 
         return;
       }
 
-      const username = user?.name?.trim();
       if (!username) {
         setError('User profile is not loaded. Please sign in again.');
         return;
@@ -371,11 +393,10 @@ export function useAgentChat(agentSlug: string, applicationName: string | null) 
     [
       agentSlug,
       applicationName,
-      agents,
       backendAgentId,
       sessionError,
       syncConversationId,
-      user?.name,
+      username,
     ],
   );
 
