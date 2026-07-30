@@ -8,6 +8,7 @@ import type { HistoryMessage } from '../../types';
 import { PromptComposer } from './PromptComposer';
 import { ApplicationRequiredNotice } from '../application/ApplicationRequiredNotice';
 import { FormattedMessageContent } from './FormattedMessageContent';
+import { MessageSources, MessageToolsUsed } from './MessageMetadata';
 import { cn } from '../../utils/cn';
 
 function AgentIcon({
@@ -223,14 +224,20 @@ function ChatMessage({
         variant="assistant"
         agent={agent}
       >
+        {message.toolsUsed?.length ? (
+          <MessageToolsUsed tools={message.toolsUsed} />
+        ) : null}
         {message.content?.trim() ? (
           <FormattedMessageContent
             text={message.content}
             className="text-[13px] leading-relaxed text-ink-secondary"
           />
-        ) : (
+        ) : message.sources?.length ? null : (
           <p className="text-[13px] italic text-ink-muted">No message content.</p>
         )}
+        {message.sources?.length ? (
+          <MessageSources sources={message.sources} />
+        ) : null}
         {message.bullets?.length ? (
           <ul className="mt-2 list-disc space-y-1 pl-4 text-[13px] text-ink-secondary">
             {message.bullets.map((bullet) => (

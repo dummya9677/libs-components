@@ -40,6 +40,8 @@ function createAssistantMessage(
   content: string,
   conversationId: string,
   suggestedQueries: string[] = [],
+  sources: HistoryMessage['sources'] = [],
+  toolsUsed: string[] = [],
 ): HistoryMessage {
   return {
     id: `assistant-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -51,6 +53,8 @@ function createAssistantMessage(
       label,
       variant: 'link' as const,
     })),
+    ...(sources.length > 0 ? { sources } : {}),
+    ...(toolsUsed.length > 0 ? { toolsUsed } : {}),
   };
 }
 
@@ -317,6 +321,8 @@ export function useAgentChat(agentSlug: string, applicationName: string | null) 
 
       let fullAnswer = '';
       let suggestedQueries: string[] = [];
+      let sources: HistoryMessage['sources'] = [];
+      let toolsUsed: string[] = [];
       let resolvedConversationId = messageConversationId;
 
       try {
@@ -328,7 +334,7 @@ export function useAgentChat(agentSlug: string, applicationName: string | null) 
           userId: username,
           signal: abort.signal,
           onChunk: (chunk) => {
-            fullAnswer += chunk;
+            fullAnswer = chunk;
             const nextAnswer = fullAnswer.trim();
             setStreamingAnswer(fullAnswer);
             setMessages((messagesPrev) =>
@@ -346,6 +352,12 @@ export function useAgentChat(agentSlug: string, applicationName: string | null) 
           onSuggestedQueries: (queries) => {
             suggestedQueries = queries;
           },
+          onSources: (nextSources) => {
+            sources = nextSources;
+          },
+          onToolsUsed: (tools) => {
+            toolsUsed = tools;
+          },
         });
 
         if (!conversationIdRef.current && resolvedConversationId !== 'pending') {
@@ -357,8 +369,12 @@ export function useAgentChat(agentSlug: string, applicationName: string | null) 
           suggestedQueries.length > 0
             ? suggestedQueries
             : chatResult.suggestedQueries;
+        const messageSources =
+          (sources?.length ?? 0) > 0 ? sources : chatResult.sources;
+        const messageTools =
+          toolsUsed.length > 0 ? toolsUsed : chatResult.toolsUsed;
 
-        if (answerText) {
+        if (answerText || (messageSources?.length ?? 0) > 0) {
           setMessages((prev) =>
             prev.map((message) =>
               message.id === pendingId
@@ -366,6 +382,8 @@ export function useAgentChat(agentSlug: string, applicationName: string | null) 
                     answerText,
                     conversationIdRef.current ?? resolvedConversationId,
                     followUps,
+                    messageSources ?? [],
+                    messageTools,
                   )
                 : message,
             ),

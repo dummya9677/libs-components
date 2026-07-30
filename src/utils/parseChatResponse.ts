@@ -3,11 +3,16 @@ import {
   parseLooseObject,
   parseMessagePayload,
 } from './parseMessageContent';
+import type { MessageSource } from '../types';
+
+export type { MessageSource };
 
 export interface ParsedChatResponse {
   conversationId: string | null;
   text: string;
   suggestedQueries: string[];
+  sources: MessageSource[];
+  toolsUsed: string[];
 }
 
 /**
@@ -27,6 +32,8 @@ export function parseChatResponse(payload: unknown): ParsedChatResponse {
     conversationId: null,
     text: '',
     suggestedQueries: [],
+    sources: [],
+    toolsUsed: [],
   };
 
   if (!payload || typeof payload !== 'object') return empty;
@@ -53,19 +60,28 @@ export function parseChatResponse(payload: unknown): ParsedChatResponse {
     (Array.isArray(record.content) ? record : null);
 
   if (inner) {
-    const { text, suggestedQueries } = extractTextFromContentBlocks(inner.content);
+    const parsed = extractTextFromContentBlocks(inner.content);
 
-    if (text || suggestedQueries.length > 0) {
-      return { conversationId, text, suggestedQueries };
+    if (
+      parsed.text ||
+      parsed.suggestedQueries.length > 0 ||
+      parsed.sources.length > 0 ||
+      parsed.toolsUsed.length > 0
+    ) {
+      return { conversationId, ...parsed };
     }
   }
 
   const parsed = parseMessagePayload(record.response ?? record);
-  if (parsed.text || parsed.suggestedQueries.length > 0) {
+  if (
+    parsed.text ||
+    parsed.suggestedQueries.length > 0 ||
+    parsed.sources.length > 0 ||
+    parsed.toolsUsed.length > 0
+  ) {
     return {
       conversationId,
-      text: parsed.text,
-      suggestedQueries: parsed.suggestedQueries,
+      ...parsed,
     };
   }
 
@@ -84,5 +100,7 @@ export function parseChatResponse(payload: unknown): ParsedChatResponse {
     conversationId,
     text: fallbackText.trim(),
     suggestedQueries: [],
+    sources: [],
+    toolsUsed: [],
   };
 }

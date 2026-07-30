@@ -1,4 +1,5 @@
 import { env } from '../../utils/env';
+import type { MessageSource } from '../../types';
 import {
   parseChatResponse,
   type ParsedChatResponse,
@@ -19,6 +20,10 @@ export interface StreamChatOptions {
   onConversationId?: (conversationId: string) => void;
   /** Called when the API returns suggested follow-up queries. */
   onSuggestedQueries?: (queries: string[]) => void;
+  /** Called when the API returns source citations. */
+  onSources?: (sources: MessageSource[]) => void;
+  /** Called when the API reports tools used in the response. */
+  onToolsUsed?: (tools: string[]) => void;
 }
 
 function buildChatUrl(): string {
@@ -32,6 +37,8 @@ function emitParsedResponse(
   onChunk: (chunk: string) => void,
   onConversationId?: (conversationId: string) => void,
   onSuggestedQueries?: (queries: string[]) => void,
+  onSources?: (sources: MessageSource[]) => void,
+  onToolsUsed?: (tools: string[]) => void,
 ): ParsedChatResponse {
   if (parsed.conversationId) {
     onConversationId?.(parsed.conversationId);
@@ -45,6 +52,14 @@ function emitParsedResponse(
     onSuggestedQueries?.(parsed.suggestedQueries);
   }
 
+  if (parsed.sources.length > 0) {
+    onSources?.(parsed.sources);
+  }
+
+  if (parsed.toolsUsed.length > 0) {
+    onToolsUsed?.(parsed.toolsUsed);
+  }
+
   return parsed;
 }
 
@@ -56,7 +71,13 @@ function tryParseChatBody(raw: string): ParsedChatResponse | null {
     try {
       const json: unknown = JSON.parse(trimmed);
       const parsed = parseChatResponse(json);
-      if (parsed.text || parsed.conversationId || parsed.suggestedQueries.length > 0) {
+      if (
+        parsed.text ||
+        parsed.conversationId ||
+        parsed.suggestedQueries.length > 0 ||
+        parsed.sources.length > 0 ||
+        parsed.toolsUsed.length > 0
+      ) {
         return parsed;
       }
     } catch {
@@ -65,7 +86,13 @@ function tryParseChatBody(raw: string): ParsedChatResponse | null {
   }
 
   const parsed = parseChatResponse(trimmed);
-  if (parsed.text || parsed.conversationId || parsed.suggestedQueries.length > 0) {
+  if (
+    parsed.text ||
+    parsed.conversationId ||
+    parsed.suggestedQueries.length > 0 ||
+    parsed.sources.length > 0 ||
+    parsed.toolsUsed.length > 0
+  ) {
     return parsed;
   }
 
@@ -94,6 +121,8 @@ async function readResponseStream(
   onChunk: (chunk: string) => void,
   onConversationId?: (conversationId: string) => void,
   onSuggestedQueries?: (queries: string[]) => void,
+  onSources?: (sources: MessageSource[]) => void,
+  onToolsUsed?: (tools: string[]) => void,
 ): Promise<ParsedChatResponse> {
   const contentType = response.headers.get('content-type') ?? '';
   const isSse = contentType.includes('text/event-stream');
@@ -108,6 +137,8 @@ async function readResponseStream(
         onChunk,
         onConversationId,
         onSuggestedQueries,
+        onSources,
+        onToolsUsed,
       );
     }
 
@@ -119,12 +150,20 @@ async function readResponseStream(
       conversationId: null,
       text: body.trim(),
       suggestedQueries: [],
+      sources: [],
+      toolsUsed: [],
     };
   }
 
   const reader = response.body?.getReader();
   if (!reader) {
-    return { conversationId: null, text: '', suggestedQueries: [] };
+    return {
+      conversationId: null,
+      text: '',
+      suggestedQueries: [],
+      sources: [],
+      toolsUsed: [],
+    };
   }
 
   const decoder = new TextDecoder();
@@ -134,6 +173,8 @@ async function readResponseStream(
     conversationId: null,
     text: '',
     suggestedQueries: [],
+    sources: [],
+    toolsUsed: [],
   };
 
   while (true) {
@@ -158,6 +199,8 @@ async function readResponseStream(
           onChunk,
           onConversationId,
           onSuggestedQueries,
+          onSources,
+          onToolsUsed,
         );
         streamedText = lastParsed.text || streamedText;
       } catch {
@@ -168,6 +211,8 @@ async function readResponseStream(
             onChunk,
             onConversationId,
             onSuggestedQueries,
+            onSources,
+            onToolsUsed,
           );
           streamedText = lastParsed.text || streamedText;
         } else if (payload) {
@@ -189,6 +234,8 @@ async function readResponseStream(
           onChunk,
           onConversationId,
           onSuggestedQueries,
+          onSources,
+          onToolsUsed,
         );
         streamedText = lastParsed.text || streamedText;
       } catch {
@@ -199,6 +246,8 @@ async function readResponseStream(
             onChunk,
             onConversationId,
             onSuggestedQueries,
+            onSources,
+            onToolsUsed,
           );
           streamedText = lastParsed.text || streamedText;
         }
@@ -212,6 +261,8 @@ async function readResponseStream(
         onChunk,
         onConversationId,
         onSuggestedQueries,
+        onSources,
+        onToolsUsed,
       );
       streamedText = lastParsed.text || streamedText;
     }
@@ -241,6 +292,8 @@ export async function streamChat({
   onChunk,
   onConversationId,
   onSuggestedQueries,
+  onSources,
+  onToolsUsed,
 }: StreamChatOptions): Promise<ParsedChatResponse> {
   const response = await fetch(buildChatUrl(), {
     method: 'POST',
@@ -273,6 +326,8 @@ export async function streamChat({
       onChunk,
       onConversationId,
       onSuggestedQueries,
+      onSources,
+      onToolsUsed,
     );
   }
 
@@ -281,5 +336,7 @@ export async function streamChat({
     onChunk,
     onConversationId,
     onSuggestedQueries,
+    onSources,
+    onToolsUsed,
   );
 }

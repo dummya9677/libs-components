@@ -38,6 +38,8 @@ function normalizeHistoryMessage(
 
   let content = '';
   let actions: HistoryMessage['actions'];
+  let sources: HistoryMessage['sources'];
+  let toolsUsed: HistoryMessage['toolsUsed'];
 
   if (role === 'assistant' && (raw.response !== undefined || raw.agent_id !== undefined)) {
     const parsed = parseChatResponse(raw);
@@ -47,6 +49,12 @@ function normalizeHistoryMessage(
         label,
         variant: 'link' as const,
       }));
+    }
+    if (parsed.sources.length > 0) {
+      sources = parsed.sources;
+    }
+    if (parsed.toolsUsed.length > 0) {
+      toolsUsed = parsed.toolsUsed;
     }
   } else if (role === 'user' || role === 'assistant' || role === 'system') {
     const parsed = parseMessagePayload(
@@ -58,6 +66,12 @@ function normalizeHistoryMessage(
         label,
         variant: 'link' as const,
       }));
+    }
+    if (parsed.sources.length > 0) {
+      sources = parsed.sources;
+    }
+    if (parsed.toolsUsed.length > 0) {
+      toolsUsed = parsed.toolsUsed;
     }
   } else {
     content =
@@ -79,6 +93,8 @@ function normalizeHistoryMessage(
     createdAt: String(createdAt),
     conversationId,
     ...(actions ? { actions } : {}),
+    ...(sources ? { sources } : {}),
+    ...(toolsUsed ? { toolsUsed } : {}),
     ...(Array.isArray(raw.bullets) ? { bullets: raw.bullets as string[] } : {}),
     ...(typeof raw.followUp === 'string' ? { followUp: raw.followUp } : {}),
   };
@@ -136,7 +152,11 @@ export function normalizeConversationHistory(
       .filter((item): item is HistoryMessage => {
         if (!item) return false;
         if (item.role === 'user' || item.role === 'assistant' || item.role === 'system') {
-          return Boolean(item.content?.trim() || item.bullets?.length);
+          return Boolean(
+            item.content?.trim() ||
+              item.bullets?.length ||
+              item.sources?.length,
+          );
         }
         return true;
       }),

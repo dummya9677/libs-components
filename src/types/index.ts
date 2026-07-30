@@ -21,6 +21,12 @@ export interface ChatMessage {
   conversationId: string;
 }
 
+export interface MessageSource {
+  title: string;
+  url?: string;
+  label?: string;
+}
+
 /**
  * Message shape used by chat history / infinite scroll.
  * Real API can return the core fields; optional fields support richer UI (demo).
@@ -36,6 +42,8 @@ export interface HistoryMessage {
   progressLabel?: string;
   actions?: { label: string; variant?: 'primary' | 'link' }[];
   followUp?: string;
+  sources?: MessageSource[];
+  toolsUsed?: string[];
   /** Optimistic placeholder while waiting for POST /chat to complete. */
   isPending?: boolean;
 }
