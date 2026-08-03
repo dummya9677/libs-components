@@ -54,11 +54,11 @@ export const colors = {
       heroIcon: '#10B981',
     },
     dataIssue: {
-      primary: clientColors.blueHelixDark,
+      primary: '#007ACC',
       soft: clientColors.cyan10,
       gradientFrom: '#C8EBFF',
       gradientTo: clientColors.cyan10,
-      chip: clientColors.clientPrimaryBlue,
+      chip: '#005F99',
       heroIcon: '#0095FF',
     },
     bau: {
