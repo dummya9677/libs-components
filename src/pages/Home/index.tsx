@@ -187,10 +187,7 @@ export function HomePage() {
                           className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md"
                           style={{
                             backgroundColor: theme.heroIcon,
-                            color:
-                              'iconOnAccent' in theme && theme.iconOnAccent
-                                ? theme.iconOnAccent
-                                : '#FFFFFF',
+                            color: '#FFFFFF',
                           }}
                         >
                           <Icon className="h-3.5 w-3.5" strokeWidth={1.75} />

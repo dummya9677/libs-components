@@ -48,10 +48,7 @@ export function AgentIcon({
       )}
       style={{
         backgroundColor: theme.heroIcon,
-        color:
-          'iconOnAccent' in theme && theme.iconOnAccent
-            ? theme.iconOnAccent
-            : '#FFFFFF',
+        color: '#FFFFFF',
       }}
     >
       <Icon className={styles.icon} strokeWidth={styles.strokeWidth} />

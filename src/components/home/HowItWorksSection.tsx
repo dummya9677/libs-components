@@ -49,13 +49,7 @@ const workflowIcons: Record<WorkflowIconKey, LucideIcon> = {
 
 const workflowThemeStyles: Record<
   WorkflowThemeKey,
-  {
-    gradientFrom: string;
-    primary: string;
-    heroIcon: string;
-    iconOnAccent?: string;
-    iconClass?: string;
-  }
+  { gradientFrom: string; primary: string; heroIcon: string; iconClass?: string }
 > = {
   question: {
     gradientFrom: colors.brandSoft,
@@ -86,7 +80,6 @@ const workflowThemeStyles: Record<
     gradientFrom: colors.agents.dataIssue.gradientFrom,
     primary: colors.agents.dataIssue.primary,
     heroIcon: colors.agents.dataIssue.heroIcon,
-    iconOnAccent: colors.agents.dataIssue.iconOnAccent,
   },
   knowledge: {
     gradientFrom: colors.agents.knowledge.gradientFrom,
@@ -141,11 +134,8 @@ export function HowItWorksSection() {
                 }}
               >
                 <div
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md"
-                  style={{
-                    backgroundColor: theme.heroIcon,
-                    color: theme.iconOnAccent ?? '#FFFFFF',
-                  }}
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-white"
+                  style={{ backgroundColor: theme.heroIcon }}
                 >
                   <Icon
                     className={cn('h-3.5 w-3.5', theme.iconClass)}
