@@ -86,12 +86,12 @@ export const colors = {
       heroIcon: '#14B8A6',
     },
     cost: {
-      primary: '#92400E',
-      soft: '#FFFBF0',
-      gradientFrom: '#FFF4D4',
-      gradientTo: '#FFFDF7',
-      chip: '#78350F',
-      heroIcon: '#D97706',
+      primary: '#B45309',
+      soft: '#FFF4D4',
+      gradientFrom: '#FFDABB',
+      gradientTo: '#FFF4D4',
+      chip: '#92400E',
+      heroIcon: '#F59E0B',
     },
   },
 
