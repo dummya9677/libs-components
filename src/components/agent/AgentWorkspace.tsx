@@ -1,25 +1,18 @@
 import {
   ArrowLeft,
-  BookOpen,
-  Briefcase,
-  CircleDollarSign,
-  Database,
-  Network,
   Play,
   RefreshCw,
-  ShieldCheck,
-  Sparkles,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getAgentHeroImage } from '../../assets/agentHeroImages';
 import type { AgentDefinition } from '../../data/agents';
 import { getAgentTheme } from '../../data/agents';
+import { AgentIcon } from '../icons/AgentIcon';
 import { CapabilityIcon } from '../icons/CapabilityIcon';
 import { FeatureCard } from './FeatureCard';
 import { ApplicationSelect } from '../application/ApplicationSelect';
 import { ApplicationRequiredNotice } from '../application/ApplicationRequiredNotice';
 import { PromptComposer } from '../chat/PromptComposer';
-import { useAuth } from '../../hooks/useAuth';
 import { cn } from '../../utils/cn';
 
 function HeroArt({
@@ -101,40 +94,12 @@ function HeroArt({
   );
 }
 
-function AgentHeroIcon({ agent }: { agent: AgentDefinition }) {
-  const theme = getAgentTheme(agent.colorKey);
-  const Icon =
-    agent.colorKey === 'knowledge'
-      ? BookOpen
-      : agent.colorKey === 'impact'
-        ? Network
-        : agent.colorKey === 'ticket'
-          ? Sparkles
-          : agent.colorKey === 'dataQuality'
-            ? ShieldCheck
-            : agent.colorKey === 'cost'
-              ? CircleDollarSign
-              : agent.colorKey === 'bau'
-                ? Briefcase
-                : Database;
-
-  return (
-    <div
-      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white shadow-card sm:h-12 sm:w-12 sm:rounded-2xl"
-      style={{ backgroundColor: theme.heroIcon }}
-    >
-      <Icon className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={1.5} />
-    </div>
-  );
-}
-
 interface AgentWorkspaceProps {
   agent: AgentDefinition;
   onPrompt?: (value: string) => void;
   applicationName: string;
   onApplicationChange: (value: string) => void;
   requiresApplicationSelection?: boolean;
-  hideGreeting?: boolean;
   isAnalyzing?: boolean;
   analyzeError?: string | null;
   isThreadReady?: boolean;
@@ -146,43 +111,20 @@ export function AgentWorkspace({
   applicationName,
   onApplicationChange,
   requiresApplicationSelection = !applicationName,
-  hideGreeting = false,
   isAnalyzing = false,
   analyzeError = null,
   isThreadReady = true,
 }: AgentWorkspaceProps) {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const theme = getAgentTheme(agent.colorKey);
-  const firstName = user?.name?.split(' ')[0] ?? 'John';
 
   return (
     <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-app-bg">
-      <div
-        className={cn(
-          'min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain px-3 pb-5 scrollbar-thin sm:px-5 lg:px-6',
-          hideGreeting ? 'pt-1' : 'pt-4',
-        )}
-      >
-        {!hideGreeting ? (
-          <>
-            <h1 className="text-xl font-bold tracking-tight text-ink sm:text-2xl">
-              Hello, {firstName}! 👋
-            </h1>
-            <p className="mt-0.5 text-xs text-ink-secondary sm:text-sm">
-              I&apos;m your AI-Powered Technical Support Agent. How can I help
-              you today?
-            </p>
-          </>
-        ) : null}
-
+      <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain px-3 pb-5 pt-1 scrollbar-thin sm:px-5 lg:px-6">
         <button
           type="button"
           onClick={() => navigate('/')}
-          className={cn(
-            'inline-flex items-center gap-1.5 text-xs font-medium text-brand transition hover:underline',
-            hideGreeting ? 'mt-0' : 'mt-3',
-          )}
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-brand transition hover:underline"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           Back to agents
@@ -197,7 +139,7 @@ export function AgentWorkspace({
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2.5">
-                <AgentHeroIcon agent={agent} />
+                <AgentIcon agent={agent} size="lg" shape="rounded" />
                 <h2
                   className="text-lg font-bold leading-tight sm:text-xl"
                   style={{ color: theme.primary }}

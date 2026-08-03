@@ -30,7 +30,6 @@ export default {
           DEFAULT: 'var(--color-text)',
           secondary: 'var(--color-text-secondary)',
           muted: 'var(--color-text-muted)',
-          inverse: 'var(--color-text-inverse)',
         },
         status: {
           success: 'var(--color-success)',
@@ -38,28 +37,9 @@ export default {
           warning: 'var(--color-warning)',
           danger: 'var(--color-danger)',
         },
-        chat: {
-          user: 'var(--color-chat-user)',
-          bot: 'var(--color-chat-bot)',
-          progress: 'var(--color-progress)',
-        },
-        promo: {
-          DEFAULT: 'var(--color-promo)',
-          button: 'var(--color-promo-button)',
-        },
         banner: {
           DEFAULT: 'var(--color-banner)',
           text: 'var(--color-banner-text)',
-        },
-        agent: {
-          ticket: 'var(--color-agent-ticket)',
-          'ticket-soft': 'var(--color-agent-ticket-soft)',
-          impact: 'var(--color-agent-impact)',
-          'impact-soft': 'var(--color-agent-impact-soft)',
-          data: 'var(--color-agent-data)',
-          'data-soft': 'var(--color-agent-data-soft)',
-          knowledge: 'var(--color-agent-knowledge)',
-          'knowledge-soft': 'var(--color-agent-knowledge-soft)',
         },
         feature: {
           purple: 'var(--color-feature-purple)',
@@ -84,13 +64,7 @@ export default {
       },
       width: {
         sidebar: '260px',
-        'sidebar-collapsed': '72px',
-        chat: '300px',
-        'chat-lg': '320px',
         'home-rail': '272px',
-      },
-      maxWidth: {
-        chat: '320px',
       },
       screens: {
         xs: '480px',

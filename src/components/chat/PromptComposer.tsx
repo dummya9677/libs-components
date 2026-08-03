@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { Mic, SendHorizonal } from 'lucide-react';
 import { clientBrandCardGradient } from '../../config/clientColors';
 import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
@@ -29,24 +29,31 @@ export function PromptComposer({
   const [speechError, setSpeechError] = useState<string | null>(null);
   const speechBaseRef = useRef('');
 
-  const { isListening, isSupported, toggleListening } = useSpeechRecognition({
+  const { isListening, isSupported, toggleListening, stopListening } = useSpeechRecognition({
     onResult: (transcript, isFinal) => {
       setSpeechError(null);
+      const next = [speechBaseRef.current, transcript].filter(Boolean).join(' ').trim();
       if (isFinal) {
-        const next = [speechBaseRef.current, transcript].filter(Boolean).join(' ').trim();
         speechBaseRef.current = next;
-        setValue(next);
-      } else {
-        const next = [speechBaseRef.current, transcript].filter(Boolean).join(' ').trim();
-        setValue(next);
       }
+      setValue(next);
     },
     onError: (message) => {
       setSpeechError(message);
     },
   });
 
+  useEffect(() => {
+    if (disabled && isListening) {
+      stopListening();
+    }
+  }, [disabled, isListening, stopListening]);
+
   const submit = () => {
+    if (isListening) {
+      stopListening();
+    }
+
     const trimmed = value.trim();
     if (!trimmed || disabled) return;
     onSend?.(trimmed);
@@ -67,7 +74,7 @@ export function PromptComposer({
   };
 
   const handleMicToggle = () => {
-    if (!isSupported) return;
+    if (!isSupported || disabled) return;
     setSpeechError(null);
     if (!isListening) {
       speechBaseRef.current = value.trim();
@@ -75,8 +82,9 @@ export function PromptComposer({
     toggleListening();
   };
 
-  const form = (
-    <form
+  return (
+    <div className={className}>
+      <form
       onSubmit={onSubmit}
       style={gradientBorder ? { background: clientBrandCardGradient } : undefined}
       className={cn(
@@ -86,6 +94,31 @@ export function PromptComposer({
         compact ? 'p-2.5' : 'p-3',
       )}
     >
+        {isListening ? (
+          <div
+            className="mb-2 flex items-center justify-between gap-2 rounded-lg border border-client-cyan-helix-light/35 bg-client-cyan-10/90 px-2.5 py-1.5"
+            role="status"
+            aria-live="polite"
+          >
+            <div className="flex min-w-0 items-center gap-2">
+              <span className="relative flex h-2 w-2 shrink-0">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-status-danger opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-status-danger" />
+              </span>
+              <p className="truncate text-[11px] font-medium text-client-blue-helix-dark sm:text-xs">
+                Recording… speak now
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={stopListening}
+              className="shrink-0 rounded-md px-2 py-0.5 text-[10px] font-semibold text-client-blue-helix-dark transition hover:bg-white/70 sm:text-[11px]"
+            >
+              Stop
+            </button>
+          </div>
+        ) : null}
+
         <textarea
           value={value}
           onChange={(e) => {
@@ -93,7 +126,7 @@ export function PromptComposer({
             speechBaseRef.current = e.target.value.trim();
           }}
           onKeyDown={onKeyDown}
-          rows={compact ? 2 : 2}
+          rows={2}
           placeholder={placeholder}
           disabled={disabled}
           className={cn(
@@ -112,31 +145,27 @@ export function PromptComposer({
             <button
               type="button"
               onClick={handleMicToggle}
-              disabled={!isSupported}
+              disabled={!isSupported || disabled}
               aria-label={isListening ? 'Stop dictation' : 'Start dictation'}
               aria-pressed={isListening}
               title={
-                !isSupported
-                  ? 'Speech recognition is not supported in this browser'
-                  : isListening
-                    ? 'Stop dictation'
-                    : 'Dictate with microphone'
+                disabled
+                  ? 'Wait for the response to finish loading'
+                  : !isSupported
+                    ? 'Speech recognition is not supported in this browser'
+                    : isListening
+                      ? 'Stop dictation'
+                      : 'Dictate with microphone'
               }
               className={cn(
-                'relative flex h-8 w-8 items-center justify-center rounded-lg transition',
+                'flex h-8 w-8 items-center justify-center rounded-lg transition',
                 isListening
                   ? 'bg-client-cyan-10 text-client-blue-helix-dark'
                   : 'text-client-cyan-helix-light/70 hover:bg-client-cyan-10 hover:text-client-blue-helix-dark',
-                !isSupported && 'cursor-not-allowed opacity-40',
+                (!isSupported || disabled) && 'cursor-not-allowed opacity-40',
               )}
             >
               <Mic className="h-3.5 w-3.5 sm:h-4 sm:w-4" strokeWidth={1.75} />
-              {isListening ? (
-                <span className="absolute -right-0.5 -top-0.5 flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-client-cyan-helix-light opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-client-cyan-helix-light" />
-                </span>
-              ) : null}
             </button>
 
             {showSend ? (
@@ -152,7 +181,6 @@ export function PromptComposer({
             ) : null}
         </div>
       </form>
+    </div>
   );
-
-  return <div className={className}>{form}</div>;
 }

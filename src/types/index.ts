@@ -13,14 +13,6 @@ export type AuthUser = {
 /** Session payload from GET /auth/me and POST /auth/session */
 export type AuthMeResponse = AuthUser;
 
-export interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant' | 'system';
-  content: string;
-  createdAt: string;
-  conversationId: string;
-}
-
 export interface MessageSource {
   title: string;
   url?: string;
@@ -28,8 +20,8 @@ export interface MessageSource {
 }
 
 /**
- * Message shape used by chat history / infinite scroll.
- * Real API can return the core fields; optional fields support richer UI (demo).
+ * Message shape used by chat history.
+ * Real API can return the core fields; optional fields support richer UI.
  */
 export interface HistoryMessage {
   id: string;
@@ -56,22 +48,6 @@ export interface MessagesPage {
   hasMore: boolean;
 }
 
-export interface GetMessagesArgs {
-  conversationId: string;
-  /** Omit / null for the newest page; use `nextCursor` from the previous page for older. */
-  cursor?: string | null;
-  limit?: number;
-}
-
-export interface Conversation {
-  id: string;
-  title: string;
-  agentId: string | null;
-  updatedAt: string;
-  createdAt: string;
-  preview?: string;
-}
-
 /** Row from GET /agents — one backend agent scoped to an application. */
 export interface BackendAgentAccess {
   id: string;
@@ -82,11 +58,6 @@ export interface BackendAgentAccess {
   application: string;
   applicationName: string;
   available: boolean;
-}
-
-export interface ApplicationOption {
-  label: string;
-  value: string;
 }
 
 export interface ApplicationAgent {
@@ -112,28 +83,4 @@ export interface StartConversationRequest {
 
 export interface StartConversationResponse {
   conversationId: string;
-}
-
-/** POST create-thread — legacy; conversation id now comes from GET /applications. */
-export interface CreateThreadRequest {
-  agentId: string;
-  applicationName: string;
-}
-
-export interface CreateThreadResponse {
-  threadId: string;
-}
-
-export interface SendMessageRequest {
-  application: string;
-  agentId: string;
-  message: string;
-  conversationId?: string | null;
-  userId: string;
-}
-
-export interface SendMessageResponse {
-  conversationId: string;
-  userMessage: ChatMessage;
-  assistantMessage: ChatMessage;
 }

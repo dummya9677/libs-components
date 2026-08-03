@@ -1,34 +1,18 @@
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import {
   Home,
-  Ticket,
-  Activity,
-  Database,
-  Library,
-  ShieldCheck,
-  CircleDollarSign,
-  Briefcase,
   X,
 } from 'lucide-react';
 import { agents } from '../../data/agents';
 import { BrandLockup } from '../brand/BrandLockup';
 import { PromoGradientCard, promoImages } from '../promo/PromoGradientCard';
 import { useLayout } from '../../hooks/useLayout';
+import { getAgentLucideIconBySlug } from '../../utils/agentIcons';
 import { cn } from '../../utils/cn';
 
 const navItems = [
   { label: 'Homepage', path: '/', icon: Home },
 ];
-
-const agentIcons: Record<string, typeof Ticket> = {
-  'data-quality-intelligence': ShieldCheck,
-  'bau-intelligence': Briefcase,
-  'ticket-intelligence': Ticket,
-  'data-intelligence': Database,
-  'impact-intelligence': Activity,
-  'knowledge-intelligence': Library,
-  'cost-intelligence': CircleDollarSign,
-};
 
 export function AppSidebar() {
   const location = useLocation();
@@ -121,7 +105,7 @@ export function AppSidebar() {
               <ul className="space-y-0.5">
                 {agents.map((agent) => {
                   const selected = isOnAgentPage && agent.slug === activeSlug;
-                  const Icon = agentIcons[agent.slug] ?? Database;
+                  const Icon = getAgentLucideIconBySlug(agent.slug);
                   return (
                     <li key={agent.id}>
                       <button

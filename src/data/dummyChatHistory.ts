@@ -1,7 +1,13 @@
-import type { GetMessagesArgs, HistoryMessage, MessagesPage } from '../types';
+import type { HistoryMessage, MessagesPage } from '../types';
 import { minutesAgoIso } from '../utils/time';
 
 const PAGE_SIZE = 8;
+
+interface FetchDummyMessagesPageArgs {
+  conversationId: string;
+  cursor?: string | null;
+  limit?: number;
+}
 
 /**
  * Dummy multi-page history (oldest → newest).
@@ -92,7 +98,7 @@ function messagesFor(conversationId: string): HistoryMessage[] {
  * Newest page first (no cursor). Older pages via numeric page cursor.
  */
 export async function fetchDummyMessagesPage(
-  args: GetMessagesArgs,
+  args: FetchDummyMessagesPageArgs,
 ): Promise<MessagesPage> {
   const limit = args.limit ?? PAGE_SIZE;
   const all = messagesFor(args.conversationId);

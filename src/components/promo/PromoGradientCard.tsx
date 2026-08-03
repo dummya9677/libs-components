@@ -1,4 +1,5 @@
 import { cn } from '../../utils/cn';
+import { clientBrandGradient } from '../../config/clientColors';
 import { env } from '../../utils/env';
 import multiAgentImage from '../../assets/multi-agent-intelligence.png';
 import sidebarRobotImage from '../../assets/robot.png';
@@ -25,8 +26,7 @@ const cardHeights: Record<PromoGradientVariant, string> = {
 };
 
 const gradientStyle = {
-  background:
-    'linear-gradient(145deg, #000067 0%, #0000C9 42%, #0095FF 78%, #68d1ff 100%)',
+  background: clientBrandGradient,
 } as const;
 
 /**

@@ -1,6 +1,5 @@
 import type { AgentColorKey } from '../config/colors';
 import { colors } from '../config/colors';
-import { minutesAgoIso } from '../utils/time';
 
 export type FeatureAccent =
   | 'purple'
@@ -22,18 +21,6 @@ export interface AgentAction {
   accent: FeatureAccent;
 }
 
-export interface AgentDemoMessage {
-  id: string;
-  role: 'assistant' | 'user' | 'status' | 'progress' | 'result';
-  content?: string;
-  bullets?: string[];
-  progress?: number;
-  progressLabel?: string;
-  actions?: { label: string; variant?: 'primary' | 'link' }[];
-  sentAt?: string;
-  followUp?: string;
-}
-
 export interface AgentDefinition {
   id: string;
   slug: string;
@@ -46,7 +33,6 @@ export interface AgentDefinition {
   capabilities: AgentCapability[];
   actions: AgentAction[];
   examples: string[];
-  demoMessages: AgentDemoMessage[];
   heroVariant: 'cubes' | 'glass' | 'database' | 'book' | 'quality' | 'cost' | 'bau';
   comingSoon?: boolean;
 }
@@ -101,51 +87,7 @@ export const agents: AgentDefinition[] = [
       'What is the overall data quality score this week?',
       'Which tables have recurring quality issues?',
       'Compare Ticket and Data Intelligence findings for INC-1284',
-    ],
-    demoMessages: [
-      {
-        id: '1',
-        role: 'assistant',
-        content: "Hello! I'm your AI Assistant. How can I help you today?",
-        sentAt: minutesAgoIso(5),
-      },
-      {
-        id: '2',
-        role: 'user',
-        content: 'Summarize all data quality findings from today’s investigations',
-        sentAt: minutesAgoIso(5),
-      },
-      {
-        id: '3',
-        role: 'status',
-        content:
-          'Gathering outputs from Ticket, Data, Impact and Knowledge Intelligence agents...',
-      },
-      {
-        id: '4',
-        role: 'progress',
-        progress: 82,
-        progressLabel: 'Data Quality Intelligence · Synthesizing agent findings…',
-      },
-      {
-        id: '5',
-        role: 'result',
-        content: "Here's your consolidated data quality summary:",
-        bullets: [
-          'Overall quality score: 87% (↑ 3% vs yesterday)',
-          '4 active issues across 3 datasets — 2 high priority',
-          'sales_report: ETL delay flagged by Ticket & Data Intelligence',
-          'customer_id nulls in staging — 18% records affected',
-          'product_dim schema change risk identified by Impact Intelligence',
-        ],
-        followUp: 'Would you like a detailed breakdown by agent?',
-        actions: [
-          { label: 'View by agent', variant: 'primary' },
-          { label: 'Export report', variant: 'link' },
-        ],
-        sentAt: minutesAgoIso(0),
-      },
-    ],
+    ],
   },
   {
     id: 'bau-intelligence',
@@ -196,8 +138,7 @@ export const agents: AgentDefinition[] = [
       'Show operational health for today',
       'Summarize routine alerts this week',
       'What changed in BAU workflows yesterday?',
-    ],
-    demoMessages: [],
+    ],
   },
   {
     id: 'ticket-intelligence',
@@ -247,49 +188,7 @@ export const agents: AgentDefinition[] = [
       'Summarize root cause for INC-8841',
       'Find similar tickets to login failures',
       'Suggest a fix for sales_report delay',
-    ],
-    demoMessages: [
-      {
-        id: '1',
-        role: 'assistant',
-        content: "Hello! I'm your AI Assistant. How can I help you today?",
-        sentAt: minutesAgoIso(12),
-      },
-      {
-        id: '2',
-        role: 'user',
-        content: 'Why is my sales_report showing lower numbers yesterday?',
-        sentAt: minutesAgoIso(8),
-      },
-      {
-        id: '3',
-        role: 'status',
-        content: "I'll analyze this for you using the Ticket Intelligence agent.",
-        sentAt: minutesAgoIso(7),
-      },
-      {
-        id: '4',
-        role: 'progress',
-        progress: 75,
-        progressLabel: 'Ticket Intelligence · Analyzing your query…',
-        sentAt: minutesAgoIso(6),
-      },
-      {
-        id: '5',
-        role: 'result',
-        content: "Here's what I found:",
-        bullets: [
-          'Data refresh delay in sales_summary table',
-          'Upstream ETL job completed 42 minutes late',
-          '3 related open tickets with the same pattern',
-        ],
-        actions: [
-          { label: 'Yes, suggest a fix', variant: 'primary' },
-          { label: 'Show more details', variant: 'link' },
-        ],
-        sentAt: minutesAgoIso(5),
-      },
-    ],
+    ],
   },
   {
     id: 'data-intelligence',
@@ -332,49 +231,7 @@ export const agents: AgentDefinition[] = [
       'Why are there nulls in customer_id?',
       'Data mismatch in sales_report',
       'Detect outliers in revenue data',
-    ],
-    demoMessages: [
-      {
-        id: '1',
-        role: 'assistant',
-        content: "Hello! I'm your AI Assistant. How can I help you today?",
-        sentAt: minutesAgoIso(5),
-      },
-      {
-        id: '2',
-        role: 'user',
-        content: 'Why are there null values in customer_id?',
-        sentAt: minutesAgoIso(5),
-      },
-      {
-        id: '3',
-        role: 'status',
-        content: 'Analyzing your data issue with the Data Intelligence agent...',
-      },
-      {
-        id: '4',
-        role: 'progress',
-        progress: 78,
-        progressLabel: 'Detecting anomalies and root cause analysis...',
-      },
-      {
-        id: '5',
-        role: 'result',
-        content: "Here's what I found:",
-        bullets: [
-          'Nulls introduced in staging.customer_data',
-          'Missing values after customer update flow',
-          '18% of records affected',
-          'Issue started 2 days ago after source update.',
-        ],
-        followUp: 'Would you like me to suggest a resolution step?',
-        actions: [
-          { label: 'Show resolution steps', variant: 'link' },
-          { label: 'Monitor this issue', variant: 'link' },
-        ],
-        sentAt: minutesAgoIso(0),
-      },
-    ],
+    ],
   },
   {
     id: 'impact-intelligence',
@@ -425,50 +282,7 @@ export const agents: AgentDefinition[] = [
       'Impact of dropping unused columns',
       'Which dashboards use product_dim?',
       'Risk of renaming price to list_price',
-    ],
-    demoMessages: [
-      {
-        id: '1',
-        role: 'assistant',
-        content: "Hello! I'm your AI Assistant. How can I help you today?",
-        sentAt: minutesAgoIso(5),
-      },
-      {
-        id: '2',
-        role: 'user',
-        content:
-          "What's the impact of changing the price column type in product_dim?",
-        sentAt: minutesAgoIso(5),
-      },
-      {
-        id: '3',
-        role: 'status',
-        content: 'Analyzing impact using the Impact Intelligence agent...',
-      },
-      {
-        id: '4',
-        role: 'progress',
-        progress: 68,
-        progressLabel: 'Mapping dependencies and evaluating impact...',
-      },
-      {
-        id: '5',
-        role: 'result',
-        content: "Here's what I found:",
-        bullets: [
-          '8 downstream tables will be impacted',
-          '12 reports and dashboards affected',
-          '2 data quality rules may fail',
-          'High risk of data type mismatch in 1 pipeline',
-        ],
-        followUp: 'Would you like me to show the impact details?',
-        actions: [
-          { label: 'Show impact details', variant: 'link' },
-          { label: 'Suggest safer change', variant: 'link' },
-        ],
-        sentAt: minutesAgoIso(0),
-      },
-    ],
+    ],
   },
   {
     id: 'knowledge-intelligence',
@@ -518,49 +332,7 @@ export const agents: AgentDefinition[] = [
       'Best practices for indexing large tables',
       'How to create a secure data share?',
       'What are account-level configuration options?',
-    ],
-    demoMessages: [
-      {
-        id: '1',
-        role: 'assistant',
-        content: "Hello! I'm your AI Assistant. How can I help you today?",
-        sentAt: minutesAgoIso(5),
-      },
-      {
-        id: '2',
-        role: 'user',
-        content: 'How do I reduce compute cost for overnight batch jobs?',
-        sentAt: minutesAgoIso(5),
-      },
-      {
-        id: '3',
-        role: 'status',
-        content: 'Searching your knowledge base...',
-      },
-      {
-        id: '4',
-        role: 'progress',
-        progress: 88,
-        progressLabel: 'Finding relevant docs and best practices...',
-      },
-      {
-        id: '5',
-        role: 'result',
-        content: "Here's what I found:",
-        bullets: [
-          'Auto-pause idle workers after 60 seconds',
-          'Right-size job runners — start small and scale up',
-          'Use budget alerts to cap spend',
-          'Cache results and avoid repeated large scans',
-        ],
-        followUp: 'Would you like me to open the top guide?',
-        actions: [
-          { label: 'Open best practice guide', variant: 'link' },
-          { label: 'Show more results', variant: 'link' },
-        ],
-        sentAt: minutesAgoIso(0),
-      },
-    ],
+    ],
   },
   {
     id: 'cost-intelligence',
@@ -611,49 +383,7 @@ export const agents: AgentDefinition[] = [
       'Show storage costs for sales_report table',
       'Which agent has the highest access cost?',
       'Forecast compute spend for next quarter',
-    ],
-    demoMessages: [
-      {
-        id: '1',
-        role: 'assistant',
-        content: "Hello! I'm your AI Assistant. How can I help you today?",
-        sentAt: minutesAgoIso(5),
-      },
-      {
-        id: '2',
-        role: 'user',
-        content: 'What are we paying for agent access and table queries this month?',
-        sentAt: minutesAgoIso(5),
-      },
-      {
-        id: '3',
-        role: 'status',
-        content: 'Analyzing agent usage and data access costs...',
-      },
-      {
-        id: '4',
-        role: 'progress',
-        progress: 71,
-        progressLabel: 'Cost Intelligence · Aggregating spend data…',
-      },
-      {
-        id: '5',
-        role: 'result',
-        content: "Here's your cost breakdown for March:",
-        bullets: [
-          'Total spend: $42,380 (↑ 12% vs last month)',
-          'Agent access: $8,240 — Ticket Intelligence $2,940 (highest)',
-          'Table queries: $18,600 — sales_report $4,200, customer_data $3,100',
-          'Compute & storage: $15,540 — warehouse auto-scale drove +17%',
-        ],
-        followUp: 'Would you like to set a budget alert for any category?',
-        actions: [
-          { label: 'View detailed breakdown', variant: 'primary' },
-          { label: 'Set budget alert', variant: 'link' },
-        ],
-        sentAt: minutesAgoIso(0),
-      },
-    ],
+    ],
   },
 ];
 

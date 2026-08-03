@@ -13,8 +13,6 @@ interface ApplicationSelectProps {
   value: string;
   onChange: (value: string) => void;
   className?: string;
-  /** Compact style for chat header */
-  variant?: 'default' | 'compact';
   disabled?: boolean;
   id?: string;
   /** When set, only companies with this agent available are listed. */
@@ -25,7 +23,6 @@ export function ApplicationSelect({
   value,
   onChange,
   className,
-  variant = 'default',
   disabled = false,
   id = 'application-select',
   agentSlug,
@@ -42,7 +39,6 @@ export function ApplicationSelect({
     [agents, agentSlug],
   );
 
-  const isCompact = variant === 'compact';
   const selectedApplication = value
     ? findApplicationById(applications, value)
     : undefined;
@@ -63,12 +59,9 @@ export function ApplicationSelect({
           onChange={(event) => onChange(event.target.value)}
           disabled={disabled || isLoading || applications.length === 0}
           className={cn(
-            'w-full appearance-none truncate rounded-lg border border-app-border bg-surface pr-8 font-medium text-ink shadow-card transition',
+            'w-full appearance-none truncate rounded-lg border border-app-border bg-surface py-2 pl-3 pr-8 text-xs font-medium text-ink shadow-card transition sm:text-sm',
             'focus:border-client-cyan-helix-light focus:outline-none focus:ring-2 focus:ring-client-cyan-30/40',
             'disabled:cursor-not-allowed disabled:opacity-60',
-            isCompact
-              ? 'py-1.5 pl-2.5 text-[11px] sm:max-w-[180px]'
-              : 'py-2 pl-3 text-xs sm:text-sm',
           )}
         >
           <option value="">

@@ -5,10 +5,12 @@ import { getAgentBySlug } from '../../data/agents';
 import { AgentComingSoon } from '../../components/agent/AgentComingSoon';
 import { AgentWorkspace } from '../../components/agent/AgentWorkspace';
 import { ChatPanel } from '../../components/chat/ChatPanel';
+import { ResizableChatAside } from '../../components/layout/ResizableChatAside';
 import { TopStatusBar } from '../../components/layout/TopStatusBar';
 import { useAgentChat } from '../../hooks/useAgentChat';
 import { useAuth } from '../../hooks/useAuth';
 import { useLayout } from '../../hooks/useLayout';
+import { useResizableWidth } from '../../hooks/useResizableWidth';
 import { useValidatedSelectedApplication } from '../../hooks/useValidatedSelectedApplication';
 import type { AgentDefinition } from '../../data/agents';
 import { cn } from '../../utils/cn';
@@ -21,6 +23,7 @@ function AssistantPageContent({ agent }: { agent: AgentDefinition }) {
   const location = useLocation();
   const { user } = useAuth();
   const { toggleSidebar, chatOpen, toggleChat, closeChat } = useLayout();
+  const { width: chatWidth, isResizing, startResize } = useResizableWidth();
   const {
     applicationName,
     setApplicationName,
@@ -108,7 +111,6 @@ function AssistantPageContent({ agent }: { agent: AgentDefinition }) {
         <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
           <AgentWorkspace
             agent={agent}
-            hideGreeting
             onPrompt={sendMessage}
             applicationName={applicationName}
             onApplicationChange={setApplicationName}
@@ -119,9 +121,14 @@ function AssistantPageContent({ agent }: { agent: AgentDefinition }) {
           />
         </main>
 
-        <aside className="hidden h-full min-h-0 w-chat shrink-0 flex-col overflow-hidden bg-app-bg p-2 pt-0 xl:flex 2xl:w-chat-lg">
+        <ResizableChatAside
+          width={chatWidth}
+          isResizing={isResizing}
+          onResizeStart={startResize}
+          className="hidden xl:flex"
+        >
           {chatPanel}
-        </aside>
+        </ResizableChatAside>
 
         <div
           className={cn(
@@ -131,14 +138,18 @@ function AssistantPageContent({ agent }: { agent: AgentDefinition }) {
           onClick={closeChat}
           aria-hidden={!chatOpen}
         />
-        <aside
+        <ResizableChatAside
+          width={chatWidth}
+          isResizing={isResizing}
+          onResizeStart={startResize}
           className={cn(
-            'absolute inset-y-0 right-0 z-40 flex w-[min(100%,320px)] flex-col bg-app-bg p-2 shadow-panel transition-transform duration-200 xl:hidden',
+            'absolute inset-y-0 right-0 z-40 max-w-full shadow-panel transition-transform duration-200 xl:hidden',
             chatOpen ? 'translate-x-0' : 'translate-x-full',
+            isResizing && 'transition-none',
           )}
         >
           {chatPanel}
-        </aside>
+        </ResizableChatAside>
       </div>
     </div>
   );

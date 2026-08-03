@@ -1,48 +1,14 @@
 import type { ReactNode } from 'react';
 import { useEffect, useRef } from 'react';
-import { BookOpen, Database, Network, Sparkles } from 'lucide-react';
 import type { AgentDefinition } from '../../data/agents';
-import { getAgentTheme } from '../../data/agents';
 import { useRelativeTime } from '../../hooks/useRelativeTime';
 import type { HistoryMessage } from '../../types';
+import { AgentIcon } from '../icons/AgentIcon';
 import { PromptComposer } from './PromptComposer';
 import { ApplicationRequiredNotice } from '../application/ApplicationRequiredNotice';
 import { FormattedMessageContent } from './FormattedMessageContent';
 import { MessageSources, MessageToolsUsed } from './MessageMetadata';
 import { cn } from '../../utils/cn';
-
-function AgentIcon({
-  agent,
-  size = 'md',
-}: {
-  agent: AgentDefinition;
-  size?: 'sm' | 'md';
-}) {
-  const theme = getAgentTheme(agent.colorKey);
-  const Icon =
-    agent.colorKey === 'knowledge'
-      ? BookOpen
-      : agent.colorKey === 'impact'
-        ? Network
-        : agent.colorKey === 'ticket'
-          ? Sparkles
-          : Database;
-
-  const dimensions = size === 'sm' ? 'h-7 w-7' : 'h-9 w-9';
-  const iconSize = size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4';
-
-  return (
-    <div
-      className={cn(
-        'flex shrink-0 items-center justify-center rounded-full text-white shadow-sm',
-        dimensions,
-      )}
-      style={{ backgroundColor: theme.heroIcon }}
-    >
-      <Icon className={iconSize} strokeWidth={1.75} />
-    </div>
-  );
-}
 
 function MessageTimestamp({ sentAt }: { sentAt?: string }) {
   const label = useRelativeTime(sentAt);
@@ -151,7 +117,7 @@ function AssistantMessageSkeleton({ agent }: { agent: AgentDefinition }) {
           <div className="mb-2 flex items-center gap-2">
             <span className="inline-flex h-1.5 w-1.5 animate-pulse rounded-full bg-brand" />
             <span className="text-[11px] font-medium text-ink-secondary">
-              {agent.shortName} is thinking…
+              {agent.name} is loading results...
             </span>
           </div>
           <div className="space-y-2">

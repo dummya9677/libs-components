@@ -1,15 +1,7 @@
 import {
   ArrowRight,
-  BookOpen,
-  Briefcase,
-  CircleDollarSign,
-  Database,
   Menu,
-  Network,
   Rocket,
-  ShieldCheck,
-  Sparkles,
-  Ticket,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -33,17 +25,8 @@ import { useAuth } from '../../hooks/useAuth';
 import { useLayout } from '../../hooks/useLayout';
 import { useValidatedSelectedApplication } from '../../hooks/useValidatedSelectedApplication';
 import { env } from '../../utils/env';
+import { getAgentLucideIconBySlug } from '../../utils/agentIcons';
 import { cn } from '../../utils/cn';
-
-const agentIcons: Record<string, typeof Ticket> = {
-  'data-quality-intelligence': ShieldCheck,
-  'bau-intelligence': Briefcase,
-  'ticket-intelligence': Ticket,
-  'data-intelligence': Database,
-  'impact-intelligence': Network,
-  'knowledge-intelligence': BookOpen,
-  'cost-intelligence': CircleDollarSign,
-};
 
 function getGreeting() {
   const hour = new Date().getHours();
@@ -190,7 +173,7 @@ export function HomePage() {
               <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 xl:grid-cols-3">
                 {agents.map((agent) => {
                   const theme = getAgentTheme(agent.colorKey);
-                  const Icon = agentIcons[agent.slug] ?? Sparkles;
+                  const Icon = getAgentLucideIconBySlug(agent.slug);
                   return (
                     <article
                       key={agent.id}
@@ -201,8 +184,14 @@ export function HomePage() {
                     >
                       <div className="flex items-start gap-1.5">
                         <div
-                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-white"
-                          style={{ backgroundColor: theme.heroIcon }}
+                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md"
+                          style={{
+                            backgroundColor: theme.heroIcon,
+                            color:
+                              'iconOnAccent' in theme && theme.iconOnAccent
+                                ? theme.iconOnAccent
+                                : '#FFFFFF',
+                          }}
                         >
                           <Icon className="h-3.5 w-3.5" strokeWidth={1.75} />
                         </div>

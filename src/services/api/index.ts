@@ -2,8 +2,6 @@ import { api } from './apiSlice';
 
 import './authApi';
 import './historyApi';
-import './threadApi';
-import './chatApi';
 import './agentsApi';
 
 export { api };
@@ -14,14 +12,8 @@ export {
   useEstablishSessionMutation,
 } from './authApi';
 export {
-  useGetHistoryQuery,
-  useGetConversationQuery,
   useStartConversationMutation,
   useGetConversationHistoryQuery,
   useLazyGetConversationHistoryQuery,
-  useGetConversationMessagesQuery,
-  useLazyGetConversationMessagesQuery,
 } from './historyApi';
-export { useCreateThreadMutation } from './threadApi';
-export { useSendMessageMutation } from './chatApi';
 export { useGetAgentsQuery } from './agentsApi';

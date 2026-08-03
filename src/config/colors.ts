@@ -35,15 +35,6 @@ export const colors = {
   warning: '#F59E0B',
   danger: '#EF4444',
 
-  /* Chat */
-  chatUser: '#2563EB',
-  chatBot: '#F1F5F9',
-  progress: '#3B82F6',
-
-  /* Promo / CTA */
-  promo: '#1E3A5F',
-  promoButton: '#1E40AF',
-
   /* Agent themes */
   agents: {
     ticket: {
@@ -63,12 +54,13 @@ export const colors = {
       heroIcon: '#10B981',
     },
     dataIssue: {
-      primary: '#8B5CF6',
-      soft: '#F5F3FF',
-      gradientFrom: '#DDD6FE',
-      gradientTo: '#EDE9FE',
-      chip: '#7C3AED',
-      heroIcon: '#8B5CF6',
+      primary: clientColors.blueHelixDark,
+      soft: '#FFDABB',
+      gradientFrom: '#FFDABB',
+      gradientTo: '#FFFFFF',
+      chip: clientColors.blueHelixDark,
+      heroIcon: '#FFDABB',
+      iconOnAccent: clientColors.blueHelixDark,
     },
     bau: {
       primary: '#0000C9',
@@ -95,12 +87,13 @@ export const colors = {
       heroIcon: '#14B8A6',
     },
     cost: {
-      primary: '#7E22CE',
-      soft: '#F5F3FF',
-      gradientFrom: '#EDE9FE',
-      gradientTo: '#F5F3FF',
-      chip: '#6D28D9',
-      heroIcon: '#9333EA',
+      primary: clientColors.blueHelixDark,
+      soft: '#FFF4D4',
+      gradientFrom: '#FFF4D4',
+      gradientTo: '#FFFFFF',
+      chip: clientColors.blueHelixDark,
+      heroIcon: '#FFF4D4',
+      iconOnAccent: clientColors.blueHelixDark,
     },
   },
 
