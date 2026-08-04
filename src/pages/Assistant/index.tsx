@@ -22,7 +22,7 @@ interface AssistantLocationState {
 function AssistantPageContent({ agent }: { agent: AgentDefinition }) {
   const location = useLocation();
   const { user } = useAuth();
-  const { toggleSidebar, chatOpen, toggleChat, closeChat } = useLayout();
+  const { toggleSidebar, chatOpen, toggleChat, closeChat, openChat } = useLayout();
   const { width: chatWidth, isResizing, startResize } = useResizableWidth();
   const {
     applicationName,
@@ -50,6 +50,19 @@ function AssistantPageContent({ agent }: { agent: AgentDefinition }) {
     initialPromptSent.current = true;
     void sendMessage(prompt);
   }, [isThreadReady, location.state, sendMessage]);
+
+  // Reset chat panel when entering/leaving the assistant so Edge does not keep
+  // stale flex/transform state after toggling chat and navigating away.
+  useEffect(() => {
+    const desktopChat = window.matchMedia('(min-width: 1280px)');
+    if (desktopChat.matches) {
+      openChat();
+    }
+
+    return () => {
+      closeChat();
+    };
+  }, [openChat, closeChat]);
 
   const chatPanel = (
     <ChatPanel
@@ -107,8 +120,8 @@ function AssistantPageContent({ agent }: { agent: AgentDefinition }) {
         </div>
       </header>
 
-      <div className="relative flex min-h-0 flex-1 overflow-hidden">
-        <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+      <div className="relative flex min-h-0 w-full flex-1 overflow-hidden">
+        <main className="flex min-h-0 min-w-0 flex-1 basis-0 flex-col overflow-hidden">
           <AgentWorkspace
             agent={agent}
             onPrompt={sendMessage}
@@ -121,38 +134,27 @@ function AssistantPageContent({ agent }: { agent: AgentDefinition }) {
           />
         </main>
 
-        <ResizableChatAside
-          width={chatWidth}
-          isResizing={isResizing}
-          onResizeStart={startResize}
-          className={cn(
-            'hidden shrink-0 border-l border-app-border',
-            chatOpen ? 'xl:flex' : 'xl:hidden',
-          )}
-        >
-          {chatPanel}
-        </ResizableChatAside>
-
-        <div
-          className={cn(
-            'absolute inset-0 z-30 bg-ink/30 transition-opacity xl:hidden',
-            chatOpen ? 'opacity-100' : 'pointer-events-none opacity-0',
-          )}
-          onClick={closeChat}
-          aria-hidden={!chatOpen}
-        />
-        <ResizableChatAside
-          width={chatWidth}
-          isResizing={isResizing}
-          onResizeStart={startResize}
-          className={cn(
-            'absolute inset-y-0 right-0 z-40 max-w-full shadow-panel transition-transform duration-200 xl:hidden',
-            chatOpen ? 'translate-x-0' : 'translate-x-full',
-            isResizing && 'transition-none',
-          )}
-        >
-          {chatPanel}
-        </ResizableChatAside>
+        {chatOpen ? (
+          <>
+            <div
+              className="absolute inset-0 z-30 bg-ink/30 xl:hidden"
+              onClick={closeChat}
+              aria-hidden={false}
+            />
+            <ResizableChatAside
+              width={chatWidth}
+              isResizing={isResizing}
+              onResizeStart={startResize}
+              className={cn(
+                'absolute inset-y-0 right-0 z-40 max-w-full shrink-0 border-l border-app-border shadow-panel',
+                'xl:static xl:shadow-none',
+                isResizing && 'transition-none',
+              )}
+            >
+              {chatPanel}
+            </ResizableChatAside>
+          </>
+        ) : null}
       </div>
     </div>
   );

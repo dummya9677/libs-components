@@ -23,11 +23,7 @@ const LayoutContext = createContext<LayoutContextValue | null>(null);
 
 export function LayoutProvider({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [chatOpen, setChatOpen] = useState(
-    () =>
-      typeof window !== 'undefined' &&
-      window.matchMedia('(min-width: 1280px)').matches,
-  );
+  const [chatOpen, setChatOpen] = useState(false);
 
   const openSidebar = useCallback(() => setSidebarOpen(true), []);
   const closeSidebar = useCallback(() => setSidebarOpen(false), []);

@@ -44,6 +44,13 @@ export function useResizableWidth() {
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
+  useEffect(() => {
+    return () => {
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, []);
+
   const startResize = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
     event.preventDefault();
 
