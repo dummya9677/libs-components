@@ -121,7 +121,7 @@ function AssistantPageContent({ agent }: { agent: AgentDefinition }) {
       </header>
 
       <div className="relative flex min-h-0 w-full flex-1 overflow-hidden">
-        <main className="flex min-h-0 min-w-0 flex-1 basis-0 flex-col overflow-hidden">
+        <main className="relative z-0 flex min-h-0 min-w-0 flex-1 basis-0 flex-col overflow-hidden">
           <AgentWorkspace
             agent={agent}
             onPrompt={sendMessage}
@@ -137,9 +137,8 @@ function AssistantPageContent({ agent }: { agent: AgentDefinition }) {
         {chatOpen ? (
           <>
             <div
-              className="absolute inset-0 z-30 bg-ink/30 xl:hidden"
-              onClick={closeChat}
-              aria-hidden={false}
+              className="pointer-events-none absolute inset-0 z-30 bg-ink/30 xl:hidden"
+              aria-hidden
             />
             <ResizableChatAside
               width={chatWidth}

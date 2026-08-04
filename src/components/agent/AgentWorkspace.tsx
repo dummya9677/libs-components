@@ -119,7 +119,7 @@ export function AgentWorkspace({
   const theme = getAgentTheme(agent.colorKey);
 
   return (
-    <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden bg-app-bg">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-app-bg">
       <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain px-3 pb-5 pt-1 scrollbar-thin sm:px-5 lg:px-6">
         <button
           type="button"
