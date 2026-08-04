@@ -87,7 +87,7 @@ export const agents: AgentDefinition[] = [
       'What is the overall data quality score this week?',
       'Which tables have recurring quality issues?',
       'Compare Ticket and Data Intelligence findings for INC-1284',
-    ],
+    ],
   },
   {
     id: 'bau-intelligence',
@@ -138,7 +138,7 @@ export const agents: AgentDefinition[] = [
       'Show operational health for today',
       'Summarize routine alerts this week',
       'What changed in BAU workflows yesterday?',
-    ],
+    ],
   },
   {
     id: 'ticket-intelligence',
@@ -188,7 +188,7 @@ export const agents: AgentDefinition[] = [
       'Summarize root cause for INC-8841',
       'Find similar tickets to login failures',
       'Suggest a fix for sales_report delay',
-    ],
+    ],
   },
   {
     id: 'data-intelligence',
@@ -231,7 +231,7 @@ export const agents: AgentDefinition[] = [
       'Why are there nulls in customer_id?',
       'Data mismatch in sales_report',
       'Detect outliers in revenue data',
-    ],
+    ],
   },
   {
     id: 'impact-intelligence',
@@ -282,7 +282,7 @@ export const agents: AgentDefinition[] = [
       'Impact of dropping unused columns',
       'Which dashboards use product_dim?',
       'Risk of renaming price to list_price',
-    ],
+    ],
   },
   {
     id: 'knowledge-intelligence',
@@ -332,7 +332,7 @@ export const agents: AgentDefinition[] = [
       'Best practices for indexing large tables',
       'How to create a secure data share?',
       'What are account-level configuration options?',
-    ],
+    ],
   },
   {
     id: 'cost-intelligence',
@@ -346,6 +346,7 @@ export const agents: AgentDefinition[] = [
     inputPlaceholder:
       'E.g. What did we spend on agent access and table queries this month?',
     heroVariant: 'cost',
+    comingSoon: true,
     capabilities: [
       { label: 'Agent Cost Tracking', icon: 'target' },
       { label: 'Table Access Costs', icon: 'layers' },
@@ -383,7 +384,7 @@ export const agents: AgentDefinition[] = [
       'Show storage costs for sales_report table',
       'Which agent has the highest access cost?',
       'Forecast compute spend for next quarter',
-    ],
+    ],
   },
 ];
 

@@ -11,6 +11,7 @@ import { HomeRightRail } from '../../components/home/HomeRightRail';
 import { RecentInvestigationsCard } from '../../components/home/RecentInvestigationsCard';
 import { RecommendedActionsCard } from '../../components/home/RecommendedActionsCard';
 import { agents, DEFAULT_AGENT_SLUG, getAgentTheme } from '../../data/agents';
+import { ComingSoonIntelligenceCard } from '../../components/home/ComingSoonIntelligenceCard';
 import {
   comingSoonAgents,
   homeKpis,
@@ -167,11 +168,15 @@ export function HomePage() {
           <section className="mt-3">
             <div className="mb-2 flex items-center justify-between gap-2">
               <h2 className="text-xs font-semibold text-ink sm:text-sm">AI Agents</h2>
-              <span className="text-[10px] text-ink-muted">{agents.length} agents available</span>
+              <span className="text-[10px] text-ink-muted">
+                {agents.filter((agent) => !agent.comingSoon).length} agents available
+              </span>
             </div>
             <div className="grid gap-2 lg:grid-cols-[1fr_108px]">
               <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 xl:grid-cols-3">
-                {agents.map((agent) => {
+                {agents
+                  .filter((agent) => agent.slug !== 'cost-intelligence')
+                  .map((agent) => {
                   const theme = getAgentTheme(agent.colorKey);
                   const Icon = getAgentLucideIconBySlug(agent.slug);
                   return (
@@ -215,6 +220,11 @@ export function HomePage() {
                     </article>
                   );
                 })}
+                {agents
+                  .filter((agent) => agent.slug === 'cost-intelligence')
+                  .map((agent) => (
+                    <ComingSoonIntelligenceCard key={agent.id} agent={agent} />
+                  ))}
               </div>
 
               <aside className="hidden flex-col items-center rounded-lg border border-dashed border-app-border bg-surface-muted/50 p-2 text-center lg:flex">

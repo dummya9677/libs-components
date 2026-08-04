@@ -93,7 +93,7 @@ function AssistantPageContent({ agent }: { agent: AgentDefinition }) {
             type="button"
             onClick={toggleChat}
             className={cn(
-              'flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-app-border bg-surface text-ink-secondary shadow-card transition hover:bg-surface-muted hover:text-ink xl:hidden',
+              'flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-app-border bg-surface text-ink-secondary shadow-card transition hover:bg-surface-muted hover:text-ink',
               chatOpen && 'bg-brand-soft text-brand',
             )}
             aria-label={chatOpen ? 'Close chat' : 'Open chat'}
@@ -125,7 +125,10 @@ function AssistantPageContent({ agent }: { agent: AgentDefinition }) {
           width={chatWidth}
           isResizing={isResizing}
           onResizeStart={startResize}
-          className="hidden xl:flex"
+          className={cn(
+            'hidden shrink-0 border-l border-app-border',
+            chatOpen ? 'xl:flex' : 'xl:hidden',
+          )}
         >
           {chatPanel}
         </ResizableChatAside>
@@ -160,7 +163,14 @@ export function AssistantPage() {
   const agent = getAgentBySlug(agentSlug);
 
   if (agent.comingSoon) {
-    return <AgentComingSoon agent={agent} />;
+    return (
+      <AgentComingSoon
+        name={agent.name}
+        description={agent.description}
+        colorKey={agent.colorKey}
+        slug={agent.slug}
+      />
+    );
   }
 
   return <AssistantPageContent agent={agent} />;

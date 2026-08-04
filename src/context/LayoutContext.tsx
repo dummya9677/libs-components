@@ -23,7 +23,11 @@ const LayoutContext = createContext<LayoutContextValue | null>(null);
 
 export function LayoutProvider({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [chatOpen, setChatOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(
+    () =>
+      typeof window !== 'undefined' &&
+      window.matchMedia('(min-width: 1280px)').matches,
+  );
 
   const openSidebar = useCallback(() => setSidebarOpen(true), []);
   const closeSidebar = useCallback(() => setSidebarOpen(false), []);
@@ -38,7 +42,6 @@ export function LayoutProvider({ children }: { children: ReactNode }) {
     const onChange = () => {
       if (mq.matches) {
         setSidebarOpen(false);
-        setChatOpen(false);
       }
     };
     mq.addEventListener('change', onChange);

@@ -20,7 +20,7 @@ export function ResizableChatAside({
     <aside
       style={{ width }}
       className={cn(
-        'relative flex h-full min-h-0 shrink-0 flex-col overflow-hidden bg-app-bg p-2 pt-0',
+        'relative flex h-full min-h-0 shrink-0 flex-col overflow-hidden bg-app-bg pb-2 pr-2 pt-0',
         isResizing && 'select-none',
         className,
       )}

@@ -1,18 +1,28 @@
-import { ArrowLeft, Briefcase, Menu } from 'lucide-react';
+import { ArrowLeft, Menu } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import type { AgentDefinition } from '../../data/agents';
+import type { AgentColorKey } from '../../config/colors';
 import { getAgentTheme } from '../../data/agents';
 import { TopStatusBar } from '../layout/TopStatusBar';
 import { useLayout } from '../../hooks/useLayout';
+import { getAgentLucideIconBySlug } from '../../utils/agentIcons';
 
 interface AgentComingSoonProps {
-  agent: AgentDefinition;
+  name: string;
+  description: string;
+  colorKey: AgentColorKey;
+  slug?: string;
 }
 
-export function AgentComingSoon({ agent }: AgentComingSoonProps) {
+export function AgentComingSoon({
+  name,
+  description,
+  colorKey,
+  slug,
+}: AgentComingSoonProps) {
   const navigate = useNavigate();
   const { toggleSidebar } = useLayout();
-  const theme = getAgentTheme(agent.colorKey);
+  const theme = getAgentTheme(colorKey);
+  const Icon = getAgentLucideIconBySlug(slug ?? '');
 
   return (
     <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-app-bg">
@@ -52,19 +62,17 @@ export function AgentComingSoon({ agent }: AgentComingSoonProps) {
             className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl text-white shadow-card"
             style={{ backgroundColor: theme.heroIcon }}
           >
-            <Briefcase className="h-7 w-7" strokeWidth={1.5} />
+            <Icon className="h-7 w-7" strokeWidth={1.5} />
           </div>
           <h1
             className="mt-4 text-xl font-bold sm:text-2xl"
             style={{ color: theme.primary }}
           >
-            {agent.name}
+            {name}
           </h1>
-          <p className="mt-2 text-sm text-ink-secondary">{agent.description}</p>
+          <p className="mt-2 text-sm text-ink-secondary">{description}</p>
           <div className="mt-5 rounded-xl border border-app-border bg-white/80 px-4 py-3">
-            <p className="text-sm font-semibold text-ink">
-              New intelligence agent coming soon
-            </p>
+            <p className="text-sm font-semibold text-ink">Coming soon</p>
             <p className="mt-1 text-xs text-ink-secondary">
               We&apos;re building this capability. Check back soon or explore
               our other intelligence agents from the home page.

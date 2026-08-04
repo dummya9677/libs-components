@@ -29,12 +29,10 @@ export function LoginPage() {
       <div className="w-full max-w-md rounded-2xl border border-app-border bg-surface p-8 shadow-card">
         <BrandLockup variant="login" className="mb-6" />
         <p className="text-sm text-ink-secondary">
-          {env.mockAuth
-            ? 'Demo mode — sign in with a placeholder account. No backend or SSO required.'
-            : 'Sign in with your enterprise account to continue.'}
+          Sign in using {env.appName} SSO.
         </p>
 
-        {!env.mockAuth && oidcError ? (
+        {oidcError ? (
           <div className="mt-4 rounded-lg border border-status-danger/30 bg-red-50 px-3 py-2 text-sm text-status-danger">
             Authentication error: {oidcError.message}
           </div>
@@ -47,19 +45,8 @@ export function LoginPage() {
           }}
           className="mt-6 w-full rounded-xl bg-client-blue-helix-dark px-4 py-3 text-sm font-semibold text-white transition hover:bg-client-primary"
         >
-          {env.mockAuth ? 'Sign in as demo user' : 'Sign in with SSO'}
+          Sign in
         </button>
-
-        {env.mockAuth ? (
-          <p className="mt-4 text-center text-[11px] text-ink-muted">
-            Demo auth enabled · Protected routes require sign-in
-          </p>
-        ) : (
-          <p className="mt-4 text-center text-[11px] text-ink-muted">
-            Provider: {env.oidcProvider.toUpperCase()} · Session secured by
-            HttpOnly cookie
-          </p>
-        )}
       </div>
     </div>
   );
