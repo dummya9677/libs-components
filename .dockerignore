@@ -1,0 +1,17 @@
+node_modules
+dist
+dist-ssr
+coverage
+.git
+.gitignore
+*.log
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.cursor
+.vscode
+.idea
+Thumbs.db
+.DS_Store
