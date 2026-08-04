@@ -10,7 +10,7 @@ COPY . .
 
 # Vite embeds VITE_* at build time — override via docker build --build-arg
 ARG VITE_APP_NAME=NexaIQ
-ARG VITE_API_BASE_URL=http://localhost:8000/api
+ARG VITE_API_BASE_URL=/api
 ARG VITE_MOCK_AUTH=true
 ARG VITE_MOCK_API=true
 ARG VITE_OIDC_PROVIDER=entra
@@ -36,9 +36,9 @@ RUN npm run build
 # ── Serve stage (HTTPS with self-signed cert) ────────────────────────────────
 FROM nginx:alpine
 
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl gettext
 
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 

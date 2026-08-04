@@ -6,7 +6,8 @@ services:
       args:
         # Match your deployment URL — Vite bakes these in at build time.
         VITE_APP_NAME: ${VITE_APP_NAME:-NexaIQ}
-        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000/api}
+        # Browser calls same-origin /api (nginx proxies to BACKEND_API_URL)
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
         VITE_MOCK_AUTH: ${VITE_MOCK_AUTH:-true}
         VITE_MOCK_API: ${VITE_MOCK_API:-true}
         VITE_OIDC_PROVIDER: ${VITE_OIDC_PROVIDER:-entra}
@@ -22,6 +23,8 @@ services:
     environment:
       SSL_HOST: ${SSL_HOST:-localhost}
       SSL_DAYS: ${SSL_DAYS:-365}
+      # Your deployed backend — nginx proxies https://host:8443/api/* here
+      BACKEND_API_URL: ${BACKEND_API_URL:-http://localhost:8000/api}
     volumes:
       # Persist cert across restarts (optional — dir created on first run)
       - ssl-certs:/etc/nginx/ssl
