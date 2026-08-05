@@ -1,6 +1,7 @@
 import type { HistoryMessage, MessagesPage } from '../types';
 import { parseChatResponse } from './parseChatResponse';
 import { parseMessagePayload } from './parseMessageContent';
+import { normalizeApiTimestamp, parseApiTimestamp } from './time';
 
 function inferRole(raw: Record<string, unknown>): HistoryMessage['role'] | null {
   const role = raw.role;
@@ -30,11 +31,12 @@ function normalizeHistoryMessage(
   if (!role) return null;
 
   const id = raw.id ?? raw.message_id ?? raw.messageId;
-  const createdAt =
+  const createdAtRaw =
     raw.createdAt ??
     raw.created_at ??
     raw.timestamp ??
     new Date().toISOString();
+  const createdAt = normalizeApiTimestamp(String(createdAtRaw));
 
   let content = '';
   let actions: HistoryMessage['actions'];
@@ -90,7 +92,7 @@ function normalizeHistoryMessage(
     id: String(id ?? `msg-${Math.random().toString(36).slice(2, 9)}`),
     role,
     content: content.trim(),
-    createdAt: String(createdAt),
+    createdAt,
     conversationId,
     ...(actions ? { actions } : {}),
     ...(sources ? { sources } : {}),
@@ -102,8 +104,8 @@ function normalizeHistoryMessage(
 
 function sortMessagesChronologically(messages: HistoryMessage[]): HistoryMessage[] {
   return [...messages].sort((a, b) => {
-    const aTime = new Date(a.createdAt).getTime();
-    const bTime = new Date(b.createdAt).getTime();
+    const aTime = parseApiTimestamp(a.createdAt).getTime();
+    const bTime = parseApiTimestamp(b.createdAt).getTime();
 
     if (Number.isNaN(aTime) && Number.isNaN(bTime)) return 0;
     if (Number.isNaN(aTime)) return 1;

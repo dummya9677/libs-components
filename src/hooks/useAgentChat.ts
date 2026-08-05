@@ -14,6 +14,7 @@ import {
   resolveApplicationAgent,
 } from '../utils/applicationAgents';
 import { useAuth } from './useAuth';
+import { parseApiTimestamp } from '../utils/time';
 
 function mergeHistoryMessages(
   existing: HistoryMessage[],
@@ -29,7 +30,9 @@ function mergeHistoryMessages(
   }
 
   return merged.sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+    (a, b) =>
+      parseApiTimestamp(a.createdAt).getTime() -
+      parseApiTimestamp(b.createdAt).getTime(),
   );
 }
 

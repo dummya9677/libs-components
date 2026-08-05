@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { formatRelativeTime } from '../utils/time';
+import { formatRelativeTime, parseApiTimestamp } from '../utils/time';
+
+describe('parseApiTimestamp', () => {
+  it('treats naive backend datetimes as UTC', () => {
+    const parsed = parseApiTimestamp('2026-08-05T09:55:27.920409');
+    expect(parsed.toISOString()).toBe('2026-08-05T09:55:27.920Z');
+  });
+});
 
 describe('formatRelativeTime', () => {
   it('formats minutes and hours', () => {
