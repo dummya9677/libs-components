@@ -40,12 +40,24 @@ export interface HistoryMessage {
   isPending?: boolean;
 }
 
-/** Cursor-paginated page of conversation messages (oldest → newest within the page). */
+/** Paginated page of conversation messages (items sorted oldest → newest for display). */
 export interface MessagesPage {
   items: HistoryMessage[];
-  /** Pass as `cursor` on the next request to load older messages. Null = no more. */
-  nextCursor: string | null;
+  conversationId?: string;
+  page: number;
+  pageSize: number;
+  totalMessages: number;
+  /** Next page number when `hasMore` is true (page 1 = most recent messages). */
+  nextPage: number | null;
   hasMore: boolean;
+}
+
+export interface GetConversationMessagesRequest {
+  userId: string;
+  application: string;
+  agentId: string;
+  page?: number;
+  pageSize?: number;
 }
 
 /** Row from GET /agents — one backend agent scoped to an application. */

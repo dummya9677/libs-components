@@ -32,10 +32,11 @@ export const env = {
     conversationStartPath:
       import.meta.env.VITE_API_CONVERSATION_START_PATH ||
       '/history/conversations/start',
-    /** GET — conversation history prefix: /history/conversations/{conversation_id} */
-    conversationHistoryPath:
+    /** POST — paginated conversation messages: /history/conversations/messages */
+    conversationMessagesPath:
+      import.meta.env.VITE_API_CONVERSATION_MESSAGES_PATH ||
       import.meta.env.VITE_API_CONVERSATION_HISTORY_PATH ||
-      '/history/conversations',
+      '/history/conversations/messages',
   },
   /** When true, skip backend session and hydrate a demo user (UI preview). */
   mockAuth: import.meta.env.VITE_MOCK_AUTH === 'true',
@@ -43,7 +44,7 @@ export const env = {
    * When true, applications/history use local mocks instead of the backend.
    * Defaults to the same value as `VITE_MOCK_AUTH` when unset.
    * Set `VITE_MOCK_API=false` with `VITE_MOCK_AUTH=true` to keep demo login
-   * while testing real GET /agents, GET /history, and POST /chat.
+   * while testing real GET /agents, POST /history/conversations/messages, and POST /chat.
    */
   mockApi:
     import.meta.env.VITE_MOCK_API !== undefined

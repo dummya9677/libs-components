@@ -4,10 +4,13 @@ import { fetchDummyMessagesPage } from '../../data/dummyChatHistory';
 import { env } from '../../utils/env';
 import { normalizeConversationHistory } from '../../utils/normalizeConversationHistory';
 import type {
+  GetConversationMessagesRequest,
   MessagesPage,
   StartConversationRequest,
   StartConversationResponse,
 } from '../../types';
+
+const DEFAULT_PAGE_SIZE = 10;
 
 function normalizeStartConversationResponse(
   data: unknown,
@@ -78,54 +81,92 @@ export const historyApi = api.injectEndpoints({
     }),
 
     /**
-     * GET /history/conversations/{conversation_id}
-     * Returns an empty list when history is unavailable (404 / empty body).
+     * POST /history/conversations/messages
+     * Page 1 returns the most recent messages; higher pages return older messages.
      */
-    getConversationHistory: builder.query<MessagesPage, string>({
-      async queryFn(conversationId, _api, _extraOptions, baseQuery) {
-        if (!conversationId) {
-          return {
-            data: { items: [], nextCursor: null, hasMore: false },
-          };
-        }
+    getConversationHistory: builder.query<MessagesPage, GetConversationMessagesRequest>(
+      {
+        async queryFn(args, _api, _extraOptions, baseQuery) {
+          const page = args.page ?? 1;
+          const pageSize = args.pageSize ?? DEFAULT_PAGE_SIZE;
 
-        if (env.mockApi) {
-          const data = await fetchDummyMessagesPage({
-            conversationId,
-            limit: 100,
-          });
-          return { data };
-        }
-
-        const result = await baseQuery({
-          url: `${env.api.conversationHistoryPath}/${conversationId}`,
-        });
-
-        if (result.error) {
-          const status =
-            typeof result.error === 'object' &&
-            result.error !== null &&
-            'status' in result.error
-              ? result.error.status
-              : null;
-
-          if (status === 404) {
+          if (!args.userId || !args.application || !args.agentId) {
             return {
-              data: { items: [], nextCursor: null, hasMore: false },
+              data: {
+                items: [],
+                page,
+                pageSize,
+                totalMessages: 0,
+                nextPage: null,
+                hasMore: false,
+              },
             };
           }
 
-          return { error: result.error as FetchBaseQueryError };
-        }
+          if (env.mockApi) {
+            const data = await fetchDummyMessagesPage({
+              userId: args.userId,
+              application: args.application,
+              agentId: args.agentId,
+              page,
+              pageSize,
+            });
+            return { data };
+          }
 
-        return {
-          data: normalizeConversationHistory(result.data, conversationId),
-        };
+          const result = await baseQuery({
+            url: env.api.conversationMessagesPath,
+            method: 'POST',
+            body: {
+              user_id: args.userId,
+              application: args.application,
+              agent_id: args.agentId,
+              page,
+              page_size: pageSize,
+            },
+          });
+
+          if (result.error) {
+            const status =
+              typeof result.error === 'object' &&
+              result.error !== null &&
+              'status' in result.error
+                ? result.error.status
+                : null;
+
+            if (status === 404) {
+              return {
+                data: {
+                  items: [],
+                  page,
+                  pageSize,
+                  totalMessages: 0,
+                  nextPage: null,
+                  hasMore: false,
+                },
+              };
+            }
+
+            return { error: result.error as FetchBaseQueryError };
+          }
+
+          const fallbackConversationId = `pending-${args.application}-${args.agentId}`;
+
+          return {
+            data: normalizeConversationHistory(
+              result.data,
+              fallbackConversationId,
+            ),
+          };
+        },
+        providesTags: (_result, _error, args) => [
+          {
+            type: 'Message',
+            id: `${args.application}:${args.agentId}:${args.userId}`,
+          },
+        ],
       },
-      providesTags: (_result, _error, conversationId) => [
-        { type: 'Message', id: conversationId },
-      ],
-    }),
+    ),
   }),
 });
 

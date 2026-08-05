@@ -118,18 +118,23 @@ export function normalizeConversationHistory(
 ): MessagesPage {
   const empty: MessagesPage = {
     items: [],
-    nextCursor: null,
+    conversationId,
+    page: 1,
+    pageSize: 0,
+    totalMessages: 0,
+    nextPage: null,
     hasMore: false,
   };
 
   if (!data) return empty;
 
   let list: unknown[] | null = null;
+  let record: Record<string, unknown> = {};
 
   if (Array.isArray(data)) {
     list = data;
   } else if (typeof data === 'object') {
-    const record = data as Record<string, unknown>;
+    record = data as Record<string, unknown>;
     const candidate =
       record.messages ??
       record.items ??
@@ -144,10 +149,20 @@ export function normalizeConversationHistory(
 
   if (!list) return empty;
 
+  const resolvedConversationId =
+    typeof record.conversation_id === 'string'
+      ? record.conversation_id
+      : typeof record.conversationId === 'string'
+        ? record.conversationId
+        : conversationId;
+
   const items = sortMessagesChronologically(
     list
       .map((item) =>
-        normalizeHistoryMessage(item as Record<string, unknown>, conversationId),
+        normalizeHistoryMessage(
+          item as Record<string, unknown>,
+          resolvedConversationId,
+        ),
       )
       .filter((item): item is HistoryMessage => {
         if (!item) return false;
@@ -162,9 +177,28 @@ export function normalizeConversationHistory(
       }),
   );
 
+  const page =
+    typeof record.page === 'number' && Number.isFinite(record.page)
+      ? record.page
+      : 1;
+  const pageSize =
+    typeof record.page_size === 'number' && Number.isFinite(record.page_size)
+      ? record.page_size
+      : items.length;
+  const totalMessages =
+    typeof record.total_messages === 'number' &&
+    Number.isFinite(record.total_messages)
+      ? record.total_messages
+      : items.length;
+  const hasMore = record.has_more === true;
+
   return {
     items,
-    nextCursor: null,
-    hasMore: false,
+    conversationId: resolvedConversationId,
+    page,
+    pageSize,
+    totalMessages,
+    nextPage: hasMore ? page + 1 : null,
+    hasMore,
   };
 }

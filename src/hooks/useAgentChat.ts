@@ -15,6 +15,24 @@ import {
 } from '../utils/applicationAgents';
 import { useAuth } from './useAuth';
 
+function mergeHistoryMessages(
+  existing: HistoryMessage[],
+  incoming: HistoryMessage[],
+): HistoryMessage[] {
+  const seen = new Set(existing.map((message) => message.id));
+  const merged = [...existing];
+
+  for (const message of incoming) {
+    if (seen.has(message.id)) continue;
+    seen.add(message.id);
+    merged.push(message);
+  }
+
+  return merged.sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+  );
+}
+
 function createUserMessage(content: string, conversationId: string): HistoryMessage {
   return {
     id: `user-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -69,7 +87,7 @@ function buildSessionKey(
  * Agent chat lifecycle:
  * 1. GET /agents → resolve application + backend agent id
  * 2. POST /history/conversations/start → conversation_id for (username, app, agent)
- * 3. GET /history/conversations/{conversation_id} (empty on 404)
+ * 3. POST /history/conversations/messages (page 1 = most recent messages)
  * 4. POST /chat with application id, agent_id, message, conversation_id, user_id (username)
  */
 export function useAgentChat(agentSlug: string, applicationName: string | null) {
@@ -86,6 +104,9 @@ export function useAgentChat(agentSlug: string, applicationName: string | null) 
   const [isLoadingSession, setIsLoadingSession] = useState(false);
   const [sessionError, setSessionError] = useState<string | null>(null);
   const [messages, setMessages] = useState<HistoryMessage[]>([]);
+  const [historyPage, setHistoryPage] = useState(1);
+  const [hasMoreHistory, setHasMoreHistory] = useState(false);
+  const [isLoadingOlderMessages, setIsLoadingOlderMessages] = useState(false);
   const [streamingAnswer, setStreamingAnswer] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -98,6 +119,11 @@ export function useAgentChat(agentSlug: string, applicationName: string | null) 
   const agentsRef = useRef(agents);
   const startConversationRef = useRef(startConversation);
   const fetchHistoryRef = useRef(fetchHistory);
+  const historyRequestRef = useRef<{
+    userId: string;
+    application: string;
+    agentId: string;
+  } | null>(null);
 
   agentsRef.current = agents;
   startConversationRef.current = startConversation;
@@ -145,11 +171,15 @@ export function useAgentChat(agentSlug: string, applicationName: string | null) 
     if (isNewSession) {
       sessionKeyRef.current = sessionKey;
       sessionBootstrappedRef.current = '';
+      historyRequestRef.current = null;
       abortRef.current?.abort();
       syncConversationId(null);
       setBackendAgentId(null);
       setSessionError(null);
       setMessages([]);
+      setHistoryPage(1);
+      setHasMoreHistory(false);
+      setIsLoadingOlderMessages(false);
       setStreamingAnswer('');
       setError(null);
       setIsStreaming(false);
@@ -220,17 +250,32 @@ export function useAgentChat(agentSlug: string, applicationName: string | null) 
         syncConversationId(started.conversationId);
 
         try {
-          const historyPage = await fetchHistoryRef
-            .current(started.conversationId)
+          const historyRequest = {
+            userId: username,
+            application: agentAccess.application,
+            agentId: agentAccess.id,
+            page: 1,
+            pageSize: 10,
+          };
+          historyRequestRef.current = historyRequest;
+
+          const historyPageResult = await fetchHistoryRef
+            .current(historyRequest)
             .unwrap();
           if (!cancelled && attempt === bootstrapAttemptRef.current) {
+            if (historyPageResult.conversationId) {
+              syncConversationId(historyPageResult.conversationId);
+            }
+            setHistoryPage(historyPageResult.page);
+            setHasMoreHistory(historyPageResult.hasMore);
             setMessages((prev) =>
-              prev.length > 0 ? prev : historyPage.items,
+              prev.length > 0 ? prev : historyPageResult.items,
             );
           }
         } catch {
           if (!cancelled && attempt === bootstrapAttemptRef.current) {
             setMessages((prev) => (prev.length > 0 ? prev : []));
+            setHasMoreHistory(false);
           }
         }
 
@@ -266,6 +311,43 @@ export function useAgentChat(agentSlug: string, applicationName: string | null) 
     syncConversationId,
     username,
   ]);
+
+  const loadOlderMessages = useCallback(async () => {
+    if (
+      isLoadingOlderMessages ||
+      !hasMoreHistory ||
+      isStreamingRef.current
+    ) {
+      return;
+    }
+
+    const request = historyRequestRef.current;
+    if (!request) return;
+
+    const nextPage = historyPage + 1;
+    setIsLoadingOlderMessages(true);
+
+    try {
+      const historyPageResult = await fetchHistoryRef
+        .current({
+          ...request,
+          page: nextPage,
+        })
+        .unwrap();
+
+      if (historyPageResult.conversationId) {
+        syncConversationId(historyPageResult.conversationId);
+      }
+
+      setHistoryPage(historyPageResult.page);
+      setHasMoreHistory(historyPageResult.hasMore);
+      setMessages((prev) => mergeHistoryMessages(prev, historyPageResult.items));
+    } catch {
+      // Keep existing messages if pagination fails.
+    } finally {
+      setIsLoadingOlderMessages(false);
+    }
+  }, [hasMoreHistory, historyPage, syncConversationId, isLoadingOlderMessages]);
 
   const sendMessage = useCallback(
     async (content: string) => {
@@ -443,6 +525,9 @@ export function useAgentChat(agentSlug: string, applicationName: string | null) 
         !resolvedApplication) ||
       (!isLoadingAgents && !resolvedAgentAccess),
     messages,
+    hasMoreHistory,
+    isLoadingOlderMessages,
+    loadOlderMessages,
     streamingAnswer,
     isStreaming,
     error: error ?? sessionError,

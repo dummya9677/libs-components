@@ -57,6 +57,36 @@ describe('normalizeConversationHistory', () => {
     expect(page.items).toHaveLength(2);
     expect(page.items[0]?.role).toBe('user');
     expect(page.items[1]?.content).toContain('GBICC');
+    expect(page.hasMore).toBe(false);
+    expect(page.nextPage).toBeNull();
+  });
+
+  it('reads pagination metadata from paginated response envelope', () => {
+    const page = normalizeConversationHistory(
+      {
+        conversation_id: '57647bbb-b6c6-4720-9c88-9b0143ec6f49',
+        messages: [
+          {
+            id: 'm1',
+            role: 'user',
+            content: 'Give me 3 tickets',
+            created_at: '2026-08-05T09:55:27.920409',
+          },
+        ],
+        page: 1,
+        page_size: 10,
+        total_messages: 6,
+        has_more: true,
+      },
+      '57647bbb-b6c6-4720-9c88-9b0143ec6f49',
+    );
+
+    expect(page.conversationId).toBe('57647bbb-b6c6-4720-9c88-9b0143ec6f49');
+    expect(page.page).toBe(1);
+    expect(page.pageSize).toBe(10);
+    expect(page.totalMessages).toBe(6);
+    expect(page.hasMore).toBe(true);
+    expect(page.nextPage).toBe(2);
   });
 });
 

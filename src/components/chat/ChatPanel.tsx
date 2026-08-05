@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
-import { useEffect, useRef } from 'react';
-import type { AgentDefinition } from '../../data/agents';
+import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';import type { AgentDefinition } from '../../data/agents';
 import { useRelativeTime } from '../../hooks/useRelativeTime';
 import type { HistoryMessage } from '../../types';
 import { AgentIcon } from '../icons/AgentIcon';
@@ -244,6 +243,9 @@ interface ChatPanelProps {
   isCreatingThread?: boolean;
   needsApplication?: boolean;
   error?: string | null;
+  hasMoreHistory?: boolean;
+  isLoadingOlderMessages?: boolean;
+  onLoadOlderMessages?: () => void | Promise<void>;
 }
 
 /**
@@ -258,12 +260,94 @@ export function ChatPanel({
   isCreatingThread = false,
   needsApplication = false,
   error = null,
+  hasMoreHistory = false,
+  isLoadingOlderMessages = false,
+  onLoadOlderMessages,
 }: ChatPanelProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const topSentinelRef = useRef<HTMLDivElement>(null);
+  const prevMessagesRef = useRef({ firstId: '', lastId: '', count: 0 });
+  const scrollRestoreRef = useRef<{ scrollTop: number; scrollHeight: number } | null>(
+    null,
+  );
+  const isFetchingOlderRef = useRef(false);
+
+  const tryLoadOlderMessages = useCallback(() => {
+    if (
+      !hasMoreHistory ||
+      isLoadingOlderMessages ||
+      isStreaming ||
+      isFetchingOlderRef.current ||
+      !onLoadOlderMessages
+    ) {
+      return;
+    }
+
+    const container = scrollRef.current;
+    if (!container) return;
+
+    isFetchingOlderRef.current = true;
+    scrollRestoreRef.current = {
+      scrollTop: container.scrollTop,
+      scrollHeight: container.scrollHeight,
+    };
+
+    void Promise.resolve(onLoadOlderMessages()).finally(() => {
+      isFetchingOlderRef.current = false;
+    });
+  }, [hasMoreHistory, isLoadingOlderMessages, isStreaming, onLoadOlderMessages]);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const container = scrollRef.current;
+    const sentinel = topSentinelRef.current;
+    if (!container || !sentinel || !hasMoreHistory) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          tryLoadOlderMessages();
+        }
+      },
+      {
+        root: container,
+        rootMargin: '120px 0px 0px 0px',
+        threshold: 0,
+      },
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasMoreHistory, tryLoadOlderMessages]);
+
+  useLayoutEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+
+    const firstId = messages[0]?.id ?? '';
+    const lastId = messages[messages.length - 1]?.id ?? '';
+    const prev = prevMessagesRef.current;
+
+    const prepended =
+      messages.length > prev.count &&
+      firstId !== prev.firstId &&
+      lastId === prev.lastId;
+    const appended = lastId !== prev.lastId && firstId === prev.firstId;
+    const initialLoad = prev.count === 0 && messages.length > 0;
+    const nearBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight < 120;
+
+    if (prepended && scrollRestoreRef.current) {
+      const { scrollTop, scrollHeight } = scrollRestoreRef.current;
+      container.scrollTop = scrollTop + (container.scrollHeight - scrollHeight);
+      scrollRestoreRef.current = null;
+    } else if (initialLoad || appended || (isStreaming && nearBottom)) {
+      bottomRef.current?.scrollIntoView({
+        behavior: appended || isStreaming ? 'smooth' : 'auto',
+      });
+    }
+
+    prevMessagesRef.current = { firstId, lastId, count: messages.length };
   }, [messages, isStreaming]);
 
   return (
@@ -286,6 +370,14 @@ export function ChatPanel({
           </div>
         ) : (
           <>
+            <div ref={topSentinelRef} className="h-px w-full shrink-0" aria-hidden />
+
+            {isLoadingOlderMessages ? (
+              <div className="flex justify-center py-2">
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-brand/20 border-t-brand" />
+              </div>
+            ) : null}
+
             {isCreatingThread && messages.length === 0 && !isStreaming ? (
               <div className="flex flex-col items-center gap-3 py-8">
                 <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand/20 border-t-brand" />

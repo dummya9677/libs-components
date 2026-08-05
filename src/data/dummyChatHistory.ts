@@ -1,17 +1,23 @@
 import type { HistoryMessage, MessagesPage } from '../types';
 import { minutesAgoIso } from '../utils/time';
 
-const PAGE_SIZE = 8;
+const DEFAULT_PAGE_SIZE = 10;
 
 interface FetchDummyMessagesPageArgs {
-  conversationId: string;
-  cursor?: string | null;
-  limit?: number;
+  userId: string;
+  application: string;
+  agentId: string;
+  page?: number;
+  pageSize?: number;
+}
+
+function buildConversationId(application: string, agentId: string): string {
+  return `conv-mock-${application}-${agentId}`;
 }
 
 /**
  * Dummy multi-page history (oldest → newest).
- * Page 0 = oldest, last page = newest (loaded first by the UI).
+ * Page 1 = most recent messages (matches POST /history/conversations/messages).
  */
 function buildAllMessages(conversationId: string): HistoryMessage[] {
   const older: HistoryMessage[] = Array.from({ length: 24 }, (_, i) => {
@@ -47,7 +53,7 @@ function buildAllMessages(conversationId: string): HistoryMessage[] {
       id: `hist-${conversationId}-status`,
       conversationId,
       role: 'status',
-        content: "I'll analyze this for you using the Ticket Intelligence agent.",
+      content: "I'll analyze this for you using the Ticket Intelligence agent.",
       createdAt: minutesAgoIso(7),
     },
     {
@@ -84,7 +90,8 @@ function buildAllMessages(conversationId: string): HistoryMessage[] {
 
 const cache = new Map<string, HistoryMessage[]>();
 
-function messagesFor(conversationId: string): HistoryMessage[] {
+function messagesFor(application: string, agentId: string): HistoryMessage[] {
+  const conversationId = buildConversationId(application, agentId);
   let list = cache.get(conversationId);
   if (!list) {
     list = buildAllMessages(conversationId);
@@ -94,31 +101,32 @@ function messagesFor(conversationId: string): HistoryMessage[] {
 }
 
 /**
- * Simulates `GET /history/:conversationId/messages?cursor=&limit=`
- * Newest page first (no cursor). Older pages via numeric page cursor.
+ * Simulates POST /history/conversations/messages with page-based pagination.
  */
 export async function fetchDummyMessagesPage(
   args: FetchDummyMessagesPageArgs,
 ): Promise<MessagesPage> {
-  const limit = args.limit ?? PAGE_SIZE;
-  const all = messagesFor(args.conversationId);
-  const totalPages = Math.max(1, Math.ceil(all.length / limit));
+  const pageSize = args.pageSize ?? DEFAULT_PAGE_SIZE;
+  const page = args.page ?? 1;
+  const all = messagesFor(args.application, args.agentId);
+  const conversationId = buildConversationId(args.application, args.agentId);
+  const totalPages = Math.max(1, Math.ceil(all.length / pageSize));
+  const safePage = Math.max(1, Math.min(page, totalPages));
 
-  // cursor = page index from the end: "0" = newest page, "1" = next older, …
-  const pageFromEnd = args.cursor ? Number.parseInt(args.cursor, 10) : 0;
-  const safePage = Number.isFinite(pageFromEnd)
-    ? Math.max(0, Math.min(pageFromEnd, totalPages - 1))
-    : 0;
-
-  const start = Math.max(0, all.length - (safePage + 1) * limit);
-  const end = all.length - safePage * limit;
+  const end = all.length - (safePage - 1) * pageSize;
+  const start = Math.max(0, end - pageSize);
   const items = all.slice(start, end);
+  const hasMore = safePage < totalPages;
 
-  const hasMore = start > 0;
-  const nextCursor = hasMore ? String(safePage + 1) : null;
-
-  // Small delay so the “Loading older…” UI is visible in demo mode
   await new Promise((r) => setTimeout(r, 450));
 
-  return { items, nextCursor, hasMore };
+  return {
+    items,
+    conversationId,
+    page: safePage,
+    pageSize,
+    totalMessages: all.length,
+    nextPage: hasMore ? safePage + 1 : null,
+    hasMore,
+  };
 }

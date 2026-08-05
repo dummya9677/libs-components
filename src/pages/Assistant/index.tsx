@@ -37,6 +37,9 @@ function AssistantPageContent({ agent }: { agent: AgentDefinition }) {
     isThreadReady,
     needsApplication,
     messages,
+    hasMoreHistory,
+    isLoadingOlderMessages,
+    loadOlderMessages,
     isStreaming,
     error,
     sendMessage,
@@ -74,6 +77,9 @@ function AssistantPageContent({ agent }: { agent: AgentDefinition }) {
       isCreatingThread={isCreatingThread}
       needsApplication={needsApplication}
       error={error}
+      hasMoreHistory={hasMoreHistory}
+      isLoadingOlderMessages={isLoadingOlderMessages}
+      onLoadOlderMessages={loadOlderMessages}
     />
   );
 
