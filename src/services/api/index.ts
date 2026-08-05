@@ -13,6 +13,7 @@ export {
 } from './authApi';
 export {
   useStartConversationMutation,
-  useFetchConversationMessagesMutation,
 } from './historyApi';
+export { postConversationMessages } from './conversationMessages';
+export type { FetchConversationMessagesArgs } from './conversationMessages';
 export { useGetAgentsQuery } from './agentsApi';

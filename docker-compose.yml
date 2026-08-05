@@ -4,29 +4,27 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        # Match your deployment URL — Vite bakes these in at build time.
         VITE_APP_NAME: ${VITE_APP_NAME:-NexaIQ}
-        # Browser calls same-origin /api (nginx proxies to BACKEND_API_URL)
-        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
+        # Docker always uses same-origin /api; nginx proxies to BACKEND_API_URL
+        VITE_API_BASE_URL: /api
         VITE_MOCK_AUTH: ${VITE_MOCK_AUTH:-true}
-        VITE_MOCK_API: ${VITE_MOCK_API:-true}
+        VITE_MOCK_API: ${VITE_MOCK_API:-false}
         VITE_OIDC_PROVIDER: ${VITE_OIDC_PROVIDER:-entra}
         VITE_OIDC_AUTHORITY: ${VITE_OIDC_AUTHORITY:-}
         VITE_OIDC_CLIENT_ID: ${VITE_OIDC_CLIENT_ID:-}
-        # Use https + the port you map below (8443 avoids admin rights on Windows)
         VITE_OIDC_REDIRECT_URI: ${VITE_OIDC_REDIRECT_URI:-https://localhost:8443/auth/callback}
         VITE_OIDC_POST_LOGOUT_REDIRECT_URI: ${VITE_OIDC_POST_LOGOUT_REDIRECT_URI:-https://localhost:8443/login}
         VITE_OIDC_SCOPE: ${VITE_OIDC_SCOPE:-openid profile email}
+    env_file:
+      - .env
     ports:
-      - "8080:80"    # HTTP → redirects to HTTPS
-      - "8443:443"   # HTTPS (self-signed)
+      - "8080:80"
+      - "8443:443"
     environment:
       SSL_HOST: ${SSL_HOST:-localhost}
       SSL_DAYS: ${SSL_DAYS:-365}
-      # Nginx proxies /api/* to backend service on shared Docker network
       BACKEND_API_URL: ${BACKEND_API_URL:-http://backend:8000/api}
     volumes:
-      # Persist cert across restarts (optional — dir created on first run)
       - ssl-certs:/etc/nginx/ssl
     restart: unless-stopped
     networks:

@@ -1,13 +1,5 @@
 import type { OidcProvider } from '../types';
 
-const required = (value: string | undefined, name: string): string => {
-  if (!value) {
-    console.warn(`Missing environment variable: ${name}`);
-    return '';
-  }
-  return value;
-};
-
 export const env = {
   appName: import.meta.env.VITE_APP_NAME || 'NexaIQ',
   partnerLogoUrl: import.meta.env.VITE_PARTNER_LOGO_URL || '',
@@ -15,10 +7,7 @@ export const env = {
   sidebarPromoImageUrl: import.meta.env.VITE_SIDEBAR_PROMO_IMAGE_URL || '',
   /** Transparent PNG for homepage right-rail multi-agent card */
   multiAgentPromoImageUrl: import.meta.env.VITE_MULTI_AGENT_PROMO_IMAGE_URL || '',
-  apiBaseUrl:
-    import.meta.env.VITE_MOCK_AUTH === 'true'
-      ? import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'
-      : required(import.meta.env.VITE_API_BASE_URL, 'VITE_API_BASE_URL'),
+  apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api',
   /**
    * Paths are appended to `apiBaseUrl` (no leading slash required).
    * Update these in `.env` to match your Python backend.

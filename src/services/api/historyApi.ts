@@ -1,15 +1,7 @@
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { api } from './apiSlice';
-import {
-  buildConversationMessagesBody,
-  CONVERSATION_MESSAGES_PATH,
-  normalizeConversationMessagesResponse,
-  type FetchConversationMessagesArgs,
-} from './conversationMessages';
-import { fetchDummyMessagesPage } from '../../data/dummyChatHistory';
 import { env } from '../../utils/env';
 import type {
-  MessagesPage,
   StartConversationRequest,
   StartConversationResponse,
 } from '../../types';
@@ -31,8 +23,6 @@ function normalizeStartConversationResponse(
 
   return { conversationId: conversationId.trim() };
 }
-
-export type { FetchConversationMessagesArgs };
 
 export const historyApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -79,66 +69,7 @@ export const historyApi = api.injectEndpoints({
       },
       invalidatesTags: ['Conversation'],
     }),
-
-    fetchConversationMessages: builder.mutation<
-      MessagesPage,
-      FetchConversationMessagesArgs
-    >({
-      async queryFn(args, _api, _extraOptions, baseQuery) {
-        const body = buildConversationMessagesBody(args);
-
-        if (!body.user_id || !body.application || !body.agent_id) {
-          return {
-            data: normalizeConversationMessagesResponse(null, args),
-          };
-        }
-
-        if (env.mockApi) {
-          const data = await fetchDummyMessagesPage({
-            userId: args.userId,
-            application: args.application,
-            agentId: args.agentId,
-            page: body.page,
-            pageSize: body.page_size,
-          });
-          return { data };
-        }
-
-        const result = await baseQuery({
-          url: CONVERSATION_MESSAGES_PATH,
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body,
-        });
-
-        if (result.error) {
-          const status =
-            typeof result.error === 'object' &&
-            result.error !== null &&
-            'status' in result.error
-              ? result.error.status
-              : null;
-
-          if (status === 404) {
-            return {
-              data: normalizeConversationMessagesResponse(null, args),
-            };
-          }
-
-          return { error: result.error as FetchBaseQueryError };
-        }
-
-        return {
-          data: normalizeConversationMessagesResponse(result.data, args),
-        };
-      },
-    }),
   }),
 });
 
-export const {
-  useStartConversationMutation,
-  useFetchConversationMessagesMutation,
-} = historyApi;
+export const { useStartConversationMutation } = historyApi;

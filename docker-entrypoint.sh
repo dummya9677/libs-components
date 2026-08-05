@@ -6,7 +6,7 @@ CERT_FILE="${CERT_DIR}/cert.pem"
 KEY_FILE="${CERT_DIR}/key.pem"
 SSL_HOST="${SSL_HOST:-localhost}"
 SSL_DAYS="${SSL_DAYS:-365}"
-BACKEND_API_URL="${BACKEND_API_URL:-http://localhost:8000/api}"
+BACKEND_API_URL="${BACKEND_API_URL:-http://backend:8000/api}"
 
 if [ ! -f "$CERT_FILE" ] || [ ! -f "$KEY_FILE" ]; then
   mkdir -p "$CERT_DIR"

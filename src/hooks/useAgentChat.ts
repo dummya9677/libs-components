@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  useFetchConversationMessagesMutation,
+  postConversationMessages,
   useGetAgentsQuery,
   useStartConversationMutation,
 } from '../services/api';
@@ -98,7 +98,6 @@ export function useAgentChat(agentSlug: string, applicationName: string | null) 
   );
   const agents = agentsData ?? EMPTY_AGENT_ACCESS_LIST;
   const [startConversation] = useStartConversationMutation();
-  const [fetchConversationMessages] = useFetchConversationMessagesMutation();
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [backendAgentId, setBackendAgentId] = useState<string | null>(null);
   const [isLoadingSession, setIsLoadingSession] = useState(false);
@@ -118,7 +117,6 @@ export function useAgentChat(agentSlug: string, applicationName: string | null) 
   const isStreamingRef = useRef(false);
   const agentsRef = useRef(agents);
   const startConversationRef = useRef(startConversation);
-  const fetchConversationMessagesRef = useRef(fetchConversationMessages);
   const historyRequestRef = useRef<{
     userId: string;
     application: string;
@@ -128,7 +126,6 @@ export function useAgentChat(agentSlug: string, applicationName: string | null) 
 
   agentsRef.current = agents;
   startConversationRef.current = startConversation;
-  fetchConversationMessagesRef.current = fetchConversationMessages;
 
   const applications = useMemo(
     () => getApplicationsForDropdown(agents, agentSlug),
@@ -259,9 +256,7 @@ export function useAgentChat(agentSlug: string, applicationName: string | null) 
         };
         historyRequestRef.current = historyRequest;
 
-        const historyPageResult = await fetchConversationMessagesRef
-          .current(historyRequest)
-          .unwrap();
+        const historyPageResult = await postConversationMessages(historyRequest);
 
         if (!cancelled && attempt === bootstrapAttemptRef.current) {
           setHistoryPage(historyPageResult.page);
@@ -319,12 +314,10 @@ export function useAgentChat(agentSlug: string, applicationName: string | null) 
     setIsLoadingOlderMessages(true);
 
     try {
-      const historyPageResult = await fetchConversationMessagesRef
-        .current({
-          ...request,
-          page: nextPage,
-        })
-        .unwrap();
+      const historyPageResult = await postConversationMessages({
+        ...request,
+        page: nextPage,
+      });
 
       setHistoryPage(historyPageResult.page);
       setHasMoreHistory(historyPageResult.hasMore);
