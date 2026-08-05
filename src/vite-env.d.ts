@@ -11,7 +11,6 @@ interface ImportMetaEnv {
   readonly VITE_API_AGENT_CHAT_PATH: string;
   readonly VITE_API_AGENTS_PATH: string;
   readonly VITE_API_CONVERSATION_MESSAGES_PATH: string;
-  readonly VITE_API_CONVERSATION_HISTORY_PATH: string;
   readonly VITE_OIDC_PROVIDER: 'entra' | 'okta' | 'keycloak' | 'auth0';
   readonly VITE_OIDC_AUTHORITY: string;
   readonly VITE_OIDC_CLIENT_ID: string;

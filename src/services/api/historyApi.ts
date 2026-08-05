@@ -150,7 +150,9 @@ export const historyApi = api.injectEndpoints({
             return { error: result.error as FetchBaseQueryError };
           }
 
-          const fallbackConversationId = `pending-${args.application}-${args.agentId}`;
+          const fallbackConversationId =
+            args.conversationId?.trim() ||
+            `pending-${args.application}-${args.agentId}`;
 
           return {
             data: normalizeConversationHistory(

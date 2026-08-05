@@ -56,6 +56,8 @@ export interface GetConversationMessagesRequest {
   userId: string;
   application: string;
   agentId: string;
+  /** From POST /history/conversations/start — used to attach history to the active conversation. */
+  conversationId?: string;
   page?: number;
   pageSize?: number;
 }
