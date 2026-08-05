@@ -1,16 +1,18 @@
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { api } from './apiSlice';
+import {
+  buildConversationMessagesBody,
+  CONVERSATION_MESSAGES_PATH,
+  normalizeConversationMessagesResponse,
+  type FetchConversationMessagesArgs,
+} from './conversationMessages';
 import { fetchDummyMessagesPage } from '../../data/dummyChatHistory';
 import { env } from '../../utils/env';
-import { normalizeConversationHistory } from '../../utils/normalizeConversationHistory';
 import type {
-  GetConversationMessagesRequest,
   MessagesPage,
   StartConversationRequest,
   StartConversationResponse,
 } from '../../types';
-
-const DEFAULT_PAGE_SIZE = 10;
 
 function normalizeStartConversationResponse(
   data: unknown,
@@ -30,12 +32,10 @@ function normalizeStartConversationResponse(
   return { conversationId: conversationId.trim() };
 }
 
+export type { FetchConversationMessagesArgs };
+
 export const historyApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    /**
-     * POST /history/conversations/start
-     * Returns conversation_id for (user_id, application, agent_id).
-     */
     startConversation: builder.mutation<
       StartConversationResponse,
       StartConversationRequest
@@ -80,100 +80,65 @@ export const historyApi = api.injectEndpoints({
       invalidatesTags: ['Conversation'],
     }),
 
-    /**
-     * POST /history/conversations/messages
-     * Page 1 returns the most recent messages; higher pages return older messages.
-     */
-    getConversationHistory: builder.query<MessagesPage, GetConversationMessagesRequest>(
-      {
-        async queryFn(args, _api, _extraOptions, baseQuery) {
-          const page = args.page ?? 1;
-          const pageSize = args.pageSize ?? DEFAULT_PAGE_SIZE;
+    fetchConversationMessages: builder.mutation<
+      MessagesPage,
+      FetchConversationMessagesArgs
+    >({
+      async queryFn(args, _api, _extraOptions, baseQuery) {
+        const body = buildConversationMessagesBody(args);
 
-          if (!args.userId || !args.application || !args.agentId) {
+        if (!body.user_id || !body.application || !body.agent_id) {
+          return {
+            data: normalizeConversationMessagesResponse(null, args),
+          };
+        }
+
+        if (env.mockApi) {
+          const data = await fetchDummyMessagesPage({
+            userId: args.userId,
+            application: args.application,
+            agentId: args.agentId,
+            page: body.page,
+            pageSize: body.page_size,
+          });
+          return { data };
+        }
+
+        const result = await baseQuery({
+          url: CONVERSATION_MESSAGES_PATH,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body,
+        });
+
+        if (result.error) {
+          const status =
+            typeof result.error === 'object' &&
+            result.error !== null &&
+            'status' in result.error
+              ? result.error.status
+              : null;
+
+          if (status === 404) {
             return {
-              data: {
-                items: [],
-                page,
-                pageSize,
-                totalMessages: 0,
-                nextPage: null,
-                hasMore: false,
-              },
+              data: normalizeConversationMessagesResponse(null, args),
             };
           }
 
-          if (env.mockApi) {
-            const data = await fetchDummyMessagesPage({
-              userId: args.userId,
-              application: args.application,
-              agentId: args.agentId,
-              page,
-              pageSize,
-            });
-            return { data };
-          }
+          return { error: result.error as FetchBaseQueryError };
+        }
 
-          const result = await baseQuery({
-            url: env.api.conversationMessagesPath,
-            method: 'POST',
-            body: {
-              user_id: args.userId,
-              application: args.application,
-              agent_id: args.agentId,
-              page,
-              page_size: pageSize,
-            },
-          });
-
-          if (result.error) {
-            const status =
-              typeof result.error === 'object' &&
-              result.error !== null &&
-              'status' in result.error
-                ? result.error.status
-                : null;
-
-            if (status === 404) {
-              return {
-                data: {
-                  items: [],
-                  page,
-                  pageSize,
-                  totalMessages: 0,
-                  nextPage: null,
-                  hasMore: false,
-                },
-              };
-            }
-
-            return { error: result.error as FetchBaseQueryError };
-          }
-
-          const fallbackConversationId =
-            args.conversationId?.trim() ||
-            `pending-${args.application}-${args.agentId}`;
-
-          return {
-            data: normalizeConversationHistory(
-              result.data,
-              fallbackConversationId,
-            ),
-          };
-        },
-        providesTags: (_result, _error, args) => [
-          {
-            type: 'Message',
-            id: `${args.application}:${args.agentId}:${args.userId}`,
-          },
-        ],
+        return {
+          data: normalizeConversationMessagesResponse(result.data, args),
+        };
       },
-    ),
+    }),
   }),
 });
 
 export const {
   useStartConversationMutation,
-  useGetConversationHistoryQuery,
-  useLazyGetConversationHistoryQuery,
+  useFetchConversationMessagesMutation,
 } = historyApi;

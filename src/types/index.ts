@@ -51,17 +51,6 @@ export interface MessagesPage {
   nextPage: number | null;
   hasMore: boolean;
 }
-
-export interface GetConversationMessagesRequest {
-  userId: string;
-  application: string;
-  agentId: string;
-  /** From POST /history/conversations/start — used to attach history to the active conversation. */
-  conversationId?: string;
-  page?: number;
-  pageSize?: number;
-}
-
 /** Row from GET /agents — one backend agent scoped to an application. */
 export interface BackendAgentAccess {
   id: string;

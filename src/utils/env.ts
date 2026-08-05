@@ -32,10 +32,8 @@ export const env = {
     conversationStartPath:
       import.meta.env.VITE_API_CONVERSATION_START_PATH ||
       '/history/conversations/start',
-    /** POST — paginated conversation messages. */
-    conversationMessagesPath:
-      import.meta.env.VITE_API_CONVERSATION_MESSAGES_PATH ||
-      '/history/conversations/messages',
+    /** POST — paginated conversation messages (fixed path). */
+    conversationMessagesPath: '/history/conversations/messages',
   },
   /** When true, skip backend session and hydrate a demo user (UI preview). */
   mockAuth: import.meta.env.VITE_MOCK_AUTH === 'true',
