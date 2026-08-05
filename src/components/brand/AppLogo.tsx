@@ -6,7 +6,7 @@ const LOGO_VIEW_BOX = 'inset(20% 14% 28%)';
 
 const LOGO_HEIGHT = {
   sidebar: 'h-16',
-  login: 'h-[4.5rem]',
+  login: 'h-16',
 } as const;
 
 export function AppLogo({
@@ -20,29 +20,31 @@ export function AppLogo({
   variant?: 'sidebar' | 'login';
   className?: string;
 }) {
+  const isLogin = variant === 'login';
+
   return (
     <div
       className={cn(
-        'min-w-0 leading-none',
-        variant === 'sidebar' ? 'flex-1' : 'w-full',
+        'leading-none',
+        isLogin ? 'w-auto shrink-0' : 'min-w-0 flex-1',
         className,
       )}
       aria-label={iconOnly ? env.appName : undefined}
     >
       <div
         className={cn(
-          'flex items-end overflow-hidden',
-          LOGO_HEIGHT[variant],
-          variant === 'sidebar'
-            ? 'w-full'
-            : 'mx-auto w-full max-w-[300px]',
+          'flex items-center justify-center overflow-hidden',
+          isLogin ? 'h-full w-auto' : cn(LOGO_HEIGHT.sidebar, 'w-full items-end'),
         )}
       >
         <img
           src="/assets/app-logo.png"
           alt={env.appName}
-          className="block h-full w-full object-fill object-left-bottom"
-          style={{ objectViewBox: LOGO_VIEW_BOX }}
+          className={cn(
+            'block h-full w-auto max-w-full object-contain',
+            isLogin ? 'object-center' : 'object-left-bottom',
+          )}
+          style={isLogin ? undefined : { objectViewBox: LOGO_VIEW_BOX }}
         />
       </div>
       {!collapsed && !iconOnly ? (

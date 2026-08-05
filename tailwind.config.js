@@ -64,7 +64,7 @@ export default {
       },
       width: {
         sidebar: '260px',
-        'home-rail': '272px',
+        'home-rail': '300px',
       },
       screens: {
         xs: '480px',

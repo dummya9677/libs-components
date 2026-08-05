@@ -21,8 +21,8 @@ export interface PromoGradientCardProps {
 }
 
 const cardHeights: Record<PromoGradientVariant, string> = {
-  sidebar: 'min-h-[140px]',
-  rail: 'min-h-[132px]',
+  sidebar: 'min-h-[160px]',
+  rail: 'min-h-[180px]',
 };
 
 const gradientStyle = {
@@ -136,7 +136,7 @@ function PromoArtwork({
     <img
       src={imageUrl}
       alt={imageAlt}
-      className="pointer-events-none absolute bottom-0 right-0 z-[1] h-[120px] w-auto object-contain object-bottom-right"
+      className="pointer-events-none absolute bottom-0 right-0 z-[1] h-[148px] w-auto max-w-[58%] object-contain object-bottom-right"
     />
   );
 }

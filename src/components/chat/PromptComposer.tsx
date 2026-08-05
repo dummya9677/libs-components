@@ -8,6 +8,7 @@ interface PromptComposerProps {
   placeholder?: string;
   onSend?: (value: string) => void;
   compact?: boolean;
+  size?: 'default' | 'large';
   className?: string;
   showSend?: boolean;
   gradientBorder?: boolean;
@@ -19,6 +20,7 @@ export function PromptComposer({
   placeholder = 'Type your message…',
   onSend,
   compact = false,
+  size = 'default',
   className,
   showSend = true,
   gradientBorder = true,
@@ -82,6 +84,8 @@ export function PromptComposer({
     toggleListening();
   };
 
+  const isLarge = size === 'large';
+
   return (
     <div className={className}>
       <form
@@ -91,7 +95,7 @@ export function PromptComposer({
         gradientBorder
           ? 'rounded-xl shadow-card'
           : 'rounded-lg border border-white/70 bg-white/80 backdrop-blur-sm',
-        compact ? 'p-2.5' : 'p-3',
+        compact ? 'p-2.5' : isLarge ? 'p-4 sm:p-5' : 'p-3',
       )}
     >
         {isListening ? (
@@ -126,12 +130,16 @@ export function PromptComposer({
             speechBaseRef.current = e.target.value.trim();
           }}
           onKeyDown={onKeyDown}
-          rows={2}
+          rows={isLarge ? 3 : 2}
           placeholder={placeholder}
           disabled={disabled}
           className={cn(
-            'w-full resize-none bg-transparent text-xs text-client-blue-helix-dark caret-client-cyan-helix-light placeholder:text-client-cyan-helix-light/55 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 sm:text-sm',
-            compact ? 'min-h-[40px]' : 'min-h-[48px]',
+            'w-full resize-none bg-transparent text-client-blue-helix-dark caret-client-cyan-helix-light placeholder:text-client-cyan-helix-light/55 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60',
+            compact
+              ? 'min-h-[40px] text-xs'
+              : isLarge
+                ? 'min-h-[88px] text-sm sm:min-h-[96px] sm:text-base'
+                : 'min-h-[48px] text-xs sm:text-sm',
           )}
         />
 

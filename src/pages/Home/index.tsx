@@ -114,12 +114,12 @@ export function HomePage() {
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <main className="min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3 scrollbar-thin sm:px-4 lg:px-5">
-          <section>
+          <section className="w-full">
             <div
-              className="rounded-xl p-2.5 shadow-card sm:p-3"
+              className="min-h-[280px] w-full rounded-2xl p-5 shadow-card sm:min-h-[320px] sm:p-6 lg:p-8"
               style={{ background: clientBrandCardGradient }}
             >
-                <p className="mb-1.5 text-left text-[11px] font-semibold sm:text-xs">
+                <p className="mb-3 text-left text-sm font-semibold sm:mb-4 sm:text-base">
                   <span className="text-client-cyan-helix-light">Ask anything.</span>{' '}
                   <span className="text-client-blue-helix-dark">
                     {env.appName} will handle the rest.
@@ -132,10 +132,11 @@ export function HomePage() {
                     setApplicationName(value);
                     if (value) setHomePromptError(null);
                   }}
-                  className="mb-2"
+                  className="mb-3 sm:mb-4"
                 />
                 {requiresApplicationSelection ? <ApplicationRequiredNotice /> : null}
                 <PromptComposer
+                  size="large"
                   placeholder={
                     requiresApplicationSelection
                       ? 'Select an application above to ask a question…'
@@ -150,13 +151,13 @@ export function HomePage() {
                     {homePromptError}
                   </p>
                 ) : null}
-                <div className="mt-2 flex flex-wrap justify-start gap-1">
+                <div className="mt-4 flex flex-wrap justify-start gap-2">
                 {suggestedQueries.map((query) => (
                   <button
                     key={query}
                     type="button"
                     onClick={() => openAgent(DEFAULT_AGENT_SLUG, query)}
-                    className="rounded-full border border-white/80 bg-white/70 px-2 py-0.5 text-[9px] font-medium text-client-blue-helix-dark transition hover:border-client-cyan-helix-light/40 hover:bg-white hover:text-client-cyan-helix-light sm:text-[10px]"
+                    className="rounded-full border border-white/80 bg-white/70 px-3 py-1.5 text-[11px] font-medium text-client-blue-helix-dark transition hover:border-client-cyan-helix-light/40 hover:bg-white hover:text-client-cyan-helix-light sm:px-3.5 sm:py-2 sm:text-xs"
                   >
                     {query}
                   </button>

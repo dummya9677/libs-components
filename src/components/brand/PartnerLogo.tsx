@@ -1,5 +1,5 @@
 import { cn } from '../../utils/cn';
-import partnerLogo from '../../assets/partnerlogo.png'; // Update the path if your assets folder is elsewhere
+import partnerLogo from '../../assets/partnerlogo.png';
 
 export function PartnerLogo({
   className,
@@ -10,7 +10,8 @@ export function PartnerLogo({
   return (
     <div
       className={cn(
-        'flex h-10 w-[90px] shrink-0 items-center justify-center',
+        'flex shrink-0 items-center justify-center',
+        'h-10 max-w-[120px]',
         className,
       )}
       title="Partner logo"
@@ -18,7 +19,7 @@ export function PartnerLogo({
       <img
         src={partnerLogo}
         alt="Partner logo"
-        className="h-full w-full object-contain object-left"
+        className="h-full w-auto max-w-full object-contain object-center"
       />
     </div>
   );
