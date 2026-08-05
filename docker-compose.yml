@@ -23,12 +23,19 @@ services:
     environment:
       SSL_HOST: ${SSL_HOST:-localhost}
       SSL_DAYS: ${SSL_DAYS:-365}
-      # Your deployed backend — nginx proxies https://host:8443/api/* here
-      BACKEND_API_URL: ${BACKEND_API_URL:-http://localhost:8000/api}
+      # Nginx proxies /api/* to backend service on shared Docker network
+      BACKEND_API_URL: ${BACKEND_API_URL:-http://backend:8000/api}
     volumes:
       # Persist cert across restarts (optional — dir created on first run)
       - ssl-certs:/etc/nginx/ssl
     restart: unless-stopped
+    networks:
+      - cortex-app-network
+
+networks:
+  cortex-app-network:
+    external: true
+    name: cortex-app-network
 
 volumes:
   ssl-certs:
