@@ -1,5 +1,6 @@
 import { cn } from '../../utils/cn';
 import partnerLogo from '../../assets/partnerlogo.png';
+import { SIDEBAR_LOGO_CLASS } from './logoSizes';
 
 export function PartnerLogo({
   className,
@@ -10,8 +11,8 @@ export function PartnerLogo({
   return (
     <div
       className={cn(
-        'flex shrink-0 items-center justify-center',
-        'h-10 max-w-[120px]',
+        'flex items-center justify-center',
+        SIDEBAR_LOGO_CLASS,
         className,
       )}
       title="Partner logo"

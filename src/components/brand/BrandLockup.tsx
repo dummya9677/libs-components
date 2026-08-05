@@ -1,9 +1,11 @@
 import { cn } from '../../utils/cn';
 import { AppLogo } from './AppLogo';
+import {
+  LOGIN_APP_LOGO_CLASS,
+  LOGIN_LOGO_CLASS,
+  LOGIN_PARTNER_LOGO_CLASS,
+} from './logoSizes';
 import { PartnerLogo } from './PartnerLogo';
-
-/** Shared max height for login logos — width scales from image aspect ratio. */
-const LOGIN_LOGO_HEIGHT = 'h-16';
 
 export function BrandLockup({
   collapsed = false,
@@ -18,22 +20,20 @@ export function BrandLockup({
     return (
       <div
         className={cn(
-          'mx-auto flex w-full max-w-lg items-center justify-center gap-6',
+          'mx-auto flex w-full max-w-xl items-center justify-center gap-8',
           className,
         )}
       >
-        <PartnerLogo
-          className={cn(LOGIN_LOGO_HEIGHT, 'max-w-[150px]')}
-        />
+        <PartnerLogo className={cn(LOGIN_LOGO_CLASS, LOGIN_PARTNER_LOGO_CLASS)} />
         <span
-          className={cn(LOGIN_LOGO_HEIGHT, 'w-px shrink-0 bg-app-border')}
+          className={cn(LOGIN_LOGO_CLASS, 'w-px bg-app-border')}
           aria-hidden
         />
         <AppLogo
           collapsed={collapsed}
           iconOnly
           variant="login"
-          className={cn(LOGIN_LOGO_HEIGHT, 'max-w-[200px]')}
+          className={cn(LOGIN_LOGO_CLASS, LOGIN_APP_LOGO_CLASS)}
         />
       </div>
     );
@@ -47,12 +47,7 @@ export function BrandLockup({
           <span className="h-10 w-px shrink-0 bg-app-border" aria-hidden />
         </>
       ) : null}
-      <AppLogo
-        collapsed={collapsed}
-        iconOnly
-        variant="sidebar"
-        className="min-w-0 flex-1"
-      />
+      <AppLogo collapsed={collapsed} iconOnly variant="sidebar" />
     </div>
   );
 }

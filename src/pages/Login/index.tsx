@@ -26,8 +26,8 @@ export function LoginPage() {
 
   return (
     <div className="flex h-full min-h-dvh items-center justify-center overflow-y-auto bg-app-bg p-4">
-      <div className="w-full max-w-lg rounded-2xl border border-app-border bg-surface p-8 shadow-card sm:p-10">
-        <BrandLockup variant="login" className="mb-6" />
+      <div className="w-full max-w-xl rounded-2xl border border-app-border bg-surface p-10 shadow-card sm:p-12">
+        <BrandLockup variant="login" className="mb-8" />
         <p className="text-sm text-ink-secondary">
           Sign in using {env.appName} SSO.
         </p>
