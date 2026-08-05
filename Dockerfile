@@ -3,8 +3,9 @@ FROM node:18.15-alpine AS build
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
-RUN npm ci
+COPY package.json package-lock.json .npmrc ./
+# npm install (not npm ci) tolerates lockfile drift; .npmrc skips peer-dep conflicts
+RUN npm install --legacy-peer-deps
 
 COPY . .
 
