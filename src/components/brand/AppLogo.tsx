@@ -1,6 +1,6 @@
 import { cn } from '../../utils/cn';
 import { env } from '../../utils/env';
-import { LOGIN_LOGO_CLASS, SIDEBAR_LOGO_CLASS } from './logoSizes';
+import { LOGIN_LOGO_CLASS, SIDEBAR_APP_LOGO_CLASS } from './logoSizes';
 
 export function AppLogo({
   collapsed = false,
@@ -19,7 +19,7 @@ export function AppLogo({
     <div
       className={cn(
         'leading-none',
-        isLogin ? LOGIN_LOGO_CLASS : SIDEBAR_LOGO_CLASS,
+        isLogin ? LOGIN_LOGO_CLASS : SIDEBAR_APP_LOGO_CLASS,
         className,
       )}
       aria-label={iconOnly ? env.appName : undefined}
