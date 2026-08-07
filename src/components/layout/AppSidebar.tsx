@@ -56,7 +56,7 @@ export function AppSidebar() {
         )}
       >
         <aside className="flex h-full w-full min-w-0 flex-col overflow-hidden border-r border-app-border bg-surface lg:border-r">
-          <div className="flex w-full shrink-0 items-center overflow-hidden border-b border-app-border/60 px-2 py-1.5">
+          <div className="flex w-full shrink-0 items-center overflow-hidden border-b border-app-border/60 px-2">
             <BrandLockup className="w-full min-w-0" />
           </div>
 
