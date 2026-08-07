@@ -15,6 +15,8 @@ interface ApplicationSelectProps {
   className?: string;
   disabled?: boolean;
   id?: string;
+  label?: string;
+  showLabel?: boolean;
   /** When set, only companies with this agent available are listed. */
   agentSlug?: string;
 }
@@ -25,6 +27,8 @@ export function ApplicationSelect({
   className,
   disabled = false,
   id = 'application-select',
+  label = 'Application',
+  showLabel = false,
   agentSlug,
 }: ApplicationSelectProps) {
   const { isAuthenticated } = useAuth();
@@ -49,8 +53,15 @@ export function ApplicationSelect({
 
   return (
     <div className={cn('min-w-0', className)}>
-      <label htmlFor={id} className="sr-only">
-        Application
+      <label
+        htmlFor={id}
+        className={cn(
+          showLabel
+            ? 'mb-1.5 block text-[11px] font-semibold uppercase tracking-wide text-ink-secondary'
+            : 'sr-only',
+        )}
+      >
+        {label}
       </label>
       <div className="relative">
         <select
@@ -59,7 +70,8 @@ export function ApplicationSelect({
           onChange={(event) => onChange(event.target.value)}
           disabled={disabled || isLoading || applications.length === 0}
           className={cn(
-            'w-full appearance-none truncate rounded-lg border border-app-border bg-surface py-2 pl-3 pr-8 text-xs font-medium text-ink shadow-card transition sm:text-sm',
+            'w-full appearance-none truncate rounded-lg border border-app-border bg-surface py-2.5 pl-3 pr-8 text-xs font-medium text-ink shadow-card transition sm:text-sm',
+            'h-10',
             'focus:border-client-cyan-helix-light focus:outline-none focus:ring-2 focus:ring-client-cyan-30/40',
             'disabled:cursor-not-allowed disabled:opacity-60',
           )}

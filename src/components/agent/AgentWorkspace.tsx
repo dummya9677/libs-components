@@ -12,7 +12,6 @@ import { CapabilityIcon } from '../icons/CapabilityIcon';
 import { FeatureCard } from './FeatureCard';
 import { ApplicationSelect } from '../application/ApplicationSelect';
 import { ApplicationRequiredNotice } from '../application/ApplicationRequiredNotice';
-import { PromptComposer } from '../chat/PromptComposer';
 import { cn } from '../../utils/cn';
 
 function HeroArt({
@@ -99,10 +98,7 @@ interface AgentWorkspaceProps {
   onPrompt?: (value: string) => void;
   applicationName: string;
   onApplicationChange: (value: string) => void;
-  requiresApplicationSelection?: boolean;
-  isAnalyzing?: boolean;
-  analyzeError?: string | null;
-  isThreadReady?: boolean;
+  selectedApplicationName?: string;
 }
 
 export function AgentWorkspace({
@@ -110,10 +106,7 @@ export function AgentWorkspace({
   onPrompt,
   applicationName,
   onApplicationChange,
-  requiresApplicationSelection = !applicationName,
-  isAnalyzing = false,
-  analyzeError = null,
-  isThreadReady = true,
+  selectedApplicationName,
 }: AgentWorkspaceProps) {
   const navigate = useNavigate();
   const theme = getAgentTheme(agent.colorKey);
@@ -127,7 +120,7 @@ export function AgentWorkspace({
           className="inline-flex items-center gap-1.5 text-xs font-medium text-brand transition hover:underline"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          Back to agents
+          Back to homepage
         </button>
 
         <section
@@ -170,39 +163,39 @@ export function AgentWorkspace({
           </div>
         </section>
 
-        <section className="mt-4 sm:mt-5">
-          <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-            <h3 className="text-xs font-semibold text-ink sm:text-sm">
-              {agent.inputLabel}
-            </h3>
-            <ApplicationSelect
-              id="workspace-application-select"
-              value={applicationName}
-              onChange={onApplicationChange}
-              disabled={isAnalyzing}
-              className="sm:max-w-xs"
-              agentSlug={agent.slug}
-            />
-          </div>
-          {requiresApplicationSelection ? <ApplicationRequiredNotice /> : null}
-          <PromptComposer
-            placeholder={
-              requiresApplicationSelection
-                ? 'Select an application above to ask a question…'
-                : agent.inputPlaceholder
-            }
-            onSend={onPrompt}
-            disabled={isAnalyzing || requiresApplicationSelection || !isThreadReady}
-            sendLabel="Analyze"
+        <section
+          aria-label="Application selection"
+          className="mt-3 rounded-xl border border-app-border bg-surface px-3.5 py-3.5 shadow-card sm:px-4 sm:py-4"
+        >
+          <h3 className="mb-3 text-xs font-semibold text-ink sm:text-sm">
+            Application
+          </h3>
+          <ApplicationSelect
+            id="workspace-application-select"
+            value={applicationName}
+            onChange={onApplicationChange}
+            className="w-full max-w-md"
+            agentSlug={agent.slug}
           />
-          {analyzeError ? (
-            <p className="mt-2 text-[11px] text-status-danger" role="alert">
-              {analyzeError}
-            </p>
-          ) : null}
+          <div className="mt-2.5">
+            {!applicationName ? (
+              <ApplicationRequiredNotice variant="plain" className="mb-0" />
+            ) : (
+              <p className="flex items-start gap-2 text-xs leading-snug text-ink-secondary sm:text-[13px]">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-status-success" />
+                <span>
+                  Working with{' '}
+                  <span className="font-semibold text-ink">
+                    {selectedApplicationName ?? applicationName}
+                  </span>
+                  . Use the chat panel or quick actions below.
+                </span>
+              </p>
+            )}
+          </div>
         </section>
 
-        <section className="mt-4 sm:mt-5">
+        <section className="mt-3 sm:mt-4">
           <h3 className="mb-2 text-xs font-semibold text-ink sm:text-sm">
             What can I help you with?
           </h3>
@@ -224,7 +217,7 @@ export function AgentWorkspace({
           </div>
         </section>
 
-        <section className="mt-4 sm:mt-5">
+        <section className="mt-3 sm:mt-4">
           <div className="mb-2 flex items-center justify-between gap-2">
             <h3 className="text-xs font-semibold text-ink sm:text-sm">
               Try these examples

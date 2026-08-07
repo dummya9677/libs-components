@@ -49,7 +49,7 @@ export function AgentComingSoon({
           className="mb-4 inline-flex items-center gap-1.5 self-start text-xs font-medium text-brand transition hover:underline sm:mb-6"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          Back to agents
+          Back to homepage
         </button>
 
         <div

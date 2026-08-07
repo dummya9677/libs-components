@@ -27,7 +27,7 @@ function AssistantPageContent({ agent }: { agent: AgentDefinition }) {
   const {
     applicationName,
     setApplicationName,
-    requiresApplicationSelection,
+    validApplication,
   } = useValidatedSelectedApplication(agent.slug);
   const firstName = user?.name?.split(' ')[0] ?? 'John';
   const initialPromptSent = useRef(false);
@@ -133,10 +133,7 @@ function AssistantPageContent({ agent }: { agent: AgentDefinition }) {
             onPrompt={sendMessage}
             applicationName={applicationName}
             onApplicationChange={setApplicationName}
-            requiresApplicationSelection={requiresApplicationSelection}
-            isAnalyzing={isStreaming || isCreatingThread}
-            isThreadReady={isThreadReady}
-            analyzeError={error}
+            selectedApplicationName={validApplication?.name}
           />
         </main>
 

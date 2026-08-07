@@ -40,11 +40,11 @@ export function BrandLockup({
   }
 
   return (
-    <div className={cn('flex min-w-0 items-center gap-2', className)}>
+    <div className={cn('flex min-w-0 items-center gap-2.5', className)}>
       {!collapsed ? (
         <>
           <PartnerLogo />
-          <span className="h-10 w-px shrink-0 bg-app-border" aria-hidden />
+          <span className="h-12 w-px shrink-0 bg-app-border" aria-hidden />
         </>
       ) : null}
       <AppLogo collapsed={collapsed} iconOnly variant="sidebar" />
