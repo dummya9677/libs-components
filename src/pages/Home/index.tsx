@@ -3,9 +3,10 @@ import {
   Menu,
   Rocket,
 } from 'lucide-react';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ApplicationHealthCard } from '../../components/home/ApplicationHealthCard';
+import { HomeInsightsCards } from '../../components/home/HomeInsightsCards';
 import { HowItWorksSection } from '../../components/home/HowItWorksSection';
 import { HomeRightRail } from '../../components/home/HomeRightRail';
 import { RecentInvestigationsCard } from '../../components/home/RecentInvestigationsCard';
@@ -36,14 +37,33 @@ function getGreeting() {
   return 'Good Evening';
 }
 
+interface HomeLocationState {
+  focusPrompt?: number;
+}
+
 export function HomePage() {
   const { user } = useAuth();
   const { toggleSidebar } = useLayout();
+  const location = useLocation();
   const { applicationName, setApplicationName, requiresApplicationSelection } =
     useValidatedSelectedApplication();
   const navigate = useNavigate();
   const [homePromptError, setHomePromptError] = useState<string | null>(null);
+  const promptRef = useRef<HTMLTextAreaElement>(null);
+  const promptSectionRef = useRef<HTMLElement>(null);
   const firstName = user?.name?.split(' ')[0] ?? 'John';
+
+  useEffect(() => {
+    const state = location.state as HomeLocationState | null;
+    if (!state?.focusPrompt) return;
+
+    promptSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.setTimeout(() => {
+      promptRef.current?.focus({ preventScroll: true });
+    }, 150);
+
+    navigate(location.pathname, { replace: true, state: null });
+  }, [location.pathname, location.state, navigate]);
 
   const openAgent = (slug: string, prompt?: string) => {
     const agent = agents.find((a) => a.slug === slug);
@@ -79,8 +99,8 @@ export function HomePage() {
           <TopStatusBar />
         </div>
 
-        <div className="mt-2 flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
-          <div className="min-w-0">
+        <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold sm:text-base">
               <span className="text-ink-secondary">Welcome to the </span>
               <span className="text-client-primary">{env.appName}</span>
@@ -89,7 +109,7 @@ export function HomePage() {
               The AI platform for intelligent application support.
             </p>
           </div>
-          <div className="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-thin lg:shrink-0">
+          <div className="-mx-3 flex gap-1.5 overflow-x-auto px-3 pb-0.5 scrollbar-thin sm:mx-0 sm:px-0 lg:shrink-0">
             {homeKpis.map((kpi) => (
               <div
                 key={kpi.label}
@@ -114,9 +134,9 @@ export function HomePage() {
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <main className="min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3 scrollbar-thin sm:px-4 lg:px-5">
-          <section className="w-full">
+          <section ref={promptSectionRef} className="w-full">
             <div
-              className="min-h-[280px] w-full rounded-2xl p-5 shadow-card sm:min-h-[320px] sm:p-6 lg:p-8"
+              className="w-full rounded-2xl p-4 shadow-card sm:min-h-[280px] sm:p-6 lg:min-h-[320px] lg:p-8"
               style={{ background: clientBrandCardGradient }}
             >
                 <p className="mb-3 text-left text-sm font-semibold sm:mb-4 sm:text-base">
@@ -136,6 +156,7 @@ export function HomePage() {
                 />
                 {requiresApplicationSelection ? <ApplicationRequiredNotice /> : null}
                 <PromptComposer
+                  ref={promptRef}
                   size="large"
                   placeholder={
                     requiresApplicationSelection
@@ -174,7 +195,7 @@ export function HomePage() {
               </span>
             </div>
             <div className="grid gap-2 lg:grid-cols-[1fr_108px]">
-              <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-1.5 min-[420px]:grid-cols-2 sm:grid-cols-3 xl:grid-cols-3">
                 {agents
                   .filter((agent) => agent.slug !== 'cost-intelligence')
                   .map((agent) => {
@@ -244,6 +265,10 @@ export function HomePage() {
                 </ul>
               </aside>
             </div>
+          </section>
+
+          <section className="mt-3 lg:hidden">
+            <HomeInsightsCards />
           </section>
 
           <HowItWorksSection />

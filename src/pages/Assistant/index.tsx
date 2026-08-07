@@ -126,7 +126,7 @@ function AssistantPageContent({ agent }: { agent: AgentDefinition }) {
         </div>
       </header>
 
-      <div className="relative flex min-h-0 w-full flex-1 overflow-hidden">
+      <div className="relative flex min-h-0 w-full flex-1 flex-nowrap overflow-hidden">
         <main className="relative z-0 flex min-h-0 min-w-0 flex-1 basis-0 flex-col overflow-hidden">
           <AgentWorkspace
             agent={agent}
@@ -148,8 +148,9 @@ function AssistantPageContent({ agent }: { agent: AgentDefinition }) {
               isResizing={isResizing}
               onResizeStart={startResize}
               className={cn(
-                'absolute inset-y-0 right-0 z-40 max-w-full shrink-0 border-l border-app-border shadow-panel',
-                'xl:static xl:shadow-none',
+                'z-40 shrink-0 border-l border-app-border shadow-panel',
+                'absolute inset-y-0 right-0',
+                'xl:static xl:inset-auto xl:right-auto xl:shadow-none',
                 isResizing && 'transition-none',
               )}
             >

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
+import { forwardRef, useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { Mic, SendHorizonal } from 'lucide-react';
 import { clientBrandCardGradient } from '../../config/clientColors';
 import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
@@ -16,7 +16,7 @@ interface PromptComposerProps {
   sendLabel?: string;
 }
 
-export function PromptComposer({
+export const PromptComposer = forwardRef<HTMLTextAreaElement, PromptComposerProps>(function PromptComposer({
   placeholder = 'Type your message…',
   onSend,
   compact = false,
@@ -26,7 +26,7 @@ export function PromptComposer({
   gradientBorder = true,
   disabled = false,
   sendLabel = 'Send',
-}: PromptComposerProps) {
+}, ref) {
   const [value, setValue] = useState('');
   const [speechError, setSpeechError] = useState<string | null>(null);
   const speechBaseRef = useRef('');
@@ -124,6 +124,7 @@ export function PromptComposer({
         ) : null}
 
         <textarea
+          ref={ref}
           value={value}
           onChange={(e) => {
             setValue(e.target.value);
@@ -191,4 +192,4 @@ export function PromptComposer({
       </form>
     </div>
   );
-}
+});

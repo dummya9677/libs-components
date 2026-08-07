@@ -120,7 +120,8 @@ export function HowItWorksSection() {
         </p>
       </div>
 
-      <div className="flex w-full items-stretch">
+      <div className="-mx-1 overflow-x-auto pb-1 scrollbar-thin sm:mx-0 sm:overflow-visible">
+        <div className="flex min-w-[720px] items-stretch px-1 sm:min-w-0 sm:w-full">
         {workflowSteps.map((step, index) => {
           const Icon = workflowIcons[step.icon];
           const theme = workflowThemeStyles[step.theme];
@@ -128,7 +129,7 @@ export function HowItWorksSection() {
           return (
             <div key={step.label} className="contents">
               <article
-                className="flex min-h-[92px] min-w-0 flex-1 flex-col items-center rounded-lg border border-app-border bg-surface p-1.5 text-center shadow-card sm:p-2"
+                className="flex min-h-[92px] w-[84px] shrink-0 flex-col items-center rounded-lg border border-app-border bg-surface p-1.5 text-center shadow-card sm:w-auto sm:min-w-0 sm:flex-1 sm:p-2"
                 style={{
                   background: `linear-gradient(155deg, ${theme.gradientFrom} 0%, #ffffff 70%)`,
                 }}
@@ -157,9 +158,10 @@ export function HowItWorksSection() {
             </div>
           );
         })}
+        </div>
       </div>
 
-      <div className="mt-3 flex items-center gap-2 sm:gap-3">
+      <div className="mt-3 flex flex-wrap items-center gap-2 sm:flex-nowrap sm:gap-3">
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
           <span className="text-[9px] font-medium text-client-cyan-helix-light sm:text-[10px]">
             Processing...

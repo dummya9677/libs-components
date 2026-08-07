@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import {
+  ChevronLeft,
   Home,
-  X,
 } from 'lucide-react';
 import { agents } from '../../data/agents';
 import { BrandLockup } from '../brand/BrandLockup';
@@ -30,6 +30,10 @@ export function AppSidebar() {
     closeSidebar();
   };
 
+  const startConversation = () => {
+    navigate('/', { state: { focusPrompt: Date.now() } });
+    closeSidebar();
+  };
   return (
     <>
       {/* Mobile backdrop */}
@@ -42,24 +46,19 @@ export function AppSidebar() {
         aria-hidden={!sidebarOpen}
       />
 
-      <aside
+      <div
         className={cn(
-          'flex h-full w-sidebar shrink-0 flex-col overflow-hidden border-r border-app-border bg-surface',
-          'fixed inset-y-0 left-0 z-[110] transition-transform duration-200 lg:static lg:translate-x-0',
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full',
+          'fixed inset-y-0 left-0 z-[110] w-sidebar shrink-0 overflow-visible transition-transform duration-200',
+          'lg:static',
+          sidebarOpen
+            ? 'translate-x-0'
+            : '-translate-x-full max-lg:pointer-events-none lg:translate-x-0',
         )}
       >
-        <div className="relative flex min-h-[4.5rem] shrink-0 items-center border-b border-app-border/60 px-3 py-2.5">
-          <button
-            type="button"
-            onClick={closeSidebar}
-            className="absolute right-2 top-2 z-10 rounded-lg p-1.5 text-ink-muted hover:bg-surface-muted lg:hidden"
-            aria-label="Close menu"
-          >
-            <X className="h-4 w-4" />
-          </button>
-          <BrandLockup className="min-w-0 flex-1" />
-        </div>
+        <aside className="flex h-full w-sidebar shrink-0 flex-col overflow-hidden border-r border-app-border bg-surface lg:border-r">
+          <div className="flex min-h-[4.5rem] shrink-0 items-center border-b border-app-border/60 px-3 py-2.5">
+            <BrandLockup className="min-w-0 flex-1" />
+          </div>
 
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain scrollbar-thin">
@@ -154,12 +153,27 @@ export function AppSidebar() {
               placeholderLabel="Add PNG to public/images/sidebar-assistant-promo.png"
               action={{
                 label: 'Start a conversation →',
-                onClick: () => go(`/assistant/${agents[0].slug}`),
+                onClick: startConversation,
               }}
             />
           </div>
         </div>
       </aside>
+
+        <button
+          type="button"
+          onClick={closeSidebar}
+          aria-label="Close menu"
+          className={cn(
+            'absolute right-0 top-4 z-20 flex h-9 w-5 translate-x-full items-center justify-center',
+            'border border-l-0 border-app-border bg-surface text-ink-secondary shadow-card',
+            'rounded-r-md transition hover:bg-surface-muted hover:text-ink lg:hidden',
+            !sidebarOpen && 'pointer-events-none opacity-0',
+          )}
+        >
+          <ChevronLeft className="h-3.5 w-3.5" strokeWidth={2.25} />
+        </button>
+      </div>
     </>
   );
 }
