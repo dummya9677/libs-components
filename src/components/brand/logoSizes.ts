@@ -1,8 +1,8 @@
-/** Sidebar lockup — partner logo box; width scales from aspect ratio. */
-export const SIDEBAR_LOGO_CLASS = 'h-12 max-w-[140px] shrink-0';
+/** Sidebar lockup — fits within 260px sidebar with partner + divider + app logo. */
+export const SIDEBAR_LOGO_CLASS = 'h-10 min-w-0 max-w-full';
 
-/** Sidebar app logo — slightly larger than partner for readability. */
-export const SIDEBAR_APP_LOGO_CLASS = 'h-14 max-w-[160px] shrink-0';
+/** Sidebar app logo — same height as partner for a balanced lockup. */
+export const SIDEBAR_APP_LOGO_CLASS = 'h-10 min-w-0 max-w-full';
 
 /** Login lockup — larger display size, still proportional via object-contain. */
 export const LOGIN_LOGO_CLASS = 'h-20 shrink-0';

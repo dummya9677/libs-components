@@ -24,11 +24,11 @@ export function AppLogo({
       )}
       aria-label={iconOnly ? env.appName : undefined}
     >
-      <div className="flex h-full w-auto items-center justify-center overflow-hidden">
+      <div className="flex h-full w-full min-w-0 items-center justify-center overflow-hidden">
         <img
           src="/assets/app-logo.png"
           alt={env.appName}
-          className="h-full w-auto max-w-full object-contain object-center"
+          className="h-full w-full max-w-full object-contain object-center"
         />
       </div>
       {!collapsed && !iconOnly ? (

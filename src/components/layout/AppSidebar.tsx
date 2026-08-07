@@ -48,16 +48,16 @@ export function AppSidebar() {
 
       <div
         className={cn(
-          'fixed inset-y-0 left-0 z-[110] w-sidebar shrink-0 overflow-visible transition-transform duration-200',
-          'lg:static',
+          'fixed inset-y-0 left-0 z-[110] h-full w-sidebar shrink-0 transition-transform duration-200',
+          'lg:static lg:z-20',
           sidebarOpen
             ? 'translate-x-0'
             : '-translate-x-full max-lg:pointer-events-none lg:translate-x-0',
         )}
       >
-        <aside className="flex h-full w-sidebar shrink-0 flex-col overflow-hidden border-r border-app-border bg-surface lg:border-r">
-          <div className="flex min-h-[4.5rem] shrink-0 items-center border-b border-app-border/60 px-3 py-2.5">
-            <BrandLockup className="min-w-0 flex-1" />
+        <aside className="flex h-full w-full min-w-0 flex-col overflow-hidden border-r border-app-border bg-surface lg:border-r">
+          <div className="flex w-full shrink-0 items-center overflow-hidden border-b border-app-border/60 px-3 py-3">
+            <BrandLockup className="w-full min-w-0" />
           </div>
 
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden">

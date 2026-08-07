@@ -20,7 +20,7 @@ export function PartnerLogo({
       <img
         src={partnerLogo}
         alt="Partner logo"
-        className="h-full w-auto max-w-full object-contain object-center"
+        className="h-full w-full max-w-full object-contain object-center"
       />
     </div>
   );
