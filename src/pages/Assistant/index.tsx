@@ -148,9 +148,8 @@ function AssistantPageContent({ agent }: { agent: AgentDefinition }) {
               isResizing={isResizing}
               onResizeStart={startResize}
               className={cn(
-                'z-40 shrink-0 border-l border-app-border shadow-panel',
-                'absolute inset-y-0 right-0',
-                'xl:static xl:inset-auto xl:right-auto xl:shadow-none',
+                'z-40 shrink-0 border-l border-app-border',
+                'max-xl:absolute max-xl:inset-y-0 max-xl:right-0 max-xl:shadow-panel',
                 isResizing && 'transition-none',
               )}
             >
